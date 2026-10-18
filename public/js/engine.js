@@ -49,11 +49,11 @@
   function ownerOf(state, minion) { return state.players[minion.owner]; }
   function opponentOf(state, player) { return state.players[1 - player.index]; }
   function boardCount(player) { return allMinions(player).length; }
-  function zoneHasSpace(player, zone) { return player.board[zone].length < 2; }
+  function zoneHasSpace(player, zone) { return player.board[zone].length < 3; }
   function openZones(player) { return ZONES.filter(z => zoneHasSpace(player, z)); }
 
-  function log(state, text, player, type) {
-    const entry = { turn: state.turnNumber, round: state.round, text: text, player: player == null ? null : player.index, type: type || "info" };
+  function log(state, text, player, type, cardId) {
+    const entry = { turn: state.turnNumber, round: state.round, text: text, player: player == null ? null : player.index, type: type || "info", cardId: cardId || null };
     state.log.push(entry);
     if (state.log.length > 260) state.log.splice(0, state.log.length - 260);
     state.events.push({ kind: type || "info", text: text, player: entry.player });
@@ -168,13 +168,14 @@
   }
 
   function formationBonus(player, zone) {
-    const out = { attack: 0, health: 0 };
+    const out = { attack: 0, health: 0, taunt: false };
     for (const f of player.formations || []) {
       if (f.zone !== zone) continue;
       const d = card(f.cardId);
       if (d && d.formation) {
         out.attack += d.formation.attack || 0;
         out.health += d.formation.health || 0;
+        out.taunt = out.taunt || !!d.formation.taunt;
       }
     }
     return out;
@@ -182,12 +183,16 @@
 
   function applyFormationToZone(state, player, zone) {
     const b = formationBonus(player, zone);
-    if (!b.attack && !b.health) return;
-    for (const m of aliveMinions(player).filter(x => x.zone === zone)) buffMinion(state, m, b.attack, b.health, "阵型", true);
+    if (!b.attack && !b.health && !b.taunt) return;
+    for (const m of aliveMinions(player).filter(x => x.zone === zone)) { buffMinion(state, m, b.attack, b.health, "阵型", true); if (b.taunt) grantTaunt(state, m); }
   }
 
   function summonMinion(state, player, cardId, zone, opts) {
     const def = card(cardId);
+    if (boardCount(player) >= 6) {
+      log(state, "随从区已满（全场最多 6 个），无法召唤 " + def.name + "。", player, "error");
+      return null;
+    }
     const z = zone || openZones(player)[0];
     if (!z || !zoneHasSpace(player, z)) {
       log(state, "阵位已满，无法召唤 " + def.name + "。", player, "error");
@@ -201,6 +206,7 @@
       m.health += fb.health;
       m.maxHealth += fb.health;
     }
+    if (fb.taunt) grantTaunt(state, m);
     log(state, player.name + " 召唤了 " + def.name + "（" + ZONE_NAMES[z] + "）。", player, "summon");
     state.stats.minionsSummoned++;
     if (m.taunt) {
@@ -406,7 +412,7 @@
                   log(state, m.name + " 回潮。", p, "reborn");
                 }
               }
-              if (p.heroId === "karna") healHero(state, p, 2);
+              if (p.heroId === "karna") healHero(state, p, 1);
               if (p.relic === "blood_scythe") healHero(state, p, 2);
             }
           }
@@ -580,7 +586,7 @@
       player.overload = (player.overload || 0) + def.overload;
       log(state, player.name + " 反噬 " + def.overload + "：下回合行动槽减少。", player, "overload");
     }
-    log(state, player.name + " 打出 " + def.name + "（" + cost + " 费）。", player, def.type === "spell" ? "spell" : "play");
+    log(state, player.name + " 打出 " + def.name + "（" + cost + " 费）。", player, def.type === "spell" ? "spell" : "play", def.id);
     if (def.type === "spell") {
       player.spellsCastThisTurn = (player.spellsCastThisTurn || 0) + 1;
       for (const m of aliveMinions(player)) {
@@ -615,6 +621,7 @@
       }
     } else if (def.type === "relic") {
       player.relic = def.id;
+      if (def.id === "wanderer_charm") { player.maxHp += 2; player.hp += 2; }
       log(state, player.name + " 装备遗物「" + def.name + "」。", player, "relic");
     } else if (def.type === "formation") {
       player.formations = player.formations || [];
@@ -949,6 +956,15 @@
       if (target && !target.dead) damageMinion(state, target, s.amount || 1, null, "战地检疫");
       opponentOf(state, player).healBlockTurn = true;
       log(state, opponentOf(state, player).name + " 本回合不能恢复生命。", player, "heal");
+    } else if (s.type === "freezeArmor") {
+      if (target) freezeMinion(state, target);
+      player.armor += s.armor || 1;
+      log(state, "凝固局势，并获得 " + (s.armor || 1) + " 点护甲。", player, "freeze");
+    } else if (s.type === "selfDamageDraw") {
+      damageHero(state, player, s.self || 1, null, "战争税");
+      drawCard(state, player, s.draw || 1);
+    } else if (s.type === "destroy") {
+      if (target && !target.dead) target.dead = true;
     } else if (s.type === "damage") {
       if (target && !target.dead) damageMinion(state, target, s.amount || 1, null, "法术");
     } else if (s.type === "freezeDraw") {
@@ -1059,9 +1075,12 @@
 
   function grantTaunt(state, m) {
     if (!m || m.dead) return;
+    const wasTaunt = m.taunt;
     m.taunt = true;
     if (!m.keywords.includes("taunt")) m.keywords.push("taunt");
-    log(state, m.name + " 获得拦截。", ownerOf(state, m), "taunt");
+    const owner = ownerOf(state, m);
+    if (!wasTaunt && owner.heroId === "wolfram" && !m.silenced) buffMinion(state, m, 0, 1, "铁壁纪律", true);
+    log(state, m.name + " 获得拦截。", owner, "taunt");
   }
 
   function openDiscover(state, player, pool, sourceCardId) {
@@ -1155,32 +1174,36 @@
     if (player.heroPowerUsed) return { ok: false, reason: "领袖技能本回合已用过" };
     if (player.mana < 2) return { ok: false, reason: "行动槽不足" };
     const heroTargetType = (player.heroId === "otto" || player.heroId === "marta") ? "enemy" : "friendly";
+    const canHitLeader = player.heroId === "otto";
     const targets = heroTargetType === "enemy"
       ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : aliveMinions(player);
-    if (!targets.length) return { ok: false, reason: heroTargetType === "enemy" ? "没有敌方随从可作为目标" : "没有友方随从可作为目标" };
+    const targetIds = targets.map(m => m.uid);
+    if (canHitLeader) targetIds.unshift("hero");
+    if (!targetIds.length) return { ok: false, reason: heroTargetType === "enemy" ? "没有敌方目标" : "没有友方随从可作为目标" };
     let target = null;
-    if (targetUid) target = targets.find(m => m.uid === targetUid);
-    if (!target) return { ok: false, reason: heroTargetType === "enemy" ? "请选择一个敌方随从" : "请选择一个友方随从", code: "target", targets: targets.map(m => m.uid) };
+    if (targetUid === "hero" && canHitLeader) target = "hero";
+    else if (targetUid) target = targets.find(m => m.uid === targetUid);
+    if (!target) return { ok: false, reason: heroTargetType === "enemy" ? "请选择一个敌方随从或领袖" : "请选择一个友方随从", code: "target", targets: targetIds };
     player.mana -= (player.hero.power.cost || 2);
     player.heroPowerUsed = true;
     log(state, player.name + " 使用领袖技能「" + player.hero.power.name + "」。", player, "heroPower");
     if (player.heroId === "lain") {
       const zoneMates = player.board[target.zone].filter(m => m.uid !== target.uid && !m.dead);
-      const attack = zoneMates.length ? 1 : 0;
-      const health = 1;
-      buffMinion(state, target, attack, health, "协调", true);
+      const buff = zoneMates.length ? 2 : 1;
+      buffMinion(state, target, buff, buff, "协调", true);
     } else if (player.heroId === "karna") {
       damageMinion(state, target, 1, null, "血祭");
       drawCard(state, player, 1);
       processDeaths(state);
     } else if (player.heroId === "marta") {
-      damageMinion(state, target, 3, null, "演算");
+      damageMinion(state, target, 2, null, "演算");
       processDeaths(state);
     } else if (player.heroId === "wolfram") {
       grantTaunt(state, target);
     } else if (player.heroId === "otto") {
-      damageMinion(state, target, 2, null, "炮击");
+      if (target === "hero") damageHero(state, opponentOf(state, player), 1, null, "炮击");
+      else damageMinion(state, target, 1, null, "炮击");
       processDeaths(state);
     }
     checkGameOver(state);
@@ -1202,15 +1225,17 @@
     player.mana = Math.max(0, player.maxMana - (player.overload || 0));
     player.overload = 0;
     if (player.heroId === "marta") player.spellCostReduction = 2;
-    if (player.heroId === "lain" && state.vein >= 10 && !player.lainArmorProc) { player.lainArmorProc = true; player.armor += 1; log(state, player.name + " 的地脉回响提供 1 点护甲。", player, "armor"); }
+    if (player.heroId === "lain" && state.vein >= 4) { player.armor += 1; log(state, player.name + " 的地脉回响提供 1 点护甲。", player, "armor"); }
     if (player.relic === "vein_heart" && state.vein >= 7 && !player.veinHeartProc) { player.veinHeartProc = true; player.armor += 1; log(state, player.name + " 的地脉之心提供 1 点护甲。", player, "armor"); }
             if (player.relic === "powder_engine" && opponentOf(state, player).armor === 0) damageHero(state, opponentOf(state, player), 1, null, "火药引擎", true);
         if (player.heroId === "otto") { player.ottoTurnCounter = (player.ottoTurnCounter || 0) + 1; if (player.ottoTurnCounter % 2 === 0) { player.armor += 1; log(state, player.name + " 的军工产线提供 1 点护甲。", player, "armor"); } }
             if (player.relic === "spell_codex" && !(player.heroId === "marta")) player.spellCostReduction = 1;
     for (const m of allMinions(player)) {
       if (m.passive && m.passive.type === "turnArmor" && !m.silenced) {
-        player.armor += m.passive.amount || 1;
-        log(state, m.name + " 的被动提供 " + (m.passive.amount || 1) + " 点护甲。", player, "armor");
+        const armorGain = m.passive.amount || 1;
+        player.armor += armorGain;
+        state.events.push({ kind: "armor", player: player.index, amount: armorGain, structured: true });
+        log(state, m.name + " 的被动提供 " + armorGain + " 点护甲。", player, "armor");
       }
       m.attacksLeft = m.windfury && !m.silenced ? 2 : 1;
       m.hasAttacked = false;
@@ -1296,9 +1321,11 @@
     const targets = targetType === "enemy"
       ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : aliveMinions(player);
+    const targetIds = targets.map(m => m.uid);
+    if (player.heroId === "otto") targetIds.unshift("hero");
     return {
-      ok: !player.heroPowerUsed && player.mana >= 2 && targets.length > 0,
-      targets: targets.map(m => m.uid),
+      ok: !player.heroPowerUsed && player.mana >= 2 && targetIds.length > 0,
+      targets: targetIds,
       targetType: targetType,
       cost: 2,
       used: player.heroPowerUsed

@@ -37,9 +37,9 @@
         name: "协调",
         cost: 2,
         target: "friendly",
-        text: "使一个友方随从获得 +0/+1；若它与另一个友方随从同阵位，改为 +1/+1。"
+        text: "使一个友方随从获得 +1/+1；若它与另一个友方随从同阵位，改为 +2/+2。"
       },
-      passive: { name: "地脉回响", text: "流脉达到 10 时获得 1 点护甲（每场一次）。" }
+      passive: { name: "地脉回响", text: "每个你的回合开始时，若流脉≥4，获得 1 点护甲。" }
     },
     marta: {
       id: "marta",
@@ -55,7 +55,7 @@
         name: "演算",
         cost: 2,
         target: "enemy",
-        text: "对一个敌方随从造成 3 点伤害。"
+        text: "对一个敌方随从造成 2 点伤害。"
       },
       passive: { name: "演算预载", text: "每回合第一张法术的行动槽消耗 -2。" }
     },
@@ -73,7 +73,7 @@
         name: "炮击",
         cost: 2,
         target: "enemy",
-        text: "对一个敌方随从造成 2 点伤害。"
+        text: "对一个敌方随从或敌方领袖造成 1 点伤害。"
       },
       passive: { name: "军工产线", text: "每两回合获得 1 点护甲。" }
     },
@@ -93,7 +93,7 @@
         target: "friendly",
         text: "使一个友方随从获得拦截。"
       },
-      passive: { name: "铁壁纪律", text: "你召唤的拦截随从获得 +0/+1。" }
+      passive: { name: "铁壁纪律", text: "当一个友方随从获得拦截时，它获得 +0/+1。" }
     },
     karna: {
       id: "karna",
@@ -111,7 +111,7 @@
         target: "friendly",
         text: "对一个友方随从造成 1 点伤害，抽 1 张牌。"
       },
-      passive: { name: "潮汐护体", text: "你的随从不能被凝滞；友方随从死亡时，你的领袖恢复 2 点生命。" }
+      passive: { name: "潮汐护体", text: "你的随从不能被凝滞；友方随从死亡时，你的领袖恢复 1 点生命。" }
     }
   };
 
@@ -827,7 +827,7 @@
     borrow_vein: {
       id: "borrow_vein", name: "借脉", faction: "academy", type: "spell",
       cost: 1, rarity: "rare", art: null, target: "none",
-      text: "本回合获得 2 行动槽；回合结束时流脉 +2。",
+      text: "本回合获得 2 行动槽；你的回合结束时流脉 +2。",
       flavor: "先借明天的蓝，再还昨天的债。",
       spell: { type: "borrowVein", mana: 2, debt: 2 }
     },
@@ -907,7 +907,7 @@
     spell_codex: {
       id: "spell_codex", name: "留存法典", faction: "academy", type: "relic",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "遗物：每回合第一张法术的行动槽消耗 -1。",
+      text: "遗物：每个你的回合第一张法术的行动槽消耗 -1。",
       flavor: "法术释放之后，公式会留在书页上。"
     },
     blood_scythe: {
@@ -925,7 +925,7 @@
     powder_engine: {
       id: "powder_engine", name: "火药引擎", faction: "empire", type: "relic",
       cost: 4, rarity: "epic", art: null, target: "none",
-      text: "遗物：回合开始时若敌方领袖没有护甲，造成 1 点伤害。",
+      text: "遗物：你的回合开始时若敌方领袖没有护甲，造成 1 点伤害。",
       flavor: "它不需要瞄准，只需要一直转。"
     },
     zone_keeper: {
@@ -1752,7 +1752,7 @@
   Object.assign(CARDS.hans, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：同阵位所有具有拦截的友方随从获得 +0/+1。", battlecry: { type: "buffTauntZone", health: 1 } });
   Object.assign(CARDS.klaus, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：场上每有一个铁甲步兵，获得 +2/+1。", battlecry: { type: "buffPerIronclad", attack: 2, health: 1 } });
   Object.assign(CARDS.ironclad, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：若同阵位有另一个铁甲步兵，获得 +0/+1。", battlecry: { type: "buffIfIronclad", health: 1 } });
-  Object.assign(CARDS.cassian, { text: "突进。每回合结束时，对自身造成 1 点伤害。", passive: { type: "endTurnSelfDamage", amount: 1 } });
+  Object.assign(CARDS.cassian, { text: "突进。你的回合结束时，对自身造成 1 点伤害。", passive: { type: "endTurnSelfDamage", amount: 1 } });
   Object.assign(CARDS.samuel, { text: "登场：抽 1 张法术牌。", battlecry: { type: "drawSpell" } });
   Object.assign(CARDS.lecturer, { text: "登场：若你的手牌数不少于 6，获得 +0/+2。", battlecry: { type: "handBuff", hand: 6, attack: 0, health: 2 } });
   Object.assign(CARDS.justus, { text: "登场：抽 1 张牌；若你的手牌数不超过 6，再抽 1 张牌。", battlecry: { type: "drawHandCondition", hand: 6, draw: 1 } });
@@ -1826,10 +1826,10 @@
   Object.assign(CARDS.lecturer, { keywords: ["deathrattle"], target: "none", battlecry: null, veinBonus: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.frost_leviathan, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "freezeAllEnemies" }, text: "余响：凝滞所有敌方随从。" });
   Object.assign(CARDS.drill_sergeant, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "tauntRandomAlly" }, text: "余响：使一个随机友方随从获得拦截。" });
-  Object.assign(CARDS.konrad, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "turnArmor", amount: 1 }, text: "拦截。被动：回合开始获得 1 点护甲。 引脉 4：获得 2 点护甲。" });
+  Object.assign(CARDS.konrad, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "turnArmor", amount: 1 }, text: "拦截。被动：你的回合开始时获得 1 点护甲。 引脉 4：获得 2 点护甲。" });
   Object.assign(CARDS.gunther, { keywords: ["taunt"], target: "none", battlecry: null, passive: null, attack: 4, health: 5, text: "拦截。 引脉 4：获得 2 点护甲。" });
   Object.assign(CARDS.powder_marshal, { keywords: [], target: "none", battlecry: null, passive: null, attack: 5, health: 5, text: "" });
-  Object.assign(CARDS.astral_colossus, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "turnArmor", amount: 1 }, text: "拦截。被动：回合开始获得 1 点护甲。 引脉 6：获得 2 点护甲。" });
+  Object.assign(CARDS.astral_colossus, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "turnArmor", amount: 1 }, text: "拦截。被动：你的回合开始时获得 1 点护甲。 引脉 6：获得 2 点护甲。" });
   Object.assign(CARDS.vein_scout, { keywords: ["battlecry", "charge"], target: "none", text: "突进。登场：流脉 +1。" });
   Object.assign(CARDS.powder_boy, { keywords: ["deathrattle", "charge"], target: "none", text: "突进。余响：获得 1 点护甲。" });
   // 第三轮登场压缩：移除低影响登场，保留卡牌定位。
@@ -2184,6 +2184,67 @@
   Object.assign(CARDS.blood_imp, { cost: 2 });
   Object.assign(CARDS.gok_digger, { veinBonus: { vein: 4, armor: 2 }, text: "采掘 1；引脉 4：获得 2 点护甲。" });
   Object.assign(CARDS.bard, { battlecry: { type: "discover", pool: "any" }, text: "登场：检索一张牌。" });
+
+  // ===== 阴卡与中立遗物/阵型 =====
+  Object.assign(CARDS, {
+    secret_police: {
+      id: "secret_police", name: "秘密警察", faction: "empire", type: "minion",
+      cost: 4, attack: 3, health: 3, rarity: "epic", art: null,
+      keywords: ["battlecry"], target: "enemy",
+      text: "登场：封缄一个敌方随从。",
+      flavor: "档案不会说话，但档案室会。",
+      battlecry: { type: "silence" }
+    },
+    war_tax: {
+      id: "war_tax", name: "战争税", faction: "empire", type: "spell",
+      cost: 2, rarity: "rare", art: null, target: "none",
+      text: "抽 2 张牌；你的领袖受到 1 点伤害。",
+      flavor: "税单比炮弹更早抵达前线。",
+      spell: { type: "selfDamageDraw", self: 1, draw: 2 }
+    },
+    emergency_bill: {
+      id: "emergency_bill", name: "紧急法案", faction: "republic", type: "spell",
+      cost: 2, rarity: "rare", art: null, target: "enemy",
+      text: "凝滞一个敌方随从；获得 1 点护甲。",
+      flavor: "程序走得慢，但冻结得很快。",
+      spell: { type: "freezeArmor", armor: 1 }
+    },
+    impeachment: {
+      id: "impeachment", name: "弹劾案", faction: "republic", type: "spell",
+      cost: 4, rarity: "epic", art: null, target: "enemy",
+      text: "消灭一个敌方随从。",
+      flavor: "投票通过的那一刻，席位已经空了。",
+      spell: { type: "destroy" }
+    },
+    wanderer_charm: {
+      id: "wanderer_charm", name: "旅者护符", faction: "neutral", type: "relic",
+      cost: 2, rarity: "rare", art: null,
+      text: "遗物：你的领袖生命上限 +2，并恢复 2 点生命。",
+      flavor: "它不指向家，只指向下一段路。"
+    },
+    wayfarer_camp: {
+      id: "wayfarer_camp", name: "旅者营地", faction: "neutral", type: "formation",
+      cost: 3, rarity: "rare", art: null,
+      text: "阵型：该线友方随从获得 +0/+1 和拦截。",
+      flavor: "篝火亮着，就还有人愿意守夜。",
+      formation: { attack: 0, health: 1, taunt: true }
+    },
+    wandering_merchant: {
+      id: "wandering_merchant", name: "流浪商人", faction: "neutral", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "common", art: null,
+      keywords: ["battlecry"], target: "none",
+      text: "登场：抽 1 张牌；若你的手牌不多于 4，再抽 1 张。",
+      flavor: "他不卖答案，只卖下一张地图。",
+      battlecry: { type: "drawHandCondition", hand: 4, draw: 1 }
+    },
+    neutral_wayfarer: {
+      id: "neutral_wayfarer", name: "无籍旅者", faction: "neutral", type: "minion",
+      cost: 3, attack: 3, health: 3, rarity: "common", art: null,
+      keywords: ["rush"], target: "none",
+      text: "袭扰。",
+      flavor: "没有旗帜的人，跑得最快。"
+    }
+  });
 
   const NEW_DECK_REPLACEMENTS = {
     academy: ["insight", "armor_break"],

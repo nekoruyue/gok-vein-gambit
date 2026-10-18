@@ -155,6 +155,7 @@
     fxOn: true,
     aiSpeed: "normal",
     aiDifficulty: "normal",
+    aiOpponent: null,
     screenShake: true,
     textLarge: false,
     bgDim: 0,
@@ -327,7 +328,9 @@
   function setupState() {
     app.mode = "ai";
     document.querySelectorAll("#setup-faction .faction-card").forEach((b) => { b.classList.toggle("active", b.dataset.faction === app.faction); b.style.setProperty("--emblem", "url('" + D.FACTIONS[b.dataset.faction].emblem + "')"); });
-    const other = D.nextFaction(app.faction);
+    const opponents = D.FACTION_IDS.filter((id) => id !== app.faction);
+    if (!app.aiOpponent || opponents.indexOf(app.aiOpponent) < 0) app.aiOpponent = opponents[Math.floor(Math.random() * opponents.length)];
+    const other = app.aiOpponent;
     $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30张带牌+1遗物 · 先手随机";
     const hero = D.HEROES[D.FACTIONS[app.faction].hero];
     const art = $("setup-hero-art");
@@ -401,7 +404,8 @@
     config = config || {};
     const mode = "ai";
     const faction = config.faction || app.faction;
-    const other = config.opponent || D.nextFaction(faction);
+    const other = config.opponent || app.aiOpponent || D.nextFaction(faction);
+    app.aiOpponent = null;
     const p1AI = false;
     const p2AI = true;
     app.tutorial = !!config.tutorial;
@@ -671,7 +675,7 @@
     }
     if (app.zoneSelect) {
       title.textContent = "选择阵位";
-      text.textContent = "左翼 / 中阵 / 右翼最多各站 2 个随从。把牌点进或拖进高亮阵位。";
+      text.textContent = "左翼 / 中阵 / 右翼最多各站 3 个随从，但全场最多 6 个。把牌点进或拖进高亮阵位。";
       return;
     }
     const own = s.players[app.viewer];
@@ -850,7 +854,7 @@
           onDropCardToZone(z);
         });
       }
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < 3; i++) {
         const slot = el("div", "zone-slot");
         slot.dataset.slot = String(i);
         zone.appendChild(slot);
@@ -1252,6 +1256,10 @@
         showFloatingNumber("-" + (ev.amount || 0), pt.x, pt.y, "damage");
         if (pt.node) { pt.node.classList.add("hit"); setTimeout(() => pt.node.classList.remove("hit"), 360); }
         if (pt.hero) shakeScreen();
+      } else if (ev.kind === "armor") {
+        if (!app.damageNumbers) continue;
+        const pt = eventPoint("hero:" + ev.player);
+        showFloatingNumber("+" + (ev.amount || 0) + " 护甲", pt.x, pt.y, "heal");
       } else if (ev.kind === "heal") {
         if (!app.damageNumbers) continue;
         const pt = eventPoint(ev.targetUid);
@@ -1347,7 +1355,7 @@
     "回潮": "死亡后以 1 点生命返回战场一次。",
     "反噬": "本牌使用后，下回合行动槽减少。",
     "顺势": "本回合打出过其他牌时触发强化效果。",
-    "阵位": "每个阵位最多容纳 2 个随从。卡牌可以要求同阵位、不同阵位，或指定某个阵位结算。",
+    "阵位": "每个阵位最多容纳 3 个随从，但全场最多 6 个。卡牌可以要求同阵位、不同阵位，或指定某个阵位结算。",
     "对位": "双方左/中/右同一列的阵位互相对位。",
     "借脉": "本回合先获得行动槽或牌，回合结束时补回流脉。",
     "逆流": "主动降低流脉，换取恢复或召唤。",
@@ -1681,7 +1689,7 @@
     const c = p.hand.find((x) => x.uid === app.draggingUid);
     if (!c) return false;
     const def = D.CARDS[c.cardId];
-    if (def.type === "minion") return p.board[zone].length < 2 && p.mana >= E.getCardCost(app.game, p, c);
+    if (def.type === "minion") return p.board[zone].length < 3 && p.mana >= E.getCardCost(app.game, p, c);
     if (def.type === "formation") return (p.formations || []).length < 2 && p.mana >= E.getCardCost(app.game, p, c);
     return true;
   }
@@ -1765,6 +1773,13 @@
       const row = el("div", "log-entry " + (entry.type || "") + (entry.hidden ? " hidden-info" : ""));
       row.appendChild(el("span", "log-round", "R" + entry.round));
       row.appendChild(document.createTextNode(entry.text));
+      const logDef = entry.cardId && D.CARDS[entry.cardId];
+      if (logDef) {
+        const info = el("button", "log-card-btn", "查看效果");
+        info.title = logDef.name + "：\n" + (logDef.text || "—");
+        info.onclick = (ev) => { ev.stopPropagation(); openCodexCard(logDef, "关闭"); };
+        row.appendChild(info);
+      }
       list.appendChild(row);
     }
     list.scrollTop = list.scrollHeight;
@@ -1841,9 +1856,10 @@
   function showPlayFeedback(def, point, sourceRect) {
     showPlayArc(def, sourceRect, point);
     const banner = el("div", "card-play-banner", typeLine(def) + " · " + def.name);
+    if (def.type === "spell" && def.text) banner.appendChild(el("div", "play-effect", def.text));
     document.body.appendChild(banner);
     requestAnimationFrame(() => banner.classList.add("show"));
-    setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 1050);
+    setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, def.type === "spell" ? 1900 : 1050);
     const ring = el("div", "cast-ring" + (def.type === "minion" ? " summon-ring" : ""));
     ring.style.left = point.x + "px";
     ring.style.top = point.y + "px";
@@ -3547,7 +3563,7 @@
       const sections = [
         ["胜利条件", "先把对方领袖生命降到 0。随从可以攻击敌方随从或领袖；拦截随从必须先被处理。"],
         ["牌组结构", "30 张带牌（含 0–2 张阵型）+ 1 件遗物 + 1 位领袖。领袖由阵营决定，不进入抽牌堆。"],
-        ["阵位", "左 / 中 / 右三线，每线最多 2 个随从。同阵位会触发协同；双方同一列互为对位。"],
+        ["阵位", "左 / 中 / 右三线，每线最多 3 个随从，但全场最多 6 个。同阵位会触发协同；双方同一列互为对位。"],
         ["流脉", "共享流脉 0→12。4 震荡、7 裂隙、10 魔物潮，12 回流清空。引脉是达到阈值后的额外效果。"],
         ["卡牌类型", "随从站场；战术一次性结算；阵型挂在某一线持续生效；遗物装备在领袖身上；领袖提供技能与被动。"]
       ];

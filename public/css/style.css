@@ -2666,3 +2666,10 @@ body.large-text .card-type { letter-spacing: 0; }
 
 .card-large-modal .preview-art { width:min(420px,100%); height:auto; aspect-ratio:3 / 4; background-position:top center; }
 @media (max-width:720px) { .card-large-modal .preview-art { width:100%; } }
+
+.zone-slot[data-slot="2"] { left: 50%; transform: translate(-50%, -50%); }
+@media (max-width: 720px) { .zone-slot[data-slot="2"] { display: none; } }
+
+.log-card-btn { margin-left:6px; padding:1px 5px; border:1px solid rgba(217,164,65,.35); background:transparent; color:var(--gold-soft); font:inherit; font-size:8px; cursor:pointer; vertical-align:middle; }
+.log-card-btn:hover { border-color:var(--gold); }
+.card-play-banner .play-effect { margin-top:5px; color:#b9c5cc; font-family:var(--sans); font-size:10px; line-height:1.5; max-width:270px; }

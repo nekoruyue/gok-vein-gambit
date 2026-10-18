@@ -214,8 +214,10 @@
     const allies = ownMinions(p);
     if (p.heroId === "otto") {
       const enemies = enemyMinions(state, p).filter(m => !m.stealth);
-      if (!enemies.length) return null;
-      const target = enemies.slice().sort((a, b) => (a.health <= 2 ? 0 : 1) - (b.health <= 2 ? 0 : 1) || minionValue(b) - minionValue(a))[0];
+      const canFace = o.targets.indexOf("hero") >= 0;
+      if (!enemies.length) return canFace ? { type: "heroPower", targetUid: "hero", score: 3.4 } : null;
+      const target = enemies.slice().sort((a, b) => (a.health <= 1 ? 0 : 1) - (b.health <= 1 ? 0 : 1) || minionValue(b) - minionValue(a))[0];
+      if (canFace && (enemyOf(state, p).hp <= 1 || target.health > 3)) return { type: "heroPower", targetUid: "hero", score: 3.3 };
       return { type: "heroPower", targetUid: target.uid, score: 3.8 };
     }
     if (p.heroId === "lain") {
@@ -230,7 +232,7 @@
     if (p.heroId === "marta") {
       const enemies = enemyMinions(state, p).filter(m => !m.stealth);
       if (!enemies.length) return null;
-      const target = enemies.slice().sort((a, b) => (a.health <= 1 ? 0 : 1) - (b.health <= 1 ? 0 : 1) || minionValue(b) - minionValue(a))[0];
+      const target = enemies.slice().sort((a, b) => (a.health <= 2 ? 0 : 1) - (b.health <= 2 ? 0 : 1) || minionValue(b) - minionValue(a))[0];
       return { type: "heroPower", targetUid: target.uid, score: 4.2 };
     }
     if (p.heroId === "wolfram") {
