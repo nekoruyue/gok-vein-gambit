@@ -82,7 +82,7 @@
   }
 
   function chooseZone(state, p, def, opt) {
-    if (def.type !== "minion") return null;
+    if (def.type !== "minion" && def.type !== "formation") return null;
     const zones = opt.zones || [];
     if (!zones.length) return null;
     // 普卫岛优先和已有角色的阵位同列，触发协同；其他阵营优先空列，减少被 AOE 一锅端
@@ -138,6 +138,11 @@
       case "channelVein": s += 2 + Math.abs(b.amount || 2) * 0.5; break;
       case "freezeDraw": s += (target ? 3 + target.attack * 0.7 : 2) + 2; break;
       case "freezeAll": s += 6 + enemyMinions(state, p).length * 1.5; break;
+      case "stripArmorDraw": s += 1 + Math.min(4, enemyOf(state, p).armor) * 0.8 + 1.5; break;
+      case "ignoreTauntBuff": s += 3.5 + (b.attack || 0); break;
+      case "armorConditionalRush": s += 2.5 + (b.armor || 4) * 0.35; break;
+      case "antiFreezeHeal": s += 2.5 + (b.heal || 2) * 0.5; break;
+      case "damageHealBlock": s += 2.5 + (b.amount || 1); break;
     }
     if (def.type === "minion") s += def.attack * 0.7 + def.health * 0.5;
     if (def.excavate) s -= 1.5;
@@ -155,7 +160,7 @@
       const target = chooseTarget(state, p, def, opt);
       if (opt.targetType && !target) continue;
       const zone = chooseZone(state, p, def, opt);
-      if (def.type === "minion" && !zone) continue;
+      if ((def.type === "minion" || def.type === "formation") && !zone) continue;
       const payBlood = shouldPayBlood(state, p, def);
       const score = effectScore(state, p, def, target, zone) - (def.cost || 0) * 0.1 + 2.5;
       if (score <= 1.5) continue;
@@ -223,7 +228,9 @@
       return { type: "heroPower", targetUid: target.uid, score: 3 };
     }
     if (p.heroId === "marta") {
-      const target = allies.slice().sort((a, b) => (b.attack + b.health) - (a.attack + a.health))[0];
+      const enemies = enemyMinions(state, p).filter(m => !m.stealth);
+      if (!enemies.length) return null;
+      const target = enemies.slice().sort((a, b) => (a.health <= 1 ? 0 : 1) - (b.health <= 1 ? 0 : 1) || minionValue(b) - minionValue(a))[0];
       return { type: "heroPower", targetUid: target.uid, score: 4.2 };
     }
     if (p.heroId === "wolfram") {
@@ -248,6 +255,7 @@
 
   function chooseAction(state, playerIndex) {
     if (state.status !== "playing") return { type: "end", reason: "gameover" };
+    if (state.aiDifficulty === "easy" && Math.random() < 0.22) return { type: "end", reason: "easy" };
     if (state.pendingChoice) {
       if (state.pendingChoice.type === "discover") return chooseDiscover(state);
       return { type: "end" };

@@ -30,7 +30,7 @@ const MAX_MESSAGES = 600;
 const rooms = new Map();
 
 function newRoom() {
-  return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, guestDecks: null, guestFaction: null, guestReady: false, createdAt: Date.now() };
+  return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, guestDecks: null, guestFaction: null, guestReady: false, ranked: false, createdAt: Date.now() };
 }
 
 function getRoom(id, create) {
@@ -134,6 +134,19 @@ const server = http.createServer(async (req, res) => {
       json(res, 200, { ok: true, code });
       return;
     }
+    if (p === "/api/room/mode" && req.method === "POST") {
+      const raw = await readBody(req);
+      let body = {};
+      try { body = JSON.parse(raw); } catch (e) { body = {}; }
+      const rrMode = roomFromRequest(u, false);
+      if (!rrMode) { json(res, 404, { ok: false, error: "房间不存在" }); return; }
+      rrMode.room.ranked = !!body.ranked;
+      rrMode.room.guestReady = false;
+      rrMode.room.seq = 0;
+      rrMode.room.messages.length = 0;
+      json(res, 200, { ok: true, ranked: rrMode.room.ranked });
+      return;
+    }
     const requestedRoom = u.searchParams.get("room") || "lan";
     const rr = roomFromRequest(u, requestedRoom === "lan");
     if (p.startsWith("/api/") && p !== "/api/room/create" && !rr) {
@@ -155,6 +168,7 @@ const server = http.createServer(async (req, res) => {
         guestDecks: room.guestDecks,
         guestFaction: room.guestFaction,
         guestReady: room.guestReady,
+        ranked: !!room.ranked,
         seq: room.seq
       });
       return;
