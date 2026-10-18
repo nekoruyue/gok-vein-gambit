@@ -2147,3 +2147,122 @@ body.freeze-flash .game-shell { animation: freezeFlash .36s ease; box-shadow: in
 .vein-pip.danger { box-shadow: 0 0 16px rgba(192,80,77,0.75); }
 .vein-thresholds { font-size: 10px; }
 .vein-thresholds span:last-child { color: var(--gold-soft); }
+
+/* ===== mobile portrait play ===== */
+@media (max-width: 720px) {
+  html, body { overscroll-behavior: none; }
+  #screen-game.active { overflow: hidden; }
+  .game-shell { grid-template-rows: 48px 1fr auto; height: 100dvh; }
+  .game-top { padding: 0 8px; gap: 6px; height: 48px; overflow: hidden; }
+  .game-top .btn { font-size: 9px; padding: 4px 6px; }
+  .game-mode { display: none; }
+  .turn-badge { font-size: 9px; padding: 4px 6px; white-space: nowrap; }
+  .log-mini { display: none; }
+  .game-top-actions { gap: 4px; }
+  .game-top-actions #btn-sound { display: none; }
+  .game-top-actions #btn-keywords { font-size: 8px; }
+  .battlefield { padding: 3px 6px; gap: 3px; justify-content: flex-start; overflow: hidden; }
+  .side { grid-template-columns: 1fr; gap: 2px; height: auto; flex-basis: auto; min-height: 0; }
+  .hero-panel { min-height: 54px; height: 54px; }
+  .hero-info { padding: 4px 8px; }
+  .hero-name { font-size: 11px; }
+  .hero-sub, .hero-deck, .hero-hp-track, .hero-meta-line, .hero-power-strip { display: none; }
+  .hero-vitals { margin-top: 2px; gap: 8px; }
+  .hero-hp-orb strong { font-size: 17px; }
+  .hero-hp-orb small { font-size: 8px; }
+  .hero-armor-orb strong { font-size: 12px; }
+  .hero-crest { width: 30px; height: 30px; right: 6px; top: 6px; opacity: 0.5; }
+  .board { gap: 3px; min-height: 102px; }
+  .zone { min-height: 102px; gap: 1px; }
+  .board-label { font-size: 7px; margin-bottom: 1px; }
+  .board-card { width: 64px; height: 92px; }
+  .board-card .card-art { inset: 0 0 32px 0; }
+  .board-card::after { inset: 0 0 32px 0; }
+  .board-card .card-name { bottom: 21px; font-size: 7px; left: 4px; right: 4px; }
+  .board-card .card-type { display: none; }
+  .board-card .card-cost { width: 17px; height: 17px; font-size: 9px; left: 3px; top: 3px; }
+  .board-card .card-type-badge { font-size: 6px; padding: 2px 3px; top: 3px; right: 3px; }
+  .board-card .card-stat { width: 18px; height: 18px; min-width: 18px; font-size: 8px; }
+  .board-card .card-stats { bottom: 2px; }
+  .board-card .card-tags { display: none; }
+  .attack-status { font-size: 6px; padding: 2px 3px; top: 2px; }
+  .zone-slot { width: 64px; height: 92px; }
+  .vein-row { grid-template-columns: 74px 1fr; gap: 5px; padding: 4px 6px; min-height: 40px; }
+  .vein-title strong { font-size: 12px; }
+  .vein-title .eyebrow { display: none; }
+  .vein-thresholds { display: none; }
+  .vein-pip { height: 8px; min-width: 3px; }
+  .vein-track { gap: 2px; }
+  .hand-zone { min-height: 198px; padding: 3px 6px calc(5px + env(safe-area-inset-bottom)); }
+  .hand-meta { min-height: 0; gap: 4px; }
+  .hand-meta-left { gap: 1px; }
+  .hero-power-dock .hero-power-btn { width: 176px; min-height: 26px; height: 26px; padding: 2px 5px; }
+  .hero-power-dock .hp-btn-icon { width: 18px; height: 18px; flex-basis: 18px; font-size: 7px; }
+  .hero-power-dock .hp-btn-copy strong { font-size: 7px; }
+  .hero-power-dock .hp-btn-copy small { display: none; }
+  .hero-power-dock .hp-btn-state { display: none; }
+  .mana-display { font-size: 9px; }
+  .mana-number { font-size: 11px; }
+  .mana-icon { width: 10px; height: 10px; }
+  .game-hint, .hint { display: none; }
+  .hand-row { grid-template-columns: minmax(0, 1fr) 88px; gap: 4px; align-items: end; }
+  .hand { min-height: 158px; padding: 20px 4px 16px; gap: 5px; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; }
+  .hand-card { width: 100px; height: 142px; flex: 0 0 100px; }
+  .hand-card .card-art { inset: 0 0 50px 0; }
+  .hand-card .card-name { bottom: 38px; font-size: 9px; left: 5px; right: 5px; }
+  .hand-card .card-type { bottom: 28px; font-size: 7px; left: 5px; }
+  .hand-card .card-text { display: none; }
+  .hand-card .card-tags { bottom: 50px; gap: 2px; }
+  .hand-card .card-tags span { font-size: 6px; padding: 2px 3px; }
+  .hand-card .card-stats { bottom: 2px; }
+  .hand-card .card-stat { width: 25px; height: 25px; min-width: 25px; font-size: 9px; }
+  .hand-card .card-stat::before { width: 14px; height: 14px; }
+  .hand-card .card-cost { width: 22px; height: 22px; font-size: 11px; }
+  .hand-card .card-type-badge { font-size: 7px; }
+  .turn-controls { width: 88px; }
+  .end-turn-btn { font-size: 10px; padding: 8px 4px; }
+  .card-preview { display: none !important; }
+  .log-panel { width: min(320px, 92vw); }
+  .mulligan-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .mulligan-modal { width: calc(100vw - 20px); }
+  .modal { max-height: 88dvh; overflow: auto; }
+  .keyword-glossary { grid-template-columns: 1fr; }
+  .game-top, .game-top * { touch-action: manipulation; }
+  .card, .zone, .btn { -webkit-tap-highlight-color: transparent; }
+}
+@media (max-width: 420px) {
+  .hand-card { width: 94px; flex-basis: 94px; height: 136px; }
+  .hand-card .card-art { inset: 0 0 48px 0; }
+  .hand-card .card-name { bottom: 36px; font-size: 8px; }
+  .hand-card .card-type { bottom: 27px; }
+  .board-card { width: 61px; height: 90px; }
+  .board-card .card-art { inset: 0 0 31px 0; }
+  .board-card .card-name { bottom: 20px; }
+  .hero-power-dock .hero-power-btn { width: 158px; }
+  .hand-row { grid-template-columns: minmax(0, 1fr) 82px; }
+  .turn-controls { width: 82px; }
+}
+
+.mobile-hint { display: none; }
+@media (max-width: 720px) {
+  .mobile-hint { display: block; padding: 2px 8px 0; color: #78929c; font-size: 8px; letter-spacing: .04em; }
+}
+
+.mobile-card-backdrop {
+  position: fixed; z-index: 140; inset: 0; background: rgba(2,6,10,0.72);
+  display: flex; align-items: flex-end; justify-content: center; padding: 10px;
+  backdrop-filter: blur(4px);
+}
+.mobile-card-sheet {
+  position: relative; width: min(420px, 100%); max-height: 82dvh; overflow: auto;
+  padding: 16px; border: 1px solid rgba(217,164,65,0.55);
+  background: linear-gradient(160deg, rgba(12,23,31,0.99), rgba(4,9,14,0.99));
+  box-shadow: 0 18px 55px rgba(0,0,0,0.7);
+}
+.mobile-card-sheet h3 { font-family: var(--serif); font-size: 22px; font-weight: 500; margin: 2px 0 5px; color: var(--ink); }
+.mobile-card-close { position: absolute; right: 8px; top: 6px; z-index: 3; border: 0; background: transparent; color: var(--dim); font-size: 26px; line-height: 1; }
+.mobile-preview-art { position: relative; height: 190px; margin: 10px 0; border: 1px solid var(--line-soft); background-size: cover; background-position: center 28%; overflow: hidden; }
+.mobile-preview-art .generated-art-img { width: 100%; height: 100%; object-fit: cover; object-position: center 28%; }
+.mobile-preview-text { color: #c1d0d7; font-size: 12px; line-height: 1.75; }
+.mobile-card-sheet .preview-keywords { margin: 6px 0; }
+.mobile-card-sheet .preview-flavor { margin-top: 8px; }

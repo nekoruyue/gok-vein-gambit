@@ -883,6 +883,7 @@
     card.onmouseleave = hidePreview;
     card.onclick = (ev) => {
       ev.stopPropagation();
+      if (app.suppressClick && Date.now() < app.suppressClick) return;
       if (targetList().indexOf(m.uid) >= 0) { onTargetClick(m.uid); return; }
       if (app.zoneSelect) return;
       if (ownerIndex === app.viewer && app.game.current === app.viewer && app.game.status === "playing") {
@@ -948,6 +949,7 @@
       card.classList.remove("drop-hover");
       dropOnMinion(ev, m.uid);
     });
+    attachMobilePreview(card, def, m);
     return card;
   }
 
@@ -1363,6 +1365,7 @@
       stats.appendChild(handHp);
     }
     if (stats.childElementCount) card.appendChild(stats);
+    attachMobilePreview(card, def, null);
     card.onmouseenter = () => showPreview(def, null);
     card.onmouseleave = hidePreview;
     if (playable) {
@@ -2204,6 +2207,63 @@
   }
 
   /* ===== preview ===== */
+  function showMobileCard(def, minion) {
+    const old = document.getElementById("mobile-card-sheet");
+    if (old) old.remove();
+    const bg = el("div", "mobile-card-backdrop");
+    bg.id = "mobile-card-sheet";
+    const sheet = el("div", "mobile-card-sheet");
+    bg.appendChild(sheet);
+    const close = el("button", "mobile-card-close", "×");
+    close.onclick = () => bg.remove();
+    sheet.appendChild(close);
+    bg.onclick = (ev) => { if (ev.target === bg) bg.remove(); };
+    sheet.appendChild(el("div", "eyebrow", "CARD / DETAILS"));
+    sheet.appendChild(el("h3", null, def.name));
+    sheet.appendChild(el("div", "preview-meta", (def.type === "spell" ? "法术" : "随从") + " · " + def.cost + " 费" + (def.type === "minion" ? " · 攻 " + (minion ? minion.attack : def.attack) + " / 血 " + (minion ? minion.health : def.health) : "")));
+    const art = el("div", "mobile-preview-art");
+    if (def.art) art.style.backgroundImage = "url('" + portraitImage(def.art) + "')";
+    else {
+      art.classList.add("placeholder", "generic-art");
+      art.style.backgroundImage = genericArtStyle(def);
+      art.dataset.icon = def.type === "spell" ? "术" : factionIcon(def.faction);
+      addGenericGlyph(art, def);
+      addGeneratedArt(art, def);
+    }
+    sheet.appendChild(art);
+    addKeywordChips(sheet, def, minion);
+    const text = el("p", "mobile-preview-text");
+    appendKeywordText(text, def.text || "—");
+    sheet.appendChild(text);
+    if (def.flavor) sheet.appendChild(el("div", "preview-flavor", "“" + def.flavor + "”"));
+    document.body.appendChild(bg);
+  }
+
+  function attachMobilePreview(card, def, minion) {
+    let timer = null;
+    let start = null;
+    let fired = false;
+    const clear = () => { if (timer) { clearTimeout(timer); timer = null; } };
+    card.addEventListener("pointerdown", (ev) => {
+      if (ev.pointerType === "mouse" || ev.button !== 0) return;
+      fired = false;
+      start = { x: ev.clientX, y: ev.clientY };
+      timer = setTimeout(() => {
+        fired = true;
+        app.suppressClick = Date.now() + 700;
+        showMobileCard(def, minion);
+        if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+      }, 480);
+    });
+    card.addEventListener("pointermove", (ev) => {
+      if (!start) return;
+      if (Math.abs(ev.clientX - start.x) > 12 || Math.abs(ev.clientY - start.y) > 12) clear();
+    });
+    card.addEventListener("pointerup", () => { start = null; clear(); });
+    card.addEventListener("pointercancel", () => { start = null; clear(); });
+    card.addEventListener("pointerleave", () => { start = null; clear(); });
+  }
+
   function showPreview(def, minion) {
     const box = $("card-preview");
     if (!box) return;
