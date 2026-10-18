@@ -2146,6 +2146,45 @@
   Object.assign(CARDS.fog_sailor, { text: "阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.gok_digger, { text: "采掘 1；引脉 4：获得 1 点护甲。" });
 
+  // ===== 终版卡面文字与同质卡修正 =====
+  // 恢复关键词随从的卡面说明，避免看起来像“效果被删除了”。
+  Object.assign(CARDS.vein_warden, { text: "拦截。" });
+  Object.assign(CARDS.mist_hound, { text: "突进。" });
+  Object.assign(CARDS.archive_guard, { text: "拦截。" });
+  Object.assign(CARDS.vein_bulwark, { text: "汲取。" });
+  Object.assign(CARDS.aegis_guard, { text: "护幕。拦截。" });
+  Object.assign(CARDS.wind_cannon, { text: "连动。" });
+  Object.assign(CARDS.venom_fang, { text: "蚀毒。" });
+  Object.assign(CARDS.rebirth_serpent, { text: "回潮。" });
+  Object.assign(CARDS.rush_lancer, { text: "袭扰。" });
+  Object.assign(CARDS.vein_scout, { text: "突进。" });
+  Object.assign(CARDS.shield_recruit, { text: "拦截。" });
+  Object.assign(CARDS.iron_phalanx, { text: "拦截。" });
+  Object.assign(CARDS.siphon_guard, { text: "拦截。" });
+  Object.assign(CARDS.vein_sentinel, { text: "拦截。" });
+  // 帝国 5 费：攻城队长与火药元帅不再同效果、同定位。
+  Object.assign(CARDS.siege_captain, { cost: 5, attack: 4, health: 5, keywords: ["battlecry"], target: "none", battlecry: { type: "damageAllEnemies", amount: 1 }, passive: null, text: "登场：对所有敌方随从造成 1 点伤害。" });
+  Object.assign(CARDS.powder_marshal, { cost: 5, attack: 5, health: 4, keywords: ["battlecry"], target: "none", battlecry: { type: "armor", amount: 2 }, passive: null, text: "登场：获得 2 点护甲。" });
+  // 中立 2 费抽牌/采掘不再同模板。
+  Object.assign(CARDS.recon, { cost: 1, spell: { type: "draw", amount: 1 }, excavate: 1, text: "抽 1 张牌；采掘 1。" });
+  Object.assign(CARDS.old_ledger, { cost: 3, spell: { type: "draw", amount: 2 }, excavate: null, text: "抽 2 张牌。" });
+  Object.assign(CARDS.vein_prospect, { cost: 3, spell: { type: "draw", amount: 1 }, excavate: 2, text: "抽 1 张牌；采掘 2。" });
+  // 中立 2 费凝滞/余响不再完全同效果。
+  Object.assign(CARDS.smoke_screen, { cost: 3, text: "凝滞一个敌方随从；抽 1 张牌。" });
+  Object.assign(CARDS.sim_assistant, { cost: 3, attack: 2, health: 2, text: "余响：抽 1 张牌。" });
+  Object.assign(CARDS.vein_medic, { deathrattle: { type: "healHero", amount: 3 }, text: "余响：恢复你的领袖 3 点生命。" });
+  // 共和国拦截光环按费用分级，不再三个费用完全同效果。
+  Object.assign(CARDS.bastion_captain, { passive: { type: "tauntAura", amount: 2 }, text: "被动：你召唤的拦截随从获得 +0/+2。" });
+  Object.assign(CARDS.shield_marshal, { passive: { type: "tauntAura", amount: 3 }, text: "拦截。被动：你召唤的拦截随从获得 +0/+3。" });
+
+  // 避免严格同效果/同位卡：低费阵位与共和光环各走不同方向。
+  Object.assign(CARDS.fog_sailor, { zoneBonus: { attack: 1 }, text: "阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.phalanx_warden, { battlecry: { type: "buffAllTaunt", health: 2 }, text: "拦截。登场：所有友方拦截随从获得 +0/+2。" });
+
+  Object.assign(CARDS.blood_imp, { cost: 2 });
+  Object.assign(CARDS.gok_digger, { veinBonus: { vein: 4, armor: 2 }, text: "采掘 1；引脉 4：获得 2 点护甲。" });
+  Object.assign(CARDS.bard, { battlecry: { type: "discover", pool: "any" }, text: "登场：检索一张牌。" });
+
   const NEW_DECK_REPLACEMENTS = {
     academy: ["insight", "armor_break"],
     xizhao: ["shadow_raid", "blood_path"],
