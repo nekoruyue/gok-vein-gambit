@@ -85,7 +85,7 @@
     if (def.type !== "minion" && def.type !== "formation") return null;
     const zones = opt.zones || [];
     if (!zones.length) return null;
-    // 普卫岛优先和已有角色的阵位同列，触发协同；其他阵营优先空列，减少被 AOE 一锅端
+    // 普卫岛优先和已有随从的阵位同列，触发协同；其他阵营优先空列，减少被 AOE 一锅端
     const score = (z) => {
       const n = p.board[z].length;
       if (p.faction === "pus") return (n === 1 ? 10 : 0) + (z === "center" ? 1 : 0);

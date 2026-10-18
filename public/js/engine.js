@@ -211,7 +211,7 @@
         }
       }
     }
-    // 测试版平衡：移除普卫岛全员免费协同，位置协同只由英雄技能与「协同调度」提供。
+    // 测试版平衡：移除普卫岛全员免费协同，位置协同只由领袖技能与「协同调度」提供。
     return m;
   }
 
@@ -378,7 +378,7 @@
       log(state, player.name + " 将 " + m.name + " 撤退至弃牌堆。", player, "retreat");
       return { ok: true };
     }
-    return { ok: false, reason: "该角色不在场上。" };
+    return { ok: false, reason: "该随从不在场上。" };
   }
 
   function processDeaths(state) {
@@ -435,7 +435,7 @@
       drawCard(state, player, d.amount || 1);
     } else if (d.type === "freezeAllEnemies") {
       for (const enemy of aliveMinions(opponentOf(state, player)).filter(x => !x.stealth)) freezeMinion(state, enemy);
-      log(state, "余响：" + m.name + " 凝滞了所有敌方角色。", player, "freeze");
+      log(state, "余响：" + m.name + " 凝滞了所有敌方随从。", player, "freeze");
     } else if (d.type === "tauntRandomAlly") {
       const allies = aliveMinions(player);
       if (allies.length) {
@@ -467,7 +467,7 @@
     if (a.hp <= 0 && b.hp <= 0) {
       state.status = "gameover";
       state.winner = null;
-      log(state, "双方英雄同时倒下。推演以平局结束。", null, "gameover");
+      log(state, "双方领袖同时倒下。推演以平局结束。", null, "gameover");
       state.stats.result = "draw";
     } else if (a.hp <= 0) {
       state.status = "gameover";
@@ -506,16 +506,16 @@
   function triggerVeinThreshold(state, t) {
     state.stats.thresholds[t] = (state.stats.thresholds[t] || 0) + 1;
     if (t === 4) {
-      log(state, "【流脉震荡】流脉达到 4，所有角色受到 1 点伤害。", null, "veinEvent");
+      log(state, "【流脉震荡】流脉达到 4，所有随从受到 1 点伤害。", null, "veinEvent");
       for (const p of state.players) for (const z of ZONES) for (const m of p.board[z].slice()) damageMinion(state, m, 1, null, "流脉震荡");
       processDeaths(state);
     } else if (t === 7) {
-      log(state, "【流脉裂隙】流脉达到 7，双方英雄受到 2 点伤害。", null, "veinEvent");
+      log(state, "【流脉裂隙】流脉达到 7，双方领袖受到 2 点伤害。", null, "veinEvent");
       damageHero(state, state.players[0], 2, null, "流脉裂隙", true);
       damageHero(state, state.players[1], 2, null, "流脉裂隙", true);
       checkGameOver(state);
     } else if (t === 10) {
-      log(state, "【魔物潮】流脉达到 10，所有角色受到 3 点伤害，双方英雄受到 5 点伤害。", null, "veinEvent");
+      log(state, "【魔物潮】流脉达到 10，所有随从受到 3 点伤害，双方领袖受到 5 点伤害。", null, "veinEvent");
       for (const p of state.players) for (const z of ZONES) for (const m of p.board[z].slice()) damageMinion(state, m, 3, null, "魔物潮");
       processDeaths(state);
       damageHero(state, state.players[0], 5, null, "魔物潮", true);
@@ -536,7 +536,7 @@
     const def = card(handCard.cardId);
     const cost = getCardCost(state, player, handCard);
     if (player.mana < cost) return { ok: false, reason: "行动槽不足", code: "mana" };
-    if (def.type === "minion" && boardCount(player) >= 6) return { ok: false, reason: "角色区已满", code: "boardFull" };
+    if (def.type === "minion" && boardCount(player) >= 6) return { ok: false, reason: "随从区已满", code: "boardFull" };
     const targetType = getTargetType(state, def);
     const target = opts && opts.targetUid ? findMinion(state, opts.targetUid) : null;
     if (targetType) {
@@ -600,8 +600,8 @@
         player.mana += cost;
         player.hand.push(handCard);
         if (def.bloodCost != null && opts && opts.payBlood) player.hp += def.bloodCost;
-        log(state, "召唤失败，费用已返还。", player, "error");
-        return { ok: false, reason: "召唤失败，费用已返还" };
+        log(state, "召唤失败，行动槽已返还。", player, "error");
+        return { ok: false, reason: "召唤失败，行动槽已返还" };
       }
       if (def.excavate) addVein(state, def.excavate, "采掘");
       if (state.status === "playing") {
@@ -685,7 +685,7 @@
       if (state.vein >= (b.vein == null ? 5 : b.vein)) buffMinion(state, minion, 0, b.health || 2, "引脉", true);
     } else if (b.type === "nextCost") {
       player.nextCostReduction = (player.nextCostReduction || 0) + b.amount;
-      log(state, player.name + " 本回合下一张牌费用减少 " + b.amount + "。", player, "buff");
+      log(state, player.name + " 本回合下一张牌行动槽消耗减少 " + b.amount + "。", player, "buff");
     } else if (b.type === "drawVein") {
       drawCard(state, player, b.amount || 1);
       if (state.vein >= b.vein) drawCard(state, player, b.bonus || 1);
@@ -693,7 +693,7 @@
       const all = b.allAtVein != null && state.vein >= b.allAtVein;
       if (all) {
         for (const m of aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)) freezeMinion(state, m);
-        log(state, "引脉触发：" + (b.allAtVein) + "，凝滞所有敌方角色。", player, "freeze");
+        log(state, "引脉触发：" + (b.allAtVein) + "，凝滞所有敌方随从。", player, "freeze");
       } else if (target && !target.dead) {
         freezeMinion(state, target);
       }
@@ -797,7 +797,7 @@
       if (b.vein) addVein(state, b.vein, minion.name);
     } else if (b.type === "discountSpell") {
       player.spellCostReduction = (player.spellCostReduction || 0) + (b.amount || 1);
-      log(state, "本回合下一张法术费用 -" + (b.amount || 1) + "。", player, "discount");
+      log(state, "本回合下一张法术行动槽消耗 -" + (b.amount || 1) + "。", player, "discount");
     } else if (b.type === "armorDamage") {
       if (target && !target.dead) damageMinion(state, target, Math.max(0, player.armor || 0), minion, "炮击");
     } else if (b.type === "devour") {
@@ -944,7 +944,7 @@
     } else if (s.type === "antiFreezeHeal") {
       healHero(state, player, s.heal || 2);
       player.freezeImmuneTurn = true;
-      log(state, "你的角色本回合不能被凝滞。", player, "freeze");
+      log(state, "你的随从本回合不能被凝滞。", player, "freeze");
     } else if (s.type === "damageHealBlock") {
       if (target && !target.dead) damageMinion(state, target, s.amount || 1, null, "战地检疫");
       opponentOf(state, player).healBlockTurn = true;
@@ -956,7 +956,7 @@
       drawCard(state, player, s.draw || 1);
     } else if (s.type === "freezeAll") {
       for (const m of aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)) freezeMinion(state, m);
-      log(state, "所有敌方角色被封印。", player, "freeze");
+      log(state, "所有敌方随从被封印。", player, "freeze");
     } else if (s.type === "discover") {
       openDiscover(state, player, s.pool || "any", def.id);
     } else if (s.type === "drawVein") {
@@ -978,7 +978,7 @@
         }
         damageHero(state, p, s.amount || 5, null, "终末钟声", true);
       }
-      log(state, "终末钟声：对所有角色造成 " + (s.amount || 5) + " 点伤害。", player, "spell");
+      log(state, "终末钟声：对所有随从造成 " + (s.amount || 5) + " 点伤害。", player, "spell");
     } else if (s.type === "returnAllEnemies") {
       const enemies = aliveMinions(opponentOf(state, player)).slice();
       for (const m of enemies) returnMinionToHand(state, m);
@@ -1044,7 +1044,7 @@
       const count = Math.max(1, player.spellsCastThisTurn || 1);
       const dmg = count * (s.amount || 2);
       damageHero(state, opponentOf(state, player), dmg, null, "法术风暴", true);
-      log(state, "法术风暴：本回合第 " + count + " 张法术，对敌方英雄造成 " + dmg + " 点伤害。", player, "spell");
+      log(state, "法术风暴：本回合第 " + count + " 张法术，对敌方领袖造成 " + dmg + " 点伤害。", player, "spell");
     }
   }
 
@@ -1118,8 +1118,8 @@
     const player = state.players[playerIndex];
     const attacker = allMinions(player).find(m => m.uid === attackerUid);
     if (!attacker) return { ok: false, reason: "找不到攻击者" };
-    if (attacker.attacksLeft <= 0) return { ok: false, reason: "该角色本回合已经攻击过" };
-    if (attacker.frozenTurns > 0) return { ok: false, reason: "该角色被凝滞" };
+    if (attacker.attacksLeft <= 0) return { ok: false, reason: "该随从本回合已经攻击过" };
+    if (attacker.frozenTurns > 0) return { ok: false, reason: "该随从被凝滞" };
     const opts = getAttackOptions(state, playerIndex, attackerUid);
     const legalTarget = targetUid === "hero" ? opts.targets.indexOf("hero") >= 0 : opts.targets.indexOf(targetUid) >= 0;
     if (!opts.ok || !legalTarget) {
@@ -1130,8 +1130,8 @@
     attacker.hasAttacked = true;
     attacker.stealth = false;
     if (targetUid === "hero") {
-      log(state, attacker.name + " 攻击 " + enemy.name + " 的英雄。", player, "attack");
-      damageHero(state, enemy, attacker.attack, attacker, "角色攻击");
+      log(state, attacker.name + " 攻击 " + enemy.name + " 的领袖。", player, "attack");
+      damageHero(state, enemy, attacker.attack, attacker, "随从攻击");
       processDeaths(state);
       return { ok: true };
     }
@@ -1152,19 +1152,19 @@
     if (state.mulliganPhase) return { ok: false, reason: "请先完成起手调度" };
     if (state.current !== playerIndex) return { ok: false, reason: "还没轮到你" };
     const player = state.players[playerIndex];
-    if (player.heroPowerUsed) return { ok: false, reason: "英雄技能本回合已用过" };
+    if (player.heroPowerUsed) return { ok: false, reason: "领袖技能本回合已用过" };
     if (player.mana < 2) return { ok: false, reason: "行动槽不足" };
     const heroTargetType = (player.heroId === "otto" || player.heroId === "marta") ? "enemy" : "friendly";
     const targets = heroTargetType === "enemy"
       ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : aliveMinions(player);
-    if (!targets.length) return { ok: false, reason: heroTargetType === "enemy" ? "没有敌方角色可作为目标" : "没有友方角色可作为目标" };
+    if (!targets.length) return { ok: false, reason: heroTargetType === "enemy" ? "没有敌方随从可作为目标" : "没有友方随从可作为目标" };
     let target = null;
     if (targetUid) target = targets.find(m => m.uid === targetUid);
-    if (!target) return { ok: false, reason: heroTargetType === "enemy" ? "请选择一个敌方角色" : "请选择一个友方角色", code: "target", targets: targets.map(m => m.uid) };
-    player.mana -= 2;
+    if (!target) return { ok: false, reason: heroTargetType === "enemy" ? "请选择一个敌方随从" : "请选择一个友方随从", code: "target", targets: targets.map(m => m.uid) };
+    player.mana -= (player.hero.power.cost || 2);
     player.heroPowerUsed = true;
-    log(state, player.name + " 使用英雄技能「" + player.hero.power.name + "」。", player, "heroPower");
+    log(state, player.name + " 使用领袖技能「" + player.hero.power.name + "」。", player, "heroPower");
     if (player.heroId === "lain") {
       const zoneMates = player.board[target.zone].filter(m => m.uid !== target.uid && !m.dead);
       const attack = zoneMates.length ? 1 : 0;
@@ -1175,12 +1175,12 @@
       drawCard(state, player, 1);
       processDeaths(state);
     } else if (player.heroId === "marta") {
-      damageMinion(state, target, 4, null, "演算");
+      damageMinion(state, target, 3, null, "演算");
       processDeaths(state);
     } else if (player.heroId === "wolfram") {
       grantTaunt(state, target);
     } else if (player.heroId === "otto") {
-      damageMinion(state, target, 1, null, "炮击");
+      damageMinion(state, target, 2, null, "炮击");
       processDeaths(state);
     }
     checkGameOver(state);
@@ -1285,7 +1285,7 @@
       canBoard: canBoard,
       canTarget: canTarget,
       bloodCost: def.bloodCost || 0,
-      reason: !canMana ? "行动槽不足" : !canBoard ? (formReason || "角色区已满") : !canTarget ? "没有合法目标" : null
+      reason: !canMana ? "行动槽不足" : !canBoard ? (formReason || "随从区已满") : !canTarget ? "没有合法目标" : null
     };
   }
 

@@ -37,7 +37,7 @@
         name: "协调",
         cost: 2,
         target: "friendly",
-        text: "使一个友方角色获得 +0/+1；若它与另一个友方角色同阵位，改为 +1/+1。"
+        text: "使一个友方随从获得 +0/+1；若它与另一个友方随从同阵位，改为 +1/+1。"
       },
       passive: { name: "地脉回响", text: "流脉达到 10 时获得 1 点护甲（每场一次）。" }
     },
@@ -55,9 +55,9 @@
         name: "演算",
         cost: 2,
         target: "enemy",
-        text: "对一个敌方角色造成 4 点伤害。"
+        text: "对一个敌方随从造成 3 点伤害。"
       },
-      passive: { name: "演算预载", text: "每回合第一张法术费用 -2。" }
+      passive: { name: "演算预载", text: "每回合第一张法术的行动槽消耗 -2。" }
     },
     otto: {
       id: "otto",
@@ -73,7 +73,7 @@
         name: "炮击",
         cost: 2,
         target: "enemy",
-        text: "对一个敌方角色造成 1 点伤害。"
+        text: "对一个敌方随从造成 2 点伤害。"
       },
       passive: { name: "军工产线", text: "每两回合获得 1 点护甲。" }
     },
@@ -91,9 +91,9 @@
         name: "筑防",
         cost: 2,
         target: "friendly",
-        text: "使一个友方角色获得拦截。"
+        text: "使一个友方随从获得拦截。"
       },
-      passive: { name: "铁壁纪律", text: "你召唤的拦截角色获得 +0/+1。" }
+      passive: { name: "铁壁纪律", text: "你召唤的拦截随从获得 +0/+1。" }
     },
     karna: {
       id: "karna",
@@ -109,9 +109,9 @@
         name: "血祭",
         cost: 2,
         target: "friendly",
-        text: "对一个友方角色造成 1 点伤害，抽 1 张牌。"
+        text: "对一个友方随从造成 1 点伤害，抽 1 张牌。"
       },
-      passive: { name: "潮汐护体", text: "你的角色不能被凝滞；友方角色死亡时，你的英雄恢复 2 点生命。" }
+      passive: { name: "潮汐护体", text: "你的随从不能被凝滞；友方随从死亡时，你的领袖恢复 2 点生命。" }
     }
   };
 
@@ -121,7 +121,7 @@
       id: "shextena", name: "希斯蒂娜", faction: "pus", type: "minion",
       cost: 4, attack: 3, health: 6, rarity: "legendary", art: "shextena",
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：恢复一个友方角色 4 点生命；若它原本已受伤，抽 1 张牌。",
+      text: "登场：恢复一个友方随从 4 点生命；若它原本已受伤，抽 1 张牌。",
       flavor: "温柔是有边界的。",
       battlecry: { type: "healDraw", amount: 4 }
     },
@@ -129,7 +129,7 @@
       id: "verious", name: "维里欧斯", faction: "pus", type: "minion",
       cost: 4, attack: 3, health: 5, rarity: "legendary", art: "verious",
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：封缄一个敌方角色。",
+      text: "登场：封缄一个敌方随从。",
       flavor: "他教人耐心，也教人怀疑。",
       battlecry: { type: "silence" }
     },
@@ -137,7 +137,7 @@
       id: "timon", name: "提蒙", faction: "pus", type: "minion",
       cost: 3, attack: 2, health: 3, rarity: "legendary", art: "timon",
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合你打出的下一张牌费用减少 1。",
+      text: "登场：本回合你打出的下一张牌行动槽消耗减少 1。",
       flavor: "晚一秒，在她这里不是小事。",
       battlecry: { type: "nextCost", amount: 1 }
     },
@@ -145,7 +145,7 @@
       id: "aidric", name: "艾德里克", faction: "pus", type: "minion",
       cost: 4, attack: 2, health: 6, rarity: "legendary", art: "aidric",
       keywords: ["taunt"], target: "none",
-      text: "拦截。每当此角色受到伤害，你获得 1 点护甲。",
+      text: "拦截。每当此随从受到伤害，你获得 1 点护甲。",
       flavor: "克制不是不动，是不失控。",
       passive: { type: "armorOnDamage", amount: 1 }
     },
@@ -161,7 +161,7 @@
       id: "miyuki", name: "深雪", faction: "pus", type: "minion",
       cost: 5, attack: 4, health: 5, rarity: "legendary", art: "miyuki",
       keywords: ["battlecry"], target: "enemyDynamic",
-      text: "登场：凝滞一个敌方角色；引脉 6：改为凝滞所有敌方角色。",
+      text: "登场：凝滞一个敌方随从；引脉 6：改为凝滞所有敌方随从。",
       flavor: "吾见过雪落，也见过雪停。",
       battlecry: { type: "freeze", allAtVein: 6 }
     },
@@ -169,7 +169,7 @@
       id: "medic_apprentice", name: "医疗学徒", faction: "pus", type: "minion",
       cost: 1, attack: 1, health: 2, rarity: "common", art: null,
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：恢复一个友方角色 1 点生命。",
+      text: "登场：恢复一个友方随从 1 点生命。",
       flavor: "医疗部的灯，从来不会只亮一间房。",
       battlecry: { type: "heal", amount: 1 }
     },
@@ -184,21 +184,21 @@
       id: "courier", name: "协调部信使", faction: "pus", type: "minion",
       cost: 1, attack: 1, health: 1, rarity: "common", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合你打出的下一张牌费用减少 1。",
+      text: "登场：本回合你打出的下一张牌行动槽消耗减少 1。",
       flavor: "她跑过的路，比地图上画的还多。",
       battlecry: { type: "nextCost", amount: 1 }
     },
     coordination: {
       id: "coordination", name: "协同调度", faction: "pus", type: "spell",
       cost: 1, rarity: "common", art: null, target: "friendly",
-      text: "使一个友方角色获得 +1/+1；若它与另一个友方角色同阵位，再恢复 1 点生命。",
+      text: "使一个友方随从获得 +1/+1；若它与另一个友方随从同阵位，再恢复 1 点生命。",
       flavor: "把正确的人，放在正确的位置。",
       spell: { type: "buffHeal", attack: 1, health: 1, healIfTogether: 1 }
     },
     emergency: {
       id: "emergency", name: "应急响应", faction: "pus", type: "spell",
       cost: 3, rarity: "common", art: null, target: "friendly",
-      text: "恢复一个友方角色 6 点生命；抽 1 张牌。",
+      text: "恢复一个友方随从 6 点生命；抽 1 张牌。",
       flavor: "窗口只有一次，晚一秒就不是窗口。",
       spell: { type: "healDraw", amount: 6, draw: 1 }
     },
@@ -231,7 +231,7 @@
       id: "lize", name: "莉泽", faction: "xizhao", type: "minion",
       cost: 1, attack: 2, health: 2, rarity: "legendary", art: "lize",
       keywords: ["battlecry"], target: "none",
-      text: "登场：抽 1 张牌；若你控制另一个友方角色，对其造成 1 点伤害。",
+      text: "登场：抽 1 张牌；若你控制另一个友方随从，对其造成 1 点伤害。",
       flavor: "人质也有自己的账。",
       battlecry: { type: "drawDamageAlly", amount: 1 }
     },
@@ -239,7 +239,7 @@
       id: "grayfeather", name: "灰羽·乌恩", faction: "xizhao", type: "minion",
       cost: 4, attack: 4, health: 5, rarity: "legendary", art: "grayfeather",
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：使一个友方角色获得 +2/+2；引脉 4：再使其获得拦截。",
+      text: "登场：使一个友方随从获得 +2/+2；引脉 4：再使其获得拦截。",
       flavor: "祖先的雪，落在我肩上。",
       battlecry: { type: "buffTaunt", attack: 2, health: 2, vein: 4 }
     },
@@ -255,7 +255,7 @@
       id: "molan", name: "墨兰", faction: "xizhao", type: "minion",
       cost: 3, attack: 3, health: 3, rarity: "legendary", art: "molan",
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：使一个友方角色获得隐匿。",
+      text: "登场：使一个友方随从获得隐匿。",
       flavor: "使节先学会闭嘴。",
       battlecry: { type: "stealth" }
     },
@@ -271,7 +271,7 @@
       id: "blood_servant", name: "血族仆从", faction: "xizhao", type: "minion",
       cost: 3, attack: 3, health: 4, rarity: "common", art: null,
       keywords: ["deathrattle"], target: "none",
-      text: "余响：使一个友方角色获得 +1 攻击。",
+      text: "余响：使一个友方随从获得 +1 攻击。",
       flavor: "他还不懂主人在算什么。",
       deathrattle: { type: "buffRandomAlly", attack: 1 }
     },
@@ -279,14 +279,14 @@
       id: "losutai_hunter", name: "洛斯汰猎手", faction: "xizhao", type: "minion",
       cost: 3, attack: 3, health: 3, rarity: "common", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：对一个敌方角色造成 1 点伤害。",
+      text: "登场：对一个敌方随从造成 1 点伤害。",
       flavor: "它不恨谁，只是饿了。",
       battlecry: { type: "damage", amount: 1 }
     },
     blood_ritual: {
       id: "blood_ritual", name: "血祭仪式", faction: "xizhao", type: "spell",
       cost: 2, rarity: "common", art: null, target: "friendly",
-      text: "对一个友方角色造成 2 点伤害，抽 1 张牌；若该角色死亡，再抽 1 张牌。",
+      text: "对一个友方随从造成 2 点伤害，抽 1 张牌；若该随从死亡，再抽 1 张牌。",
       flavor: "血是筹码，不是生命。",
       spell: { type: "bloodDraw", damage: 1, draw: 1, extraIfDead: 1 }
     },
@@ -300,7 +300,7 @@
     shadow_raid: {
       id: "shadow_raid", name: "暗影袭扰", faction: "xizhao", type: "spell",
       cost: 2, rarity: "common", art: null, target: "friendly",
-      text: "使一个友方角色获得 +2 攻击和突进。",
+      text: "使一个友方随从获得 +2 攻击和突进。",
       flavor: "西昭不敲门。",
       spell: { type: "buffCharge", attack: 2 }
     },
@@ -341,7 +341,7 @@
       id: "nina", name: "妮娜·索雷尔", faction: "academy", type: "minion",
       cost: 2, attack: 3, health: 4, rarity: "legendary", art: "nina",
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：凝滞一个敌方角色。",
+      text: "登场：凝滞一个敌方随从。",
       flavor: "冷静是一种攻击方式。",
       battlecry: { type: "freeze" }
     },
@@ -370,14 +370,14 @@
     frost_seal: {
       id: "frost_seal", name: "寒霜封印", faction: "academy", type: "spell",
       cost: 2, rarity: "common", art: null, target: "enemy",
-      text: "凝滞一个敌方角色；抽 1 张牌。",
+      text: "凝滞一个敌方随从；抽 1 张牌。",
       flavor: "把一页纸冻住，它就不会被改写。",
       spell: { type: "freezeDraw", draw: 1 }
     },
     debate: {
       id: "debate", name: "学术辩论", faction: "academy", type: "spell",
       cost: 1, rarity: "common", art: null, target: "enemy",
-      text: "对一个敌方角色造成 2 点伤害。",
+      text: "对一个敌方随从造成 2 点伤害。",
       flavor: "真理越辩越明，人越辩越少。",
       spell: { type: "damage", amount: 2 }
     },
@@ -392,7 +392,7 @@
     prohibition: {
       id: "prohibition", name: "禁制令", faction: "academy", type: "spell",
       cost: 3, rarity: "common", art: null, target: "none",
-      text: "凝滞所有敌方角色。",
+      text: "凝滞所有敌方随从。",
       flavor: "学院最严厉的处分，通常只是一张纸。",
       spell: { type: "freezeAll" }
     },
@@ -417,7 +417,7 @@
       id: "beatrix", name: "贝娅特丽克丝·冯·艾森胡特", faction: "republic", type: "minion",
       cost: 4, attack: 3, health: 6, rarity: "legendary", art: "beatrix",
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：使一个友方角色获得 +1/+2 与拦截。",
+      text: "登场：使一个友方随从获得 +1/+2 与拦截。",
       flavor: "她让所有人都有座位，也记得谁没有。",
       battlecry: { type: "buffTaunt", attack: 1, health: 2 }
     },
@@ -460,14 +460,14 @@
     fortify: {
       id: "fortify", name: "筑防令", faction: "republic", type: "spell",
       cost: 2, rarity: "common", art: null, target: "friendly",
-      text: "使一个友方角色获得 +0/+2 与拦截。",
+      text: "使一个友方随从获得 +0/+2 与拦截。",
       flavor: "先把门立住，再谈窗。",
       spell: { type: "buffTaunt", attack: 0, health: 2 }
     },
     volley: {
       id: "volley", name: "排枪齐射", faction: "republic", type: "spell",
       cost: 2, rarity: "common", art: null, target: "enemy",
-      text: "对一个敌方角色造成 2 点伤害。",
+      text: "对一个敌方随从造成 2 点伤害。",
       flavor: "纪律让一排枪变成一件武器。",
       spell: { type: "damage", amount: 2 }
     },
@@ -481,7 +481,7 @@
     martial_law: {
       id: "martial_law", name: "戒严令", faction: "republic", type: "spell",
       cost: 4, rarity: "common", art: null, target: "none",
-      text: "凝滞所有敌方角色。",
+      text: "凝滞所有敌方随从。",
       flavor: "钟声停下之前，谁都不许动。",
       spell: { type: "freezeAll" }
     },
@@ -514,7 +514,7 @@
       id: "elsa", name: "艾尔莎·汉瑟尔", faction: "empire", type: "minion",
       cost: 3, attack: 2, health: 4, rarity: "legendary", art: "elsa",
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：恢复一个友方角色 2 点生命。",
+      text: "登场：恢复一个友方随从 2 点生命。",
       flavor: "帝国的炉火不为胜利燃烧，只为活人。",
       battlecry: { type: "heal", amount: 2 }
     },
@@ -529,7 +529,7 @@
       id: "walter", name: "瓦尔特·克鲁格", faction: "empire", type: "minion",
       cost: 5, attack: 4, health: 4, rarity: "legendary", art: "walter",
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：对一个敌方角色造成 2 点伤害。",
+      text: "登场：对一个敌方随从造成 2 点伤害。",
       flavor: "命令只有一句：推进。",
       battlecry: { type: "damage", amount: 2 }
     },
@@ -550,7 +550,7 @@
     barrage: {
       id: "barrage", name: "炮火覆盖", faction: "empire", type: "spell",
       cost: 2, rarity: "common", art: null, target: "enemy",
-      text: "对一个敌方角色造成 2 点伤害。",
+      text: "对一个敌方随从造成 2 点伤害。",
       flavor: "先开炮，再画地图。",
       spell: { type: "damage", amount: 2 }
     },
@@ -564,14 +564,14 @@
     fortress: {
       id: "fortress", name: "要塞令", faction: "empire", type: "spell",
       cost: 2, rarity: "common", art: null, target: "friendly",
-      text: "使一个友方角色获得 +0/+3 与拦截。",
+      text: "使一个友方随从获得 +0/+3 与拦截。",
       flavor: "把一个人变成一堵墙，只需要一纸命令。",
       spell: { type: "buffTaunt", attack: 0, health: 3 }
     },
     martial_court: {
       id: "martial_court", name: "军事法庭", faction: "empire", type: "spell",
       cost: 4, rarity: "common", art: null, target: "none",
-      text: "凝滞所有敌方角色。",
+      text: "凝滞所有敌方随从。",
       flavor: "在帝国，封缄也是一种判决。",
       spell: { type: "freezeAll" }
     },
@@ -604,7 +604,7 @@
       id: "snow_medic", name: "雪镇医者", faction: "neutral", type: "minion",
       cost: 1, attack: 1, health: 2, rarity: "common", art: null,
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：恢复一个友方角色 1 点生命。",
+      text: "登场：恢复一个友方随从 1 点生命。",
       flavor: "雪镇的药，苦，但管用。",
       battlecry: { type: "heal", amount: 1 }
     },
@@ -680,7 +680,7 @@
       id: "field_medic", name: "战地医者", faction: "neutral", type: "minion",
       cost: 2, attack: 1, health: 2, rarity: "common", art: null,
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：恢复一个友方角色 1 点生命。",
+      text: "登场：恢复一个友方随从 1 点生命。",
       flavor: "先止血，再问名字。",
       battlecry: { type: "heal", amount: 1 }
     },
@@ -717,7 +717,7 @@
       id: "vein_medic", name: "流脉医师", faction: "neutral", type: "minion",
       cost: 2, attack: 1, health: 3, rarity: "common", art: null,
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：恢复一个友方角色 2 点生命。",
+      text: "登场：恢复一个友方随从 2 点生命。",
       flavor: "她治伤，也顺手记录脉动。",
       battlecry: { type: "heal", amount: 2 }
     },
@@ -747,7 +747,7 @@
       id: "bounty_hunter", name: "赏金猎人", faction: "neutral", type: "minion",
       cost: 3, attack: 2, health: 3, rarity: "common", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：对一个敌方角色造成 1 点伤害。",
+      text: "登场：对一个敌方随从造成 1 点伤害。",
       flavor: "赏金不是钱，是别人愿意付多少。",
       battlecry: { type: "damage", amount: 1 }
     },
@@ -761,7 +761,7 @@
     smoke_screen: {
       id: "smoke_screen", name: "烟雾弹", faction: "neutral", type: "spell",
       cost: 2, rarity: "common", art: null, target: "enemy",
-      text: "凝滞一个敌方角色；抽 1 张牌。",
+      text: "凝滞一个敌方随从；抽 1 张牌。",
       flavor: "等雾散的时候，位置已经换了。",
       spell: { type: "freezeDraw", draw: 1 }
     },
@@ -802,7 +802,7 @@
       id: "shield_marshal", name: "持盾元帅", faction: "republic", type: "minion",
       cost: 6, attack: 4, health: 6, rarity: "epic", art: null,
       keywords: ["taunt", "battlecry"], target: "friendly",
-      text: "拦截。登场：使一个友方角色获得拦截。",
+      text: "拦截。登场：使一个友方随从获得拦截。",
       flavor: "她从不站在队伍后面，只把队伍挡在身后。",
       battlecry: { type: "buffTaunt", attack: 0, health: 0 }
     },
@@ -810,7 +810,7 @@
       id: "siege_train", name: "攻城列车", faction: "empire", type: "minion",
       cost: 7, attack: 5, health: 7, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：对所有敌方角色造成 2 点伤害。",
+      text: "登场：对所有敌方随从造成 2 点伤害。",
       flavor: "帝国的铁轨铺到哪里，哪里就会先听见风声。",
       battlecry: { type: "damageAllEnemies", amount: 2 }
     },
@@ -818,7 +818,7 @@
       id: "void_titan", name: "虚空泰坦", faction: "neutral", type: "minion",
       cost: 10, attack: 8, health: 8, rarity: "legendary", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：消灭一个敌方角色。",
+      text: "登场：消灭一个敌方随从。",
       flavor: "它没有影子，因为影子先被它吞掉了。",
       battlecry: { type: "destroy" }
     },
@@ -834,7 +834,7 @@
     reflux: {
       id: "reflux", name: "逆流", faction: "xizhao", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -3；恢复你的英雄 3 点生命。",
+      text: "流脉 -3；恢复你的领袖 3 点生命。",
       flavor: "潮水退回去时，也会把伤口一起带走。",
       spell: { type: "veinTrade", amount: -3, healHero: 3 }
     },
@@ -848,14 +848,14 @@
     pressure_vein: {
       id: "pressure_vein", name: "压脉", faction: "empire", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -3；对敌方英雄造成 2 点伤害。",
+      text: "流脉 -3；对敌方领袖造成 2 点伤害。",
       flavor: "把地脉压进炮膛，然后扣下扳机。",
       spell: { type: "veinTrade", amount: -3, damageHero: 2 }
     },
     return_tide: {
       id: "return_tide", name: "回潮", faction: "pus", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -2；恢复你的英雄 2 点生命；抽 1 张牌。",
+      text: "流脉 -2；恢复你的领袖 2 点生命；抽 1 张牌。",
       flavor: "退潮不是结束，是把力量收回身体里。",
       spell: { type: "veinTrade", amount: -2, healHero: 2, draw: 1 }
     },
@@ -864,35 +864,35 @@
     formation_vein: {
       id: "formation_vein", name: "地脉阵线", faction: "pus", type: "formation",
       cost: 3, rarity: "rare", art: null, target: "none",
-      text: "阵型：该线友方角色获得 +0/+1。",
+      text: "阵型：该线友方随从获得 +0/+1。",
       flavor: "让地脉从脚下经过，而不是从头顶。",
       formation: { attack: 0, health: 1 }
     },
     formation_script: {
       id: "formation_script", name: "演算阵线", faction: "academy", type: "formation",
       cost: 3, rarity: "rare", art: null, target: "none",
-      text: "阵型：该线友方角色获得 +1/+0。",
+      text: "阵型：该线友方随从获得 +1/+0。",
       flavor: "先画线，再让人站进去。",
       formation: { attack: 1, health: 0 }
     },
     formation_tide: {
       id: "formation_tide", name: "潮痕阵线", faction: "xizhao", type: "formation",
       cost: 3, rarity: "rare", art: null, target: "none",
-      text: "阵型：该线友方角色获得 +1/+0。",
+      text: "阵型：该线友方随从获得 +1/+0。",
       flavor: "潮水退去后，留下的痕迹就是战壕。",
       formation: { attack: 1, health: 0 }
     },
     formation_wall: {
       id: "formation_wall", name: "盾墙阵线", faction: "republic", type: "formation",
       cost: 3, rarity: "rare", art: null, target: "none",
-      text: "阵型：该线友方角色获得 +0/+2。",
+      text: "阵型：该线友方随从获得 +0/+2。",
       flavor: "阵线不是一条线，是一排不会退的人。",
       formation: { attack: 0, health: 2 }
     },
     formation_cannon: {
       id: "formation_cannon", name: "炮列阵线", faction: "empire", type: "formation",
       cost: 4, rarity: "rare", art: null, target: "none",
-      text: "阵型：该线友方角色获得 +1/+1。",
+      text: "阵型：该线友方随从获得 +1/+1。",
       flavor: "把炮摆成一条线，敌人就只剩一个方向。",
       formation: { attack: 1, health: 1 }
     },
@@ -907,32 +907,32 @@
     spell_codex: {
       id: "spell_codex", name: "留存法典", faction: "academy", type: "relic",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "遗物：每回合第一张法术费用 -1。",
+      text: "遗物：每回合第一张法术的行动槽消耗 -1。",
       flavor: "法术释放之后，公式会留在书页上。"
     },
     blood_scythe: {
       id: "blood_scythe", name: "血潮镰", faction: "xizhao", type: "relic",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "遗物：友方角色死亡时，你的英雄恢复 2 点生命。",
+      text: "遗物：友方随从死亡时，你的领袖恢复 2 点生命。",
       flavor: "每一道潮痕都是收割过的名字。"
     },
     iron_banner: {
       id: "iron_banner", name: "铁壁军旗", faction: "republic", type: "relic",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "遗物：你召唤的拦截角色获得 +0/+1。",
+      text: "遗物：你召唤的拦截随从获得 +0/+1。",
       flavor: "旗子插在哪里，哪里就是阵线。"
     },
     powder_engine: {
       id: "powder_engine", name: "火药引擎", faction: "empire", type: "relic",
       cost: 4, rarity: "epic", art: null, target: "none",
-      text: "遗物：回合开始时若敌方英雄没有护甲，造成 1 点伤害。",
+      text: "遗物：回合开始时若敌方领袖没有护甲，造成 1 点伤害。",
       flavor: "它不需要瞄准，只需要一直转。"
     },
     zone_keeper: {
       id: "zone_keeper", name: "同阵守望者", faction: "pus", type: "minion",
       cost: 3, attack: 2, health: 4, rarity: "rare", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：若同阵位有另一个友方角色，获得 +2/+2。",
+      text: "登场：若同阵位有另一个友方随从，获得 +2/+2。",
       flavor: "阵位不是格子，是彼此能看见的距离。",
       battlecry: { type: "zoneSelfBuff", attack: 2, health: 2 }
     },
@@ -940,7 +940,7 @@
       id: "zone_archivist", name: "三阵记录员", faction: "academy", type: "minion",
       cost: 3, attack: 2, health: 3, rarity: "rare", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：若三个友方阵位都有角色，抽 1 张牌。",
+      text: "登场：若三个友方阵位都有随从，抽 1 张牌。",
       flavor: "三个阵位都在场，答案才有地方落笔。",
       battlecry: { type: "drawIfZones", draw: 1 }
     },
@@ -948,7 +948,7 @@
       id: "zone_reaper", name: "断阵收割者", faction: "xizhao", type: "minion",
       cost: 4, attack: 3, health: 3, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：消灭目标所在阵位的所有敌方角色。",
+      text: "登场：消灭目标所在阵位的所有敌方随从。",
       flavor: "它不追人，只切断人站在一起的那条线。",
       battlecry: { type: "destroyZone" }
     },
@@ -956,14 +956,14 @@
       id: "zone_banner", name: "阵线旗手", faction: "republic", type: "minion",
       cost: 4, attack: 3, health: 6, rarity: "epic", art: null,
       keywords: ["taunt", "battlecry"], target: "none",
-      text: "拦截。登场：同阵位所有具有拦截的友方角色获得 +0/+1。",
+      text: "拦截。登场：同阵位所有具有拦截的友方随从获得 +0/+1。",
       flavor: "旗手站的位置，就是所有人最后退到的地方。",
       battlecry: { type: "buffTauntZone", health: 1 }
     },
     zone_barrage: {
       id: "zone_barrage", name: "阵位齐射", faction: "empire", type: "spell",
       cost: 4, rarity: "epic", art: null, target: "enemy",
-      text: "对一个敌方角色所在阵位的所有敌方角色造成 2 点伤害。",
+      text: "对一个敌方随从所在阵位的所有敌方随从造成 2 点伤害。",
       flavor: "帝国的炮火从不瞄准一个人。",
       spell: { type: "damageZone", amount: 2 }
     },
@@ -979,7 +979,7 @@
     overload_ritual: {
       id: "overload_ritual", name: "反噬仪式", faction: "pus", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "enemy", overload: 2,
-      text: "对一个敌方角色造成 4 点伤害；反噬 2。",
+      text: "对一个敌方随从造成 4 点伤害；反噬 2。",
       flavor: "借来的力量，明天要还。",
       spell: { type: "damage", amount: 4 }
     },
@@ -1021,7 +1021,7 @@
     combo_spark: {
       id: "combo_spark", name: "顺势火花", faction: "academy", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "enemy",
-      text: "对一个敌方角色造成 1 点伤害；顺势：改为 3 点。",
+      text: "对一个敌方随从造成 1 点伤害；顺势：改为 3 点。",
       flavor: "第一下是引子，第二下才是句子。",
       spell: { type: "comboDamage", amount: 3, otherwise: 1 }
     },
@@ -1055,7 +1055,7 @@
       id: "spell_novice", name: "法术学徒", faction: "academy", type: "minion",
       cost: 1, attack: 1, health: 2, rarity: "common", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合你的下一张法术费用 -1。",
+      text: "登场：本回合你的下一张法术行动槽消耗 -1。",
       flavor: "她只学会了一个咒语，但学会了怎么省着用。",
       battlecry: { type: "discountSpell", amount: 1 }
     },
@@ -1093,7 +1093,7 @@
       id: "blood_priestess", name: "血潮祭司", faction: "xizhao", type: "minion",
       cost: 5, attack: 4, health: 5, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：吞噬一个攻击力最低的友方角色，获得其攻击力和生命值。",
+      text: "登场：吞噬一个攻击力最低的友方随从，获得其攻击力和生命值。",
       flavor: "潮水退去时，她总会留下最饱的那一个。",
       battlecry: { type: "devour" }
     },
@@ -1108,7 +1108,7 @@
       id: "drill_sergeant", name: "操练军士", faction: "republic", type: "minion",
       cost: 2, attack: 2, health: 2, rarity: "rare", art: null,
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：使一个友方角色获得拦截和 +0/+1。",
+      text: "登场：使一个友方随从获得拦截和 +0/+1。",
       flavor: "他不需要你理解命令，只需要你站到位置上。",
       battlecry: { type: "buffTaunt", health: 1 }
     },
@@ -1116,7 +1116,7 @@
       id: "iron_phalanx", name: "铁壁方阵", faction: "republic", type: "minion",
       cost: 5, attack: 3, health: 8, rarity: "epic", art: null,
       keywords: ["taunt", "battlecry"], target: "none",
-      text: "拦截。登场：每有一个友方拦截角色，获得 1 点护甲。",
+      text: "拦截。登场：每有一个友方拦截随从，获得 1 点护甲。",
       flavor: "方阵不是一排人，是一堵会呼吸的墙。",
       battlecry: { type: "armorPerTaunt", amount: 1 }
     },
@@ -1140,7 +1140,7 @@
       id: "siege_captain", name: "攻城队长", faction: "empire", type: "minion",
       cost: 5, attack: 4, health: 5, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：对所有敌方角色造成 1 点伤害。",
+      text: "登场：对所有敌方随从造成 1 点伤害。",
       flavor: "他管这叫校准，不叫开火。",
       battlecry: { type: "damageAllEnemies", amount: 1 }
     },
@@ -1158,7 +1158,7 @@
       id: "siphon_guard", name: "虹吸守卫", faction: "pus", type: "minion",
       cost: 5, attack: 3, health: 6, rarity: "epic", art: null,
       keywords: ["taunt", "battlecry"], target: "none",
-      text: "拦截。登场：恢复你的英雄 3 点生命；流脉 +1。",
+      text: "拦截。登场：恢复你的领袖 3 点生命；流脉 +1。",
       flavor: "他守住的每一滴血，最后都会回到地脉里。",
       battlecry: { type: "healVein", heal: 3, vein: 1 }
     },
@@ -1174,14 +1174,14 @@
       id: "frost_professor", name: "霜系教授", faction: "academy", type: "minion",
       cost: 5, attack: 4, health: 5, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：凝滞一个敌方角色。",
+      text: "登场：凝滞一个敌方随从。",
       flavor: "他的课堂很安静，因为没人敢动。",
       battlecry: { type: "freeze" }
     },
     blood_altar: {
       id: "blood_altar", name: "血祭祭坛", faction: "xizhao", type: "spell",
       cost: 2, rarity: "epic", art: null, target: "none",
-      text: "消灭一个攻击力最低的友方角色，召唤两个 1/1 的洛斯汰魔物。",
+      text: "消灭一个攻击力最低的友方随从，召唤两个 1/1 的洛斯汰魔物。",
       flavor: "潮水从不浪费祭品。",
       spell: { type: "sacrificeSummon", token: "losutai_imp", count: 2 }
     },
@@ -1189,7 +1189,7 @@
       id: "tide_colossus", name: "潮骸巨像", faction: "xizhao", type: "minion",
       cost: 7, attack: 6, health: 6, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：吞噬一个攻击力最低的友方角色，获得其攻击力和生命值。",
+      text: "登场：吞噬一个攻击力最低的友方随从，获得其攻击力和生命值。",
       flavor: "它把整片浅海穿在身上。",
       battlecry: { type: "devour" }
     },
@@ -1197,21 +1197,21 @@
       id: "shield_sergeant", name: "盾墙军士", faction: "republic", type: "minion",
       cost: 4, attack: 3, health: 5, rarity: "epic", art: null,
       keywords: ["taunt", "battlecry"], target: "none",
-      text: "拦截。登场：所有友方拦截角色获得 +0/+1。",
+      text: "拦截。登场：所有友方拦截随从获得 +0/+1。",
       flavor: "军士的盾比他的命令更早到前线。",
       battlecry: { type: "buffAllTaunt", health: 1 }
     },
     iron_wall: {
       id: "iron_wall", name: "铁壁令", faction: "republic", type: "spell",
       cost: 4, rarity: "epic", art: null, target: "none",
-      text: "所有友方拦截角色获得 +0/+2。",
+      text: "所有友方拦截随从获得 +0/+2。",
       flavor: "共和国最坚固的墙，是一条命令。",
       spell: { type: "buffAllTaunt", health: 2 }
     },
     armor_volley: {
       id: "armor_volley", name: "装甲齐射", faction: "empire", type: "spell",
       cost: 4, rarity: "epic", art: null, target: "none",
-      text: "对所有敌方角色造成等同于你护甲的伤害。",
+      text: "对所有敌方随从造成等同于你护甲的伤害。",
       flavor: "每增加一层装甲，炮口就多一分底气。",
       spell: { type: "armorAoe" }
     },
@@ -1228,14 +1228,14 @@
     vein_siphon: {
       id: "vein_siphon", name: "引脉虹吸", faction: "pus", type: "spell",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "恢复你的英雄 3 点生命；流脉 +2。",
+      text: "恢复你的领袖 3 点生命；流脉 +2。",
       flavor: "她把手按进裂隙，听见地底在呼吸。",
       spell: { type: "healVein", heal: 3, vein: 2 }
     },
     arcane_surge: {
       id: "arcane_surge", name: "奥术涌流", faction: "academy", type: "spell",
       cost: 5, rarity: "epic", art: null, target: "none",
-      text: "对所有敌方角色造成 1 点伤害；本回合你每施放一张法术，再造成 1 点。",
+      text: "对所有敌方随从造成 1 点伤害；本回合你每施放一张法术，再造成 1 点。",
       flavor: "第一声是提醒，第二声是答案，第三声是屋顶。",
       spell: { type: "damageAllPerSpell", amount: 1 }
     },
@@ -1243,7 +1243,7 @@
       id: "devourer", name: "噬潮者", faction: "xizhao", type: "minion",
       cost: 4, attack: 4, health: 4, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：吞噬一个攻击力最低的友方角色，获得其攻击力和生命值。",
+      text: "登场：吞噬一个攻击力最低的友方随从，获得其攻击力和生命值。",
       flavor: "潮水退去后，它会把没来得及走的同伴一起带走。",
       battlecry: { type: "devour" }
     },
@@ -1251,7 +1251,7 @@
       id: "phalanx_warden", name: "方阵守望", faction: "republic", type: "minion",
       cost: 4, attack: 2, health: 7, rarity: "epic", art: null,
       keywords: ["taunt", "battlecry"], target: "none",
-      text: "拦截。登场：所有友方拦截角色获得 +0/+1。",
+      text: "拦截。登场：所有友方拦截随从获得 +0/+1。",
       flavor: "她守的不是城门，是城门后面还在睡觉的人。",
       battlecry: { type: "buffAllTaunt", health: 1 }
     },
@@ -1259,7 +1259,7 @@
       id: "iron_artillery", name: "铁流炮台", faction: "empire", type: "minion",
       cost: 6, attack: 4, health: 5, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：对一个敌方角色造成等同于你护甲的伤害。",
+      text: "登场：对一个敌方随从造成等同于你护甲的伤害。",
       flavor: "炮台不需要瞄准，它只需要敌人站得足够久。",
       battlecry: { type: "armorDamage" }
     },
@@ -1276,7 +1276,7 @@
     spellstorm: {
       id: "spellstorm", name: "法术风暴", faction: "academy", type: "spell",
       cost: 6, rarity: "epic", art: null, target: "none",
-      text: "对敌方英雄造成 2×本回合已施放法术数量的伤害。",
+      text: "对敌方领袖造成 2×本回合已施放法术数量的伤害。",
       flavor: "她数到第三声回响时，屋顶已经开始下雨。",
       spell: { type: "damagePerSpell", amount: 2 }
     },
@@ -1300,7 +1300,7 @@
       id: "brood_matron", name: "育巢母兽", faction: "xizhao", type: "minion",
       cost: 4, attack: 3, health: 4, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：召唤一个 1/1 的洛斯汰魔物；若你控制另一个角色，它获得 +1/+1。",
+      text: "登场：召唤一个 1/1 的洛斯汰魔物；若你控制另一个随从，它获得 +1/+1。",
       flavor: "潮水退去时，她把整座巢一起带上岸。",
       battlecry: { type: "summonTokenBuff", token: "losutai_imp", attack: 1, health: 1 }
     },
@@ -1308,7 +1308,7 @@
       id: "bastion_captain", name: "堡垒队长", faction: "republic", type: "minion",
       cost: 5, attack: 3, health: 6, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：使所有友方角色获得拦截和 +0/+1。",
+      text: "登场：使所有友方随从获得拦截和 +0/+1。",
       flavor: "她守过的每一道墙，最后都变成了人。",
       battlecry: { type: "buffAllTaunt", health: 1 }
     },
@@ -1316,7 +1316,7 @@
       id: "powder_keg", name: "火药桶", faction: "empire", type: "minion",
       cost: 3, attack: 1, health: 4, rarity: "epic", art: null,
       keywords: ["deathrattle"], target: "none",
-      text: "余响：对所有敌方角色造成 3 点伤害。",
+      text: "余响：对所有敌方随从造成 3 点伤害。",
       flavor: "帝国工兵手册第一条：不要写第二条。",
       deathrattle: { type: "damageAllEnemies", amount: 3 }
     },
@@ -1342,7 +1342,7 @@
       id: "world_serpent", name: "世界之蛇", faction: "neutral", type: "minion",
       cost: 10, attack: 8, health: 8, rarity: "legendary", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：对所有敌方角色造成 4 点伤害；引脉 7：再抽 1 张牌。",
+      text: "登场：对所有敌方随从造成 4 点伤害；引脉 7：再抽 1 张牌。",
       flavor: "它绕世界一圈，只是为了咬住自己的尾巴。",
       battlecry: { type: "damageAllEnemiesDraw", amount: 4, vein: 7, draw: 1 }
     },
@@ -1350,7 +1350,7 @@
       id: "faceless_king", name: "无面君王", faction: "neutral", type: "minion",
       cost: 9, attack: 6, health: 6, rarity: "legendary", art: null,
       keywords: ["battlecry"], target: "friendly",
-      text: "登场：复制一个友方角色。",
+      text: "登场：复制一个友方随从。",
       flavor: "王座之上没有脸，只有另一个人的影子。",
       battlecry: { type: "copyFriendly" }
     },
@@ -1358,7 +1358,7 @@
       id: "chrono_archivist", name: "时序档案官", faction: "neutral", type: "minion",
       cost: 8, attack: 6, health: 7, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：将一个敌方角色移回其手牌。",
+      text: "登场：将一个敌方随从移回其手牌。",
       flavor: "每一页都写着同一天，只是墨迹不同。",
       battlecry: { type: "returnToHand" }
     },
@@ -1366,7 +1366,7 @@
       id: "frost_leviathan", name: "霜潮利维坦", faction: "neutral", type: "minion",
       cost: 8, attack: 6, health: 7, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：凝滞所有敌方角色。",
+      text: "登场：凝滞所有敌方随从。",
       flavor: "港口的人说，那不是浪，是它在翻身。",
       battlecry: { type: "freezeAllEnemies" }
     },
@@ -1390,7 +1390,7 @@
       id: "archive_devourer", name: "档案吞噬者", faction: "neutral", type: "minion",
       cost: 7, attack: 5, health: 6, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：封缄一个敌方角色；抽 1 张牌。",
+      text: "登场：封缄一个敌方随从；抽 1 张牌。",
       flavor: "它吃掉的不是纸，是纸上写着的名字。",
       battlecry: { type: "silenceDraw", draw: 1 }
     },
@@ -1413,21 +1413,21 @@
     moonfall: {
       id: "moonfall", name: "群星坠落", faction: "neutral", type: "spell",
       cost: 8, rarity: "epic", art: null, target: "none",
-      text: "对所有敌方角色造成 4 点伤害；抽 1 张牌。",
+      text: "对所有敌方随从造成 4 点伤害；抽 1 张牌。",
       flavor: "那一夜，天空把所有的灯都扔了下来。",
       spell: { type: "damageAllEnemiesDraw", amount: 4, draw: 1 }
     },
     final_bell: {
       id: "final_bell", name: "终末钟声", faction: "neutral", type: "spell",
       cost: 10, rarity: "legendary", art: null, target: "none",
-      text: "对所有角色造成 5 点伤害。",
+      text: "对所有随从造成 5 点伤害。",
       flavor: "最后一响之后，没有人再需要计时。",
       spell: { type: "damageAll", amount: 5 }
     },
     time_reflux: {
       id: "time_reflux", name: "时间回流", faction: "neutral", type: "spell",
       cost: 9, rarity: "epic", art: null, target: "none",
-      text: "将所有敌方角色移回其手牌。",
+      text: "将所有敌方随从移回其手牌。",
       flavor: "时间不是河流，是一扇被反复推开的门。",
       spell: { type: "returnAllEnemies" }
     },
@@ -1734,9 +1734,9 @@
     if (CARDS[balanceId]) Object.assign(CARDS[balanceId], balancePatch);
   }
 
-  Object.assign(CARDS.emergency, { text: "恢复一个友方角色 3 点生命；抽 1 张牌。", spell: { type: "healDraw", amount: 3, draw: 1 } });
+  Object.assign(CARDS.emergency, { text: "恢复一个友方随从 3 点生命；抽 1 张牌。", spell: { type: "healDraw", amount: 3, draw: 1 } });
   Object.assign(CARDS.archive_search, { text: "抽 1 张牌。", spell: { type: "draw", amount: 1 } });
-  Object.assign(CARDS.fortify, { text: "使一个友方角色获得 +0/+1 与拦截。", spell: { type: "buffTaunt", attack: 0, health: 1 } });
+  Object.assign(CARDS.fortify, { text: "使一个友方随从获得 +0/+1 与拦截。", spell: { type: "buffTaunt", attack: 0, health: 1 } });
   Object.assign(CARDS.konrad, { text: "拦截。登场：获得 5 点护甲。", battlecry: { type: "armor", amount: 5 } });
   Object.assign(CARDS.astral_colossus, { text: "拦截。登场：获得 3 点护甲。", battlecry: { type: "armor", amount: 3 } });
   Object.assign(CARDS.vein_prism, { text: "抽 1 张牌；引脉 6：再抽 1 张牌。", spell: { type: "drawVein", amount: 1, vein: 6, bonus: 1 } });
@@ -1747,9 +1747,9 @@
   Object.assign(CARDS.guard, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：引脉 4：攻击力 +1。", battlecry: { type: "veinSelfBuff", vein: 4, attack: 1 } });
   Object.assign(CARDS.nina, { optionalTarget: true });
   Object.assign(CARDS.time_reflux, { disabled: true });
-  Object.assign(CARDS.verious, { text: "登场：封缄一个敌方角色；引脉 5：获得 +0/+2。", battlecry: { type: "silenceVeinBuff", vein: 5, health: 2 } });
-  Object.assign(CARDS.miyuki, { text: "登场：凝滞一个敌方角色；引脉 6：改为凝滞所有敌方角色；引脉 10：消灭所有敌方凝滞角色。", battlecry: { type: "freeze", allAtVein: 6, destroyFrozenAtVein: 10 } });
-  Object.assign(CARDS.hans, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：同阵位所有具有拦截的友方角色获得 +0/+1。", battlecry: { type: "buffTauntZone", health: 1 } });
+  Object.assign(CARDS.verious, { text: "登场：封缄一个敌方随从；引脉 5：获得 +0/+2。", battlecry: { type: "silenceVeinBuff", vein: 5, health: 2 } });
+  Object.assign(CARDS.miyuki, { text: "登场：凝滞一个敌方随从；引脉 6：改为凝滞所有敌方随从；引脉 10：消灭所有敌方凝滞随从。", battlecry: { type: "freeze", allAtVein: 6, destroyFrozenAtVein: 10 } });
+  Object.assign(CARDS.hans, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：同阵位所有具有拦截的友方随从获得 +0/+1。", battlecry: { type: "buffTauntZone", health: 1 } });
   Object.assign(CARDS.klaus, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：场上每有一个铁甲步兵，获得 +2/+1。", battlecry: { type: "buffPerIronclad", attack: 2, health: 1 } });
   Object.assign(CARDS.ironclad, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：若同阵位有另一个铁甲步兵，获得 +0/+1。", battlecry: { type: "buffIfIronclad", health: 1 } });
   Object.assign(CARDS.cassian, { text: "突进。每回合结束时，对自身造成 1 点伤害。", passive: { type: "endTurnSelfDamage", amount: 1 } });
@@ -1757,75 +1757,75 @@
   Object.assign(CARDS.lecturer, { text: "登场：若你的手牌数不少于 6，获得 +0/+2。", battlecry: { type: "handBuff", hand: 6, attack: 0, health: 2 } });
   Object.assign(CARDS.justus, { text: "登场：抽 1 张牌；若你的手牌数不超过 6，再抽 1 张牌。", battlecry: { type: "drawHandCondition", hand: 6, draw: 1 } });
   Object.assign(CARDS.vein_bulwark, { keywords: ["lifesteal"], text: "汲取。" });
-  Object.assign(CARDS.field_medic, { target: "none", text: "登场：恢复你的英雄 2 点生命。", battlecry: { type: "healHero", amount: 2 } });
+  Object.assign(CARDS.field_medic, { target: "none", text: "登场：恢复你的领袖 2 点生命。", battlecry: { type: "healHero", amount: 2 } });
   // 旧卡阵位/流脉迁移：只增加可读的小型条件效果，不推翻原始效果。
-  Object.assign(CARDS.guard, { zoneBonus: { attack: 1 }, text: CARDS.guard.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
-  Object.assign(CARDS.medic_apprentice, { veinBonus: { vein: 4, healHero: 2 }, text: CARDS.medic_apprentice.text + " 引脉 4：恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.courier, { zoneBonus: { health: 1 }, text: CARDS.courier.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
-  Object.assign(CARDS.karl_desmond, { zoneBonus: { draw: 1 }, text: CARDS.karl_desmond.text + " 阵位：若同阵位有另一个友方角色，抽 1 张牌。" });
+  Object.assign(CARDS.guard, { zoneBonus: { attack: 1 }, text: CARDS.guard.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.medic_apprentice, { veinBonus: { vein: 4, healHero: 2 }, text: CARDS.medic_apprentice.text + " 引脉 4：恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.courier, { zoneBonus: { health: 1 }, text: CARDS.courier.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.karl_desmond, { zoneBonus: { draw: 1 }, text: CARDS.karl_desmond.text + " 阵位：若同阵位有另一个友方随从，抽 1 张牌。" });
   Object.assign(CARDS.lecturer, { veinBonus: { vein: 6, selfBuff: { attack: 1, health: 1 } }, text: CARDS.lecturer.text + " 引脉 6：获得 +1/+1。" });
-  Object.assign(CARDS.nina, { zoneBonus: { health: 1 }, text: CARDS.nina.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
-  Object.assign(CARDS.losutai_hunter, { zoneBonus: { attack: 1 }, text: CARDS.losutai_hunter.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
-  Object.assign(CARDS.tribal_warrior, { zoneBonus: { health: 1 }, text: CARDS.tribal_warrior.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
+  Object.assign(CARDS.nina, { zoneBonus: { health: 1 }, text: CARDS.nina.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.losutai_hunter, { zoneBonus: { attack: 1 }, text: CARDS.losutai_hunter.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.tribal_warrior, { zoneBonus: { health: 1 }, text: CARDS.tribal_warrior.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.lanxi, { veinBonus: { vein: 6, armor: 2 }, text: CARDS.lanxi.text + " 引脉 6：获得 2 点护甲。" });
-  Object.assign(CARDS.republic_guard, { zoneBonus: { health: 2 }, text: CARDS.republic_guard.text + " 阵位：若同阵位有另一个友方角色，生命值 +2。" });
-  Object.assign(CARDS.beatrix, { veinBonus: { vein: 4, healHero: 2 }, text: CARDS.beatrix.text + " 引脉 4：恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.elena, { zoneBonus: { draw: 1 }, text: CARDS.elena.text + " 阵位：若同阵位有另一个友方角色，抽 1 张牌。" });
+  Object.assign(CARDS.republic_guard, { zoneBonus: { health: 2 }, text: CARDS.republic_guard.text + " 阵位：若同阵位有另一个友方随从，生命值 +2。" });
+  Object.assign(CARDS.beatrix, { veinBonus: { vein: 4, healHero: 2 }, text: CARDS.beatrix.text + " 引脉 4：恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.elena, { zoneBonus: { draw: 1 }, text: CARDS.elena.text + " 阵位：若同阵位有另一个友方随从，抽 1 张牌。" });
   Object.assign(CARDS.empire_guard, { veinBonus: { vein: 4, armor: 2 }, text: CARDS.empire_guard.text + " 引脉 4：获得 2 点护甲。" });
-  Object.assign(CARDS.mia, { zoneBonus: { draw: 1 }, text: CARDS.mia.text + " 阵位：若同阵位有另一个友方角色，抽 1 张牌。" });
-  Object.assign(CARDS.elsa, { zoneBonus: { healHero: 2 }, text: CARDS.elsa.text + " 阵位：若同阵位有另一个友方角色，恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.snow_medic, { zoneBonus: { healHero: 1 }, text: CARDS.snow_medic.text + " 阵位：若同阵位有另一个友方角色，恢复你的英雄 1 点生命。" });
+  Object.assign(CARDS.mia, { zoneBonus: { draw: 1 }, text: CARDS.mia.text + " 阵位：若同阵位有另一个友方随从，抽 1 张牌。" });
+  Object.assign(CARDS.elsa, { zoneBonus: { healHero: 2 }, text: CARDS.elsa.text + " 阵位：若同阵位有另一个友方随从，恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.snow_medic, { zoneBonus: { healHero: 1 }, text: CARDS.snow_medic.text + " 阵位：若同阵位有另一个友方随从，恢复你的领袖 1 点生命。" });
   Object.assign(CARDS.gok_digger, { veinBonus: { vein: 4, armor: 1 }, text: CARDS.gok_digger.text + " 引脉 4：获得 1 点护甲。" });
-  Object.assign(CARDS.bounty_hunter, { zoneBonus: { attack: 1 }, text: CARDS.bounty_hunter.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
-  Object.assign(CARDS.shextena, { mirrorBonus: { healHero: 1 }, text: CARDS.shextena.text + " 对位：若敌方对位阵位有角色，恢复你的英雄 1 点生命。" });
-  Object.assign(CARDS.karl_desmond, { mirrorBonus: { draw: 1 }, text: CARDS.karl_desmond.text + " 对位：若敌方对位阵位有角色，抽 1 张牌。" });
-  Object.assign(CARDS.grayfeather, { mirrorBonus: { attack: 1 }, text: CARDS.grayfeather.text + " 对位：若敌方对位阵位有角色，攻击力 +1。" });
-  Object.assign(CARDS.republic_guard, { mirrorBonus: { health: 1 }, text: CARDS.republic_guard.text + " 对位：若敌方对位阵位有角色，生命值 +1。" });
-  Object.assign(CARDS.empire_guard, { mirrorBonus: { armor: 1 }, text: CARDS.empire_guard.text + " 对位：若敌方对位阵位有角色，获得 1 点护甲。" });
+  Object.assign(CARDS.bounty_hunter, { zoneBonus: { attack: 1 }, text: CARDS.bounty_hunter.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.shextena, { mirrorBonus: { healHero: 1 }, text: CARDS.shextena.text + " 对位：若敌方对位阵位有随从，恢复你的领袖 1 点生命。" });
+  Object.assign(CARDS.karl_desmond, { mirrorBonus: { draw: 1 }, text: CARDS.karl_desmond.text + " 对位：若敌方对位阵位有随从，抽 1 张牌。" });
+  Object.assign(CARDS.grayfeather, { mirrorBonus: { attack: 1 }, text: CARDS.grayfeather.text + " 对位：若敌方对位阵位有随从，攻击力 +1。" });
+  Object.assign(CARDS.republic_guard, { mirrorBonus: { health: 1 }, text: CARDS.republic_guard.text + " 对位：若敌方对位阵位有随从，生命值 +1。" });
+  Object.assign(CARDS.empire_guard, { mirrorBonus: { armor: 1 }, text: CARDS.empire_guard.text + " 对位：若敌方对位阵位有随从，获得 1 点护甲。" });
 
-  Object.assign(CARDS.shextena, { veinBonus: { vein: 6, healHero: 3 }, text: CARDS.shextena.text + " 引脉 6：恢复你的英雄 3 点生命。" });
-  Object.assign(CARDS.timon, { zoneBonus: { health: 1 }, text: CARDS.timon.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
+  Object.assign(CARDS.shextena, { veinBonus: { vein: 6, healHero: 3 }, text: CARDS.shextena.text + " 引脉 6：恢复你的领袖 3 点生命。" });
+  Object.assign(CARDS.timon, { zoneBonus: { health: 1 }, text: CARDS.timon.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.aidric, { veinBonus: { vein: 4, armor: 2 }, text: CARDS.aidric.text + " 引脉 4：获得 2 点护甲。" });
-  Object.assign(CARDS.orlicas, { zoneBonus: { draw: 1 }, text: CARDS.orlicas.text + " 阵位：若同阵位有另一个友方角色，抽 1 张牌。" });
+  Object.assign(CARDS.orlicas, { zoneBonus: { draw: 1 }, text: CARDS.orlicas.text + " 阵位：若同阵位有另一个友方随从，抽 1 张牌。" });
   Object.assign(CARDS.justus, { veinBonus: { vein: 6, armor: 1 }, text: CARDS.justus.text + " 引脉 6：获得 1 点护甲。" });
-  Object.assign(CARDS.samuel, { zoneBonus: { health: 1 }, text: CARDS.samuel.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
-  Object.assign(CARDS.cassian, { zoneBonus: { attack: 1 }, text: CARDS.cassian.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
-  Object.assign(CARDS.doorman, { veinBonus: { vein: 4, healHero: 2 }, text: CARDS.doorman.text + " 引脉 4：恢复你的英雄 2 点生命。" });
+  Object.assign(CARDS.samuel, { zoneBonus: { health: 1 }, text: CARDS.samuel.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.cassian, { zoneBonus: { attack: 1 }, text: CARDS.cassian.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.doorman, { veinBonus: { vein: 4, healHero: 2 }, text: CARDS.doorman.text + " 引脉 4：恢复你的领袖 2 点生命。" });
   Object.assign(CARDS.grayfeather, { veinBonus: { vein: 4, armor: 1 }, text: CARDS.grayfeather.text + " 引脉 4：获得 1 点护甲。" });
-  Object.assign(CARDS.molan, { zoneBonus: { attack: 1 }, text: CARDS.molan.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
-  Object.assign(CARDS.lanzhou, { zoneBonus: { health: 1 }, text: CARDS.lanzhou.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
+  Object.assign(CARDS.molan, { zoneBonus: { attack: 1 }, text: CARDS.molan.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.lanzhou, { zoneBonus: { health: 1 }, text: CARDS.lanzhou.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.konrad, { veinBonus: { vein: 4, armor: 2 }, text: CARDS.konrad.text + " 引脉 4：获得 2 点护甲。" });
-  Object.assign(CARDS.erhardt, { zoneBonus: { attack: 1 }, text: CARDS.erhardt.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
-  Object.assign(CARDS.cedric, { veinBonus: { vein: 6, healHero: 2 }, text: CARDS.cedric.text + " 引脉 6：恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.shield_bearer, { zoneBonus: { health: 1 }, text: CARDS.shield_bearer.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
+  Object.assign(CARDS.erhardt, { zoneBonus: { attack: 1 }, text: CARDS.erhardt.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
+  Object.assign(CARDS.cedric, { veinBonus: { vein: 6, healHero: 2 }, text: CARDS.cedric.text + " 引脉 6：恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.shield_bearer, { zoneBonus: { health: 1 }, text: CARDS.shield_bearer.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.gunther, { veinBonus: { vein: 4, armor: 2 }, text: CARDS.gunther.text + " 引脉 4：获得 2 点护甲。" });
-  Object.assign(CARDS.karl_schwarz, { zoneBonus: { attack: 1 }, text: CARDS.karl_schwarz.text + " 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
+  Object.assign(CARDS.karl_schwarz, { zoneBonus: { attack: 1 }, text: CARDS.karl_schwarz.text + " 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
   Object.assign(CARDS.walter, { veinBonus: { vein: 6, armor: 1 }, text: CARDS.walter.text + " 引脉 6：获得 1 点护甲。" });
-  Object.assign(CARDS.fog_sailor, { zoneBonus: { health: 1 }, text: CARDS.fog_sailor.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
+  Object.assign(CARDS.fog_sailor, { zoneBonus: { health: 1 }, text: CARDS.fog_sailor.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.mist_scout, { veinBonus: { vein: 4, armor: 1 }, text: CARDS.mist_scout.text + " 引脉 4：获得 1 点护甲。" });
-  Object.assign(CARDS.caravan_guard, { zoneBonus: { health: 1 }, text: CARDS.caravan_guard.text + " 阵位：若同阵位有另一个友方角色，生命值 +1。" });
+  Object.assign(CARDS.caravan_guard, { zoneBonus: { health: 1 }, text: CARDS.caravan_guard.text + " 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.astral_colossus, { veinBonus: { vein: 6, armor: 2 }, text: CARDS.astral_colossus.text + " 引脉 6：获得 2 点护甲。" });
   // 第二轮旧卡迁移：把低影响的登场效果改成余响/被动，降低登场密度。
-  Object.assign(CARDS.medic_apprentice, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 1 }, text: "余响：恢复你的英雄 1 点生命。 引脉 4：恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.snow_medic, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 1 }, text: "余响：恢复你的英雄 1 点生命。 阵位：若同阵位有另一个友方角色，恢复你的英雄 1 点生命。" });
+  Object.assign(CARDS.medic_apprentice, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 1 }, text: "余响：恢复你的领袖 1 点生命。 引脉 4：恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.snow_medic, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 1 }, text: "余响：恢复你的领袖 1 点生命。 阵位：若同阵位有另一个友方随从，恢复你的领袖 1 点生命。" });
   Object.assign(CARDS.field_engineer, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "armor", amount: 2 }, text: "余响：获得 2 点护甲。" });
   Object.assign(CARDS.archive_scribe, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.mia, { keywords: ["deathrattle"], target: "none", battlecry: null, zoneBonus: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.elena, { keywords: ["deathrattle"], target: "none", battlecry: null, zoneBonus: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
-  Object.assign(CARDS.field_medic, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 2 }, text: "余响：恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.bounty_hunter, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "damageRandomEnemy", amount: 1 }, text: "余响：对随机敌方目标造成 1 点伤害。 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
+  Object.assign(CARDS.field_medic, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 2 }, text: "余响：恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.bounty_hunter, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "damageRandomEnemy", amount: 1 }, text: "余响：对随机敌方目标造成 1 点伤害。 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
   Object.assign(CARDS.sim_assistant, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
-  Object.assign(CARDS.vein_medic, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 2 }, text: "余响：恢复你的英雄 2 点生命。" });
-  Object.assign(CARDS.elsa, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 2 }, text: "余响：恢复你的英雄 2 点生命。 阵位：若同阵位有另一个友方角色，恢复你的英雄 2 点生命。" });
+  Object.assign(CARDS.vein_medic, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 2 }, text: "余响：恢复你的领袖 2 点生命。" });
+  Object.assign(CARDS.elsa, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "healHero", amount: 2 }, text: "余响：恢复你的领袖 2 点生命。 阵位：若同阵位有另一个友方随从，恢复你的领袖 2 点生命。" });
   Object.assign(CARDS.walter, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "damageRandomEnemy", amount: 2 }, text: "余响：对随机敌方目标造成 2 点伤害。 引脉 6：获得 1 点护甲。" });
-  Object.assign(CARDS.losutai_hunter, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "damageRandomEnemy", amount: 1 }, text: "余响：对随机敌方目标造成 1 点伤害。 阵位：若同阵位有另一个友方角色，攻击力 +1。" });
+  Object.assign(CARDS.losutai_hunter, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "damageRandomEnemy", amount: 1 }, text: "余响：对随机敌方目标造成 1 点伤害。 阵位：若同阵位有另一个友方随从，攻击力 +1。" });
   Object.assign(CARDS.iron_engineer, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "armor", amount: 2 }, text: "余响：获得 2 点护甲。" });
   Object.assign(CARDS.powder_boy, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "armor", amount: 1 }, text: "余响：获得 1 点护甲。" });
   Object.assign(CARDS.chrono_scholar, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.archive_devourer, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.lecturer, { keywords: ["deathrattle"], target: "none", battlecry: null, veinBonus: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
-  Object.assign(CARDS.frost_leviathan, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "freezeAllEnemies" }, text: "余响：凝滞所有敌方角色。" });
-  Object.assign(CARDS.drill_sergeant, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "tauntRandomAlly" }, text: "余响：使一个随机友方角色获得拦截。" });
+  Object.assign(CARDS.frost_leviathan, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "freezeAllEnemies" }, text: "余响：凝滞所有敌方随从。" });
+  Object.assign(CARDS.drill_sergeant, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "tauntRandomAlly" }, text: "余响：使一个随机友方随从获得拦截。" });
   Object.assign(CARDS.konrad, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "turnArmor", amount: 1 }, text: "拦截。被动：回合开始获得 1 点护甲。 引脉 4：获得 2 点护甲。" });
   Object.assign(CARDS.gunther, { keywords: ["taunt"], target: "none", battlecry: null, passive: null, attack: 4, health: 5, text: "拦截。 引脉 4：获得 2 点护甲。" });
   Object.assign(CARDS.powder_marshal, { keywords: [], target: "none", battlecry: null, passive: null, attack: 5, health: 5, text: "" });
@@ -1854,18 +1854,18 @@
 
 
   // 第六轮登场压缩：未进预设的持盾元帅/堡垒队长改成拦截光环。
-  Object.assign(CARDS.shield_marshal, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "tauntAura", amount: 1 }, text: "拦截。被动：你召唤的拦截角色获得 +0/+1。" });
-  Object.assign(CARDS.bastion_captain, { keywords: [], target: "none", battlecry: null, passive: { type: "tauntAura", amount: 1 }, text: "被动：你召唤的拦截角色获得 +0/+1。" });
+  Object.assign(CARDS.shield_marshal, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "tauntAura", amount: 1 }, text: "拦截。被动：你召唤的拦截随从获得 +0/+1。" });
+  Object.assign(CARDS.bastion_captain, { keywords: [], target: "none", battlecry: null, passive: { type: "tauntAura", amount: 1 }, text: "被动：你召唤的拦截随从获得 +0/+1。" });
 
 
   // 第五轮登场压缩：转成阵位/被动光环。
-  Object.assign(CARDS.zone_keeper, { keywords: [], target: "none", battlecry: null, zoneBonus: { attack: 2, health: 2 }, text: "阵位：若同阵位有另一个友方角色，获得 +2/+2。" });
-  Object.assign(CARDS.ironclad, { keywords: ["taunt"], target: "none", battlecry: null, zoneBonus: { health: 1 }, text: "拦截。 阵位：若同阵位有另一个友方角色，生命值 +1。" });
-  Object.assign(CARDS.hans, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "tauntAura", amount: 1 }, text: "拦截。被动：你召唤的拦截角色获得 +0/+1。" });
+  Object.assign(CARDS.zone_keeper, { keywords: [], target: "none", battlecry: null, zoneBonus: { attack: 2, health: 2 }, text: "阵位：若同阵位有另一个友方随从，获得 +2/+2。" });
+  Object.assign(CARDS.ironclad, { keywords: ["taunt"], target: "none", battlecry: null, zoneBonus: { health: 1 }, text: "拦截。 阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.hans, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "tauntAura", amount: 1 }, text: "拦截。被动：你召唤的拦截随从获得 +0/+1。" });
   Object.assign(CARDS.gok_digger, { keywords: [], target: "none", battlecry: null, text: "采掘 1。" });
 
   Object.assign(CARDS.vein_scout, { keywords: ["charge"], target: "none", battlecry: null, text: "突进。" });
-  Object.assign(CARDS.guard, { keywords: ["taunt"], target: "none", battlecry: null, text: "拦截。 阵位：若同阵位有另一个友方角色，攻击力 +1。 引脉 4：获得 1 点护甲。" });
+  Object.assign(CARDS.guard, { keywords: ["taunt"], target: "none", battlecry: null, text: "拦截。 阵位：若同阵位有另一个友方随从，攻击力 +1。 引脉 4：获得 1 点护甲。" });
 
 
 
@@ -1901,8 +1901,8 @@
   };
 
   const DECK_STRATEGIES = {
-    aggro: { name: "快攻", desc: "低费角色与直伤，抢在前中期结束。", curve: { 1: 7, 2: 8, 3: 7, 4: 5, 5: 2, 6: 1 } },
-    midrange: { name: "中速", desc: "按费拍下高质量角色，靠阵位和登场取得优势。", curve: { 1: 5, 2: 7, 3: 6, 4: 6, 5: 4, 6: 2 } },
+    aggro: { name: "快攻", desc: "低费随从与直伤，抢在前中期结束。", curve: { 1: 7, 2: 8, 3: 7, 4: 5, 5: 2, 6: 1 } },
+    midrange: { name: "中速", desc: "按费拍下高质量随从，靠阵位和登场取得优势。", curve: { 1: 5, 2: 7, 3: 6, 4: 6, 5: 4, 6: 2 } },
     control: { name: "控制", desc: "解场、凝滞、恢复与抽牌，拖到流脉与高费回合。", curve: { 1: 4, 2: 6, 3: 6, 4: 6, 5: 5, 6: 3 } }
   };
 
@@ -1924,7 +1924,7 @@
   function validateDeck(faction, list) {
     const errors = [];
     const arr = Array.isArray(list) ? list : [];
-    if (arr.length !== 33) errors.push("牌组必须是 30 主牌 + 2 阵型 + 1 遗物");
+    if (arr.length !== 31) errors.push("牌组必须是 30 张带牌（阵型可选）+ 1 张遗物");
     const counts = {};
     let main = 0, formations = 0, relics = 0;
     for (const id of arr) {
@@ -1937,8 +1937,8 @@
       else if (d.type === "relic") relics++;
       else main++;
     }
-    if (main !== 30) errors.push("主牌必须是 30 张，当前 " + main);
-    if (formations !== 2) errors.push("阵型必须是 2 张，当前 " + formations);
+    if (main + formations !== 30) errors.push("带牌必须是 30 张（含阵型），当前 " + (main + formations));
+    if (formations > 2) errors.push("阵型最多 2 张，当前 " + formations);
     if (relics !== 1) errors.push("遗物必须是 1 张，当前 " + relics);
     return { ok: errors.length === 0, errors: Array.from(new Set(errors)), counts: counts, main: main, formations: formations, relics: relics };
   }
@@ -1986,16 +1986,16 @@
       }
     }
     const rest = pool.slice().sort((a, b) => scoreForAuto(CARDS[b], strat) - scoreForAuto(CARDS[a], strat) || a.localeCompare(b));
-    while (chosen.length < 30) {
+    while (chosen.length < 28) {
       let added = false;
       for (const id of rest) {
-        if (chosen.length >= 30) break;
+        if (chosen.length >= 28) break;
         if (take(id)) added = true;
       }
       if (!added) break;
     }
     const special = DECK_SPECIALS[faction];
-    return chosen.slice(0, 30).concat([special.formation, special.formation, special.relic]);
+    return chosen.slice(0, 28).concat([special.formation, special.formation, special.relic]);
   }
 
   const DECKS = {
@@ -2055,7 +2055,7 @@
     if (!DECKS[factionId] || !DECK_SPECIALS[factionId]) continue;
     const main = DECKS[factionId].slice();
     const special = DECK_SPECIALS[factionId];
-    DECKS[factionId] = main.slice(0, 30).concat([special.formation, special.formation, special.relic]);
+    DECKS[factionId] = main.slice(0, 28).concat([special.formation, special.formation, special.relic]);
   }
 
   const KEYWORDS = {
@@ -2074,52 +2074,78 @@
     reborn: { name: "回潮", icon: "♻", color: "#9fd7c4" }
   };
 
+  // ===== 白板随从补全 / 让每张随从都有可读的玩法 =====
+  Object.assign(CARDS.bard, { keywords: ["battlecry"], target: "none", battlecry: { type: "draw", amount: 1 }, text: "登场：抽 1 张牌。" });
+  Object.assign(CARDS.mercenary, { keywords: ["battlecry"], target: "none", battlecry: { type: "armor", amount: 1 }, text: "登场：获得 1 点护甲。" });
+  Object.assign(CARDS.vein_oracle, { keywords: ["battlecry"], target: "none", battlecry: { type: "veinDraw", amount: 1, vein: 6, draw: 1 }, text: "登场：流脉 +1；若流脉≥6，抽 1 张牌。" });
+  Object.assign(CARDS.spell_echo, { keywords: ["battlecry"], target: "none", battlecry: { type: "discover", pool: "spell" }, text: "登场：检索一张战术牌。" });
+  Object.assign(CARDS.siege_train, { keywords: ["battlecry"], target: "none", battlecry: { type: "damageAllEnemies", amount: 1 }, text: "登场：对所有敌方随从造成 1 点伤害。" });
+  Object.assign(CARDS.void_titan, { keywords: ["battlecry"], target: "enemy", battlecry: { type: "destroy" }, text: "登场：消灭一个敌方随从。" });
+  Object.assign(CARDS.vein_channeler, { keywords: ["battlecry"], target: "none", battlecry: { type: "veinOnly", amount: 1 }, text: "登场：流脉 +1。" });
+  Object.assign(CARDS.excavation_titan, { keywords: ["battlecry"], target: "none", battlecry: { type: "veinOnly", amount: 2 }, text: "登场：流脉 +2。" });
+  Object.assign(CARDS.blood_priestess, { keywords: ["battlecry"], target: "none", battlecry: { type: "healHero", amount: 3 }, text: "登场：恢复你的领袖 3 点生命。" });
+  Object.assign(CARDS.siege_captain, { keywords: ["battlecry"], target: "none", battlecry: { type: "armor", amount: 1 }, text: "登场：获得 1 点护甲。" });
+  Object.assign(CARDS.frost_professor, { keywords: ["battlecry"], target: "enemy", battlecry: { type: "freeze" }, text: "登场：凝滞一个敌方随从。" });
+  Object.assign(CARDS.powder_marshal, { keywords: ["battlecry"], target: "none", battlecry: { type: "armor", amount: 1 }, text: "登场：获得 1 点护甲。" });
+  Object.assign(CARDS.vein_leviathan, { keywords: ["battlecry"], target: "none", battlecry: { type: "veinDraw", amount: 1, vein: 7, draw: 1 }, text: "登场：流脉 +1；若流脉≥7，抽 1 张牌。" });
+  Object.assign(CARDS.world_serpent, { keywords: ["battlecry"], target: "none", battlecry: { type: "damageAllEnemies", amount: 2 }, text: "登场：对所有敌方随从造成 2 点伤害。" });
+  Object.assign(CARDS.faceless_king, { keywords: ["battlecry"], target: "friendly", battlecry: { type: "copyFriendly" }, text: "登场：复制一个友方随从。" });
+
   // ===== 阵营软克制卡 / 2.0 =====
   Object.assign(CARDS, {
     armor_break: {
       id: "armor_break", name: "破甲演算", faction: "academy", type: "spell",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "移除敌方英雄至多 3 点护甲；抽 1 张牌。",
+      text: "移除敌方领袖至多 3 点护甲；抽 1 张牌。",
       flavor: "护甲是另一种算式，拆开它只需要正确的括号。",
       spell: { type: "stripArmorDraw", amount: 3, draw: 1 }
     },
     blood_path: {
       id: "blood_path", name: "血路", faction: "xizhao", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "friendly",
-      text: "使一个友方角色获得 +1 攻击；本回合它攻击时无视拦截。",
+      text: "使一个友方随从获得 +1 攻击；本回合它攻击时无视拦截。",
       flavor: "没有墙能挡住一条已经流出去的血路。",
       spell: { type: "ignoreTauntBuff", attack: 1 }
     },
     anti_rush: {
       id: "anti_rush", name: "反炮击工事", faction: "republic", type: "spell",
       cost: 3, rarity: "rare", art: null, target: "none",
-      text: "获得 4 点护甲；若敌方有突进角色，再获得 2 点护甲。",
+      text: "获得 4 点护甲；若敌方有突进随从，再获得 2 点护甲。",
       flavor: "炮弹的落点，在图纸上早就被标好了。",
       spell: { type: "armorConditionalRush", armor: 4, bonus: 2 }
     },
     vein_ward: {
       id: "vein_ward", name: "地脉护佑", faction: "pus", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "恢复你的英雄 2 点生命；本回合你的角色不能被凝滞。",
+      text: "恢复你的领袖 2 点生命；本回合你的随从不能被凝滞。",
       flavor: "地脉在脚下翻身，把冬天挡在外面。",
       spell: { type: "antiFreezeHeal", heal: 2 }
     },
     quarantine: {
       id: "quarantine", name: "战地检疫", faction: "empire", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "enemy",
-      text: "对一个敌方角色造成 1 点伤害；本回合敌方英雄不能恢复生命。",
+      text: "对一个敌方随从造成 1 点伤害；本回合敌方领袖不能恢复生命。",
       flavor: "伤口可以处理，但先要确认它不会继续长。",
       spell: { type: "damageHealBlock", amount: 1 }
     }
   });
   // ===== 第二组阵营专属卡 =====
   Object.assign(CARDS, {
-    battle_calc: { id: "battle_calc", name: "战场推演", faction: "academy", type: "spell", cost: 2, rarity: "common", art: null, target: "enemy", text: "对一个敌方角色造成 2 点伤害。", flavor: "把对手的下一步，也算进自己的公式里。", spell: { type: "damage", amount: 2 } },
-    hunt_ritual: { id: "hunt_ritual", name: "猎杀仪式", faction: "xizhao", type: "spell", cost: 3, rarity: "common", art: null, target: "enemy", text: "对一个敌方角色造成 3 点伤害。", flavor: "血族从不浪费一场狩猎。", spell: { type: "damage", amount: 3 } },
-    line_rotation: { id: "line_rotation", name: "阵线轮换", faction: "republic", type: "spell", cost: 2, rarity: "common", art: null, target: "friendly", text: "使一个友方角色获得拦截。", flavor: "换防不是后退，是把盾递到下一双手里。", spell: { type: "buffTaunt", attack: 0, health: 0 } },
+    battle_calc: { id: "battle_calc", name: "战场推演", faction: "academy", type: "spell", cost: 2, rarity: "common", art: null, target: "enemy", text: "对一个敌方随从造成 2 点伤害。", flavor: "把对手的下一步，也算进自己的公式里。", spell: { type: "damage", amount: 2 } },
+    hunt_ritual: { id: "hunt_ritual", name: "猎杀仪式", faction: "xizhao", type: "spell", cost: 3, rarity: "common", art: null, target: "enemy", text: "对一个敌方随从造成 3 点伤害。", flavor: "血族从不浪费一场狩猎。", spell: { type: "damage", amount: 3 } },
+    line_rotation: { id: "line_rotation", name: "阵线轮换", faction: "republic", type: "spell", cost: 2, rarity: "common", art: null, target: "friendly", text: "使一个友方随从获得拦截。", flavor: "换防不是后退，是把盾递到下一双手里。", spell: { type: "buffTaunt", attack: 0, health: 0 } },
     vein_sentinel: { id: "vein_sentinel", name: "守脉者", faction: "pus", type: "minion", cost: 3, rarity: "common", art: null, target: "none", attack: 2, health: 4, keywords: ["taunt"], text: "拦截。", flavor: "它站着的地方，就是地脉的边界。" },
     armor_recycle: { id: "armor_recycle", name: "装甲回收", faction: "empire", type: "spell", cost: 3, rarity: "common", art: null, target: "none", text: "获得 3 点护甲。", flavor: "废铁只是还没找到下一门炮。", spell: { type: "armor", amount: 3 } }
   });
+  // 只保留卡牌效果文本，风味文本放到详情页。
+  for (const id of ["vein_warden","mist_hound","archive_guard","vein_bulwark","aegis_guard","wind_cannon","venom_fang","rebirth_serpent","rush_lancer","vein_scout","shield_recruit","iron_phalanx","siphon_guard","vein_sentinel"]) {
+    const card = CARDS[id];
+    if (card) card.text = "";
+  }
+  Object.assign(CARDS.courier, { text: "阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.fog_sailor, { text: "阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.gok_digger, { text: "采掘 1；引脉 4：获得 1 点护甲。" });
+
   const NEW_DECK_REPLACEMENTS = {
     academy: ["insight", "armor_break"],
     xizhao: ["shadow_raid", "blood_path"],

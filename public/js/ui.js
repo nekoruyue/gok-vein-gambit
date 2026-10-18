@@ -132,6 +132,8 @@
     lanPublicUrl: null,
     lanGuestDecks: null,
     lanGuestDecksReady: false,
+    lanHostUseCustom: true,
+    lanGuestUseCustom: true,
     lanFaction: "pus",
     lanRanked: false,
     lanStatusTimer: null,
@@ -295,7 +297,7 @@
     const name = $("home-legendary-name");
     if (name) name.textContent = pick.name;
     const faction = $("home-legendary-faction");
-    if (faction) faction.textContent = factionName(pick.faction) + " · " + (pick.type === "spell" ? "传说战术" : "传说角色") + " · " + (pick.cost || 0) + " 费";
+    if (faction) faction.textContent = factionName(pick.faction) + " · " + (pick.type === "spell" ? "传说战术" : "传说随从") + " · " + (pick.cost || 0) + " 费";
   }
 
   function openStartMenu() {
@@ -326,7 +328,7 @@
     app.mode = "ai";
     document.querySelectorAll("#setup-faction .faction-card").forEach((b) => { b.classList.toggle("active", b.dataset.faction === app.faction); b.style.setProperty("--emblem", "url('" + D.FACTIONS[b.dataset.faction].emblem + "')"); });
     const other = D.nextFaction(app.faction);
-    $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30主牌+2阵型+1遗物 · 先手随机";
+    $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30张带牌+1遗物 · 先手随机";
     const hero = D.HEROES[D.FACTIONS[app.faction].hero];
     const art = $("setup-hero-art");
     art.style.backgroundImage = "url('" + heroImage(hero.id) + "')";
@@ -503,10 +505,10 @@
     syncMulliganUI();
     if (s.status === "gameover") $("game-hint").textContent = "推演已结束。";
     else if (app.busy) $("game-hint").textContent = app.currentHint || "推演中…";
-    else if (app.targetInfo) $("game-hint").textContent = app.targetInfo.kind === "heroPower" ? "选择英雄技能目标" : "选择目标";
-    else if (app.zoneSelect) $("game-hint").textContent = "选择一个阵位放置角色或阵型";
+    else if (app.targetInfo) $("game-hint").textContent = app.targetInfo.kind === "heroPower" ? "选择领袖技能目标" : "选择目标";
+    else if (app.zoneSelect) $("game-hint").textContent = "选择一个阵位放置随从或阵型";
     else if (app.attacker) $("game-hint").textContent = "选择攻击目标";
-    else $("game-hint").textContent = "点击或拖动卡牌；点击我方角色攻击。";
+    else $("game-hint").textContent = "点击或拖动卡牌；点击我方随从攻击。";
     if (app.net && app.net.role === "host" && app.net.active) { scheduleNetBroadcast(); scheduleHostSave(); }
   }
 
@@ -620,10 +622,10 @@
       if (!def) { box.classList.remove("show"); return; }
       const isBattlecry = def.keywords && def.keywords.indexOf("battlecry") >= 0;
       box.appendChild(el("span", "targeting-title", (isBattlecry ? "登场「" : "施放「") + def.name + "」"));
-      box.appendChild(el("span", "targeting-sub", isBattlecry ? "点击发光的友方角色" : "点击高亮角色施放"));
+      box.appendChild(el("span", "targeting-sub", isBattlecry ? "点击发光的友方随从" : "点击高亮随从施放"));
     } else {
-      box.appendChild(el("span", "targeting-title", "英雄技能"));
-      box.appendChild(el("span", "targeting-sub", "点击高亮角色施放"));
+      box.appendChild(el("span", "targeting-title", "领袖技能"));
+      box.appendChild(el("span", "targeting-sub", "点击高亮随从施放"));
     }
     const cancel = el("button", "targeting-cancel", "取消选择");
     cancel.onclick = () => cancelSelection();
@@ -659,17 +661,17 @@
     }
     if (s.current !== app.viewer) {
       title.textContent = "对手回合";
-      text.textContent = "先观察对手怎么使用行动槽和角色。轮到你时，再按提示操作。";
+      text.textContent = "先观察对手怎么使用行动槽和随从。轮到你时，再按提示操作。";
       return;
     }
     if (app.targetInfo) {
       title.textContent = "选择目标";
-      text.textContent = "点击高亮角色完成施放；点同卡、右键、Esc 或提示条上的「取消选择」可以取消。";
+      text.textContent = "点击高亮随从完成施放；点同卡、右键、Esc 或提示条上的「取消选择」可以取消。";
       return;
     }
     if (app.zoneSelect) {
       title.textContent = "选择阵位";
-      text.textContent = "左翼 / 中阵 / 右翼最多各站 2 个角色。把牌点进或拖进高亮阵位。";
+      text.textContent = "左翼 / 中阵 / 右翼最多各站 2 个随从。把牌点进或拖进高亮阵位。";
       return;
     }
     const own = s.players[app.viewer];
@@ -680,7 +682,7 @@
     });
     if (canAttack) {
       title.textContent = "第 2 步 · 攻击";
-      text.textContent = "把攻击力大于 0 的我方角色拖到敌方角色或英雄上；也可以先点角色，再点目标。";
+      text.textContent = "把攻击力大于 0 的我方随从拖到敌方随从或领袖上；也可以先点随从，再点目标。";
       return;
     }
     const playable = own.hand.filter(c => {
@@ -781,7 +783,7 @@
     container.appendChild(info);
     const strip = el("div", "hero-power-strip");
     strip.appendChild(el("strong", null, player.hero.power.name + " · " + player.hero.power.cost));
-    strip.appendChild(el("span", null, "英雄技能"));
+    strip.appendChild(el("span", null, "领袖技能"));
     container.appendChild(strip);
     if (side === "top") {
       const targets = targetList();
@@ -1028,7 +1030,7 @@
     }
     card.appendChild(art);
     card.appendChild(el("div", "card-cost", String(def.cost)));
-    card.appendChild(el("div", "card-type-badge", "角色"));
+    card.appendChild(el("div", "card-type-badge", "随从"));
     addCardTags(card, def, m, "board-tags");
     card.appendChild(el("div", "card-name", def.name));
     card.appendChild(el("div", "card-type", typeLine(def, m)));
@@ -1071,7 +1073,7 @@
           else app.attacker = m.uid;
           renderGame();
         } else {
-          toast("该角色本回合无法攻击。");
+          toast("该随从本回合无法攻击。");
         }
       }
     };
@@ -1133,7 +1135,7 @@
   }
 
   function typeLine(def, m) {
-    return def.type === "spell" ? "战术" : def.type === "relic" ? "遗物" : def.type === "formation" ? "阵型" : def.type === "leader" ? "领袖" : "角色";
+    return def.type === "spell" ? "战术" : def.type === "relic" ? "遗物" : def.type === "formation" ? "阵型" : def.type === "leader" ? "领袖" : "随从";
   }
 
   function renderVein(s) {
@@ -1155,13 +1157,13 @@
     let bannerText = "";
     let tone = "";
     if ((thresholds[10] || 0) > (oldT[10] || 0)) {
-      bannerText = "魔物潮！所有角色 -3 生命，双方英雄 -5 生命";
+      bannerText = "魔物潮！所有随从 -3 生命，双方领袖 -5 生命";
       tone = "danger";
     } else if ((thresholds[7] || 0) > (oldT[7] || 0)) {
-      bannerText = "流脉裂隙！双方英雄受到 2 点伤害";
+      bannerText = "流脉裂隙！双方领袖受到 2 点伤害";
       tone = "hot";
     } else if ((thresholds[4] || 0) > (oldT[4] || 0)) {
-      bannerText = "流脉震荡！所有角色受到 1 点伤害";
+      bannerText = "流脉震荡！所有随从受到 1 点伤害";
       tone = "hot";
     } else if (s.vein > app.lastVein) {
       bannerText = "采掘：流脉 " + app.lastVein + " → " + s.vein;
@@ -1307,14 +1309,14 @@
 
   function appendKeywordText(node, text) {
     if (!text) return;
-    const re = /(登场|余响|拦截|突进|凝滞|隐匿|采掘|引脉|血祭|恢复|抽|伤害|召唤|封缄|护甲)/g;
+    const re = /(登场|余响|拦截|突进|凝滞|隐匿|采掘|引脉|血祭|封缄|检索|护幕|连动|蚀毒|汲取|袭扰|回潮|反噬|顺势|吞噬)/g;
     let last = 0;
     let m;
     while ((m = re.exec(text)) !== null) {
       if (m.index > last) node.appendChild(document.createTextNode(text.slice(last, m.index)));
       const span = el("span", "kw", m[0]);
       if (["采掘", "引脉"].indexOf(m[0]) >= 0) span.classList.add("vein-kw");
-      if (["血祭", "伤害"].indexOf(m[0]) >= 0) span.classList.add("danger-kw");
+      if (m[0] === "血祭") span.classList.add("danger-kw");
       node.appendChild(span);
       last = m.index + m[0].length;
     }
@@ -1323,48 +1325,42 @@
 
   const KEYWORD_HELP = {
     "登场": "从手牌打出时触发一次效果。",
-    "余响": "该角色死亡时触发一次效果。",
-    "拦截": "敌方必须先攻击具有拦截的角色。",
+    "余响": "该随从死亡时触发一次效果。",
+    "拦截": "敌方必须先攻击具有拦截的随从。",
     "突进": "召唤当回合即可攻击。",
     "被动": "无需主动触发，满足条件时自动生效。",
-    "凝滞": "被凝滞的角色暂时不能攻击，持续到其下个回合。",
-    "封缄": "移除角色的技能、余响与增益效果。",
+    "凝滞": "被凝滞的随从暂时不能攻击，持续到其下个回合。",
+    "封缄": "移除随从的技能、余响与增益效果。",
     "隐匿": "无法被敌方选为目标，攻击后解除。",
     "引脉": "当共享流脉达到卡牌标注的数值时，额外触发效果。",
     "检索": "从三张牌中选择一张加入手牌。",
-    "采掘": "触发采掘，将一张采掘衍生牌加入手牌。",
+    "采掘": "触发采掘：共享流脉 +1。并不会自动将牌加入手牌。",
+    "随从": "场上的单位牌，不包含领袖。",
+    "领袖": "玩家操控的单位，拥有领袖技能与被动，不进入抽牌堆。",
     "血祭": "以支付生命为代价打出或触发效果。",
-    "护甲": "优先抵挡伤害，直到护甲被消耗。",
-    "伤害": "对目标造成伤害。",
-    "治疗": "恢复目标生命。",
-    "抽牌": "从牌库抽取卡牌。",
-    "召唤": "在阵位上召唤新的角色。",
-    "复制": "复制一个角色，生成一个新的战场单位。",
-    "回手": "将角色移回其拥有者的手牌。",
-    "消灭": "直接移除一个角色，并触发其死亡相关效果。",
-    "吞噬": "吃掉一个友方角色，并获得其攻击力与生命值。",
+    "吞噬": "吃掉一个友方随从，并获得其攻击力与生命值。",
     "护幕": "抵挡下一次伤害。",
     "连动": "每回合可以攻击两次。",
-    "蚀毒": "造成伤害时直接消灭受伤的角色。",
-    "汲取": "造成伤害时为你的英雄恢复等量生命。",
-    "袭扰": "召唤当回合可以攻击角色，但不能攻击英雄。",
+    "蚀毒": "造成伤害时直接消灭受伤的随从。",
+    "汲取": "造成伤害时为你的领袖恢复等量生命。",
+    "袭扰": "召唤当回合可以攻击随从，但不能攻击领袖。",
     "回潮": "死亡后以 1 点生命返回战场一次。",
     "反噬": "本牌使用后，下回合行动槽减少。",
     "顺势": "本回合打出过其他牌时触发强化效果。",
-    "阵位": "每个阵位最多容纳 2 个角色。卡牌可以要求同阵位、不同阵位，或指定某个阵位结算。",
+    "阵位": "每个阵位最多容纳 2 个随从。卡牌可以要求同阵位、不同阵位，或指定某个阵位结算。",
     "对位": "双方左/中/右同一列的阵位互相对位。",
     "借脉": "本回合先获得行动槽或牌，回合结束时补回流脉。",
     "逆流": "主动降低流脉，换取恢复或召唤。",
     "镇脉": "降低流脉并转化为护甲或防守收益。",
     "压脉": "降低流脉并转化为伤害。",
     "遗物": "装备后持续生效，不占用场上阵位；同一时间只能装备一件。",
-    "行动槽": "本回合可用的行动资源。"
   };
   const KEYWORD_ICONS = {
+    "随从": "summon", "领袖": "passive",
     "登场": "battlecry", "余响": "deathrattle", "拦截": "taunt", "突进": "charge",
     "被动": "passive", "凝滞": "freeze", "封缄": "silence", "隐匿": "stealth",
     "引脉": "vein", "检索": "discover", "采掘": "excavate", "血祭": "blood",
-    "护甲": "armor", "伤害": "damage", "治疗": "heal", "抽牌": "draw", "召唤": "summon", "复制": "summon", "回手": "draw", "消灭": "silence", "行动槽": "summon", "吞噬": "damage", "阵位": "summon", "遗物": "passive", "对位": "summon", "借脉": "vein", "逆流": "vein", "镇脉": "armor", "压脉": "damage",
+    "吞噬": "damage", "阵位": "summon", "遗物": "passive", "对位": "summon", "借脉": "vein", "逆流": "vein", "镇脉": "armor", "压脉": "damage",
     "护幕": "armor", "连动": "charge", "蚀毒": "deathrattle", "汲取": "heal", "袭扰": "charge", "回潮": "passive", "反噬": "summon", "顺势": "damage"
   };
 
@@ -1457,7 +1453,7 @@
       if (bt === "spellDraw" || bt === "drawSpell" || bt === "drawHandCondition") tags.push("抽牌");
       if (bt === "silenceVeinBuff") { tags.push("封缄"); tags.push("引脉"); }
       if (bt === "buffTauntZone" || bt === "buffIfIronclad") tags.push("拦截");
-      if (bt === "healHero" || bt === "healVein") tags.push("治疗");
+      if (bt === "healHero" || bt === "healVein") tags.push("恢复");
       if (bt === "healVein") tags.push("引脉");
       if (bt === "spellDiscover") tags.push("检索");
       if (bt === "armor" || bt === "armorPerTaunt") tags.push("护甲");
@@ -1486,12 +1482,12 @@
       if (st === "silence") tags.push("封缄");
       if (["freeze", "freezeAll", "freezeDraw"].indexOf(st) >= 0) tags.push("凝滞");
       if (st === "damage") tags.push("伤害");
-      if (["heal", "buffHeal"].indexOf(st) >= 0) tags.push("治疗");
+      if (["heal", "buffHeal"].indexOf(st) >= 0) tags.push("恢复");
       if (["draw", "drawVein", "bloodDraw", "healDraw", "freezeDraw"].indexOf(st) >= 0) tags.push("抽牌");
       if (st === "discover") tags.push("检索");
       if ([ "summon", "summonMonster" ].indexOf(st) >= 0) tags.push("召唤");
       if (["armor"].indexOf(st) >= 0) tags.push("护甲");
-      if (["healDraw"].indexOf(st) >= 0) tags.push("治疗");
+      if (["healDraw"].indexOf(st) >= 0) tags.push("恢复");
       if (["channelVein"].indexOf(st) >= 0) tags.push("引脉");
       if (["freezeDraw"].indexOf(st) >= 0) tags.push("凝滞");
       if (["buffTaunt"].indexOf(st) >= 0) tags.push("拦截");
@@ -1504,7 +1500,7 @@
       if (st === "armorVeinDraw") { tags.push("护甲"); tags.push("引脉"); tags.push("抽牌"); }
       if (st === "damagePerSpell") tags.push("伤害");
       if (st === "damageAllPerSpell") tags.push("伤害");
-      if (st === "healVein") { tags.push("治疗"); tags.push("引脉"); }
+      if (st === "healVein") { tags.push("恢复"); tags.push("引脉"); }
       if (st === "sacrificeSummon") { tags.push("血祭"); tags.push("召唤"); }
       if (st === "buffAllTaunt") tags.push("拦截");
       if (st === "armorAoe") { tags.push("护甲"); tags.push("伤害"); }
@@ -1733,7 +1729,7 @@
     const disabled = !current || s.status !== "playing" || s.mulliganPhase || !o.ok || app.busy || app.modalOpen;
     const actionText = !current ? "等待你的回合" : o.used ? "本回合已用" : (o.targetType === "enemy" ? "点击选择敌方目标" : "点击选择友方目标");
     const stateText = o.used ? "已用" : !current ? "对方回合" : !o.ok ? "不可用" : "可用";
-    power.innerHTML = "<span class=\"hp-btn-icon\">" + icon + "<img class=\"hp-skill-icon\" src=\"/assets/icons/hero_power.svg\" alt=\"\"></span><span class=\"hp-btn-copy\"><strong>英雄技能 · " + viewer.hero.power.name + "</strong><small>2 行动槽 · " + actionText + "</small></span><span class=\"hp-btn-state\">" + stateText + "</span>";
+    power.innerHTML = "<span class=\"hp-btn-icon\">" + icon + "<img class=\"hp-skill-icon\" src=\"/assets/icons/hero_power.svg\" alt=\"\"></span><span class=\"hp-btn-copy\"><strong>领袖技能 · " + viewer.hero.power.name + "</strong><small>" + (viewer.hero.power.cost || 2) + " 行动槽 · " + actionText + "</small></span><span class=\"hp-btn-state\">" + stateText + "</span>";
     const iconEl = power.querySelector(".hp-btn-icon");
     if (iconEl) iconEl.style.backgroundImage = "linear-gradient(180deg, rgba(5,10,15,0.08), rgba(5,10,15,0.48)), url('" + heroImage(viewer.heroId) + "')";
     power.disabled = disabled;
@@ -1857,7 +1853,7 @@
   }
 
   function showAbilityFeedback(name, point) {
-    const banner = el("div", "card-play-banner", "英雄技能 · " + name);
+    const banner = el("div", "card-play-banner", "领袖技能 · " + name);
     document.body.appendChild(banner);
     requestAnimationFrame(() => banner.classList.add("show"));
     setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 1050);
@@ -1977,7 +1973,7 @@
       const abilityPoint = capturePlayPoint(null, uid === "hero" ? null : uid);
       const r = E.useHeroPower(app.game, app.game.current, uid);
       app.targetInfo = null;
-      if (!r.ok) toast(r.reason || "无法使用英雄技能。");
+      if (!r.ok) toast(r.reason || "无法使用领袖技能。");
       else showAbilityFeedback(app.game.players[app.game.current].hero.power.name, abilityPoint);
       renderGame();
       if (checkGameOverAfterAction()) return;
@@ -2083,7 +2079,7 @@
     }
     app.pendingDragZone = null;
     if (def.type === "minion" || def.type === "formation") {
-      if (!opt.zones || !opt.zones.length) { toast(def.type === "formation" ? "阵型槽已满。" : "角色区已满。"); return; }
+      if (!opt.zones || !opt.zones.length) { toast(def.type === "formation" ? "阵型槽已满。" : "随从区已满。"); return; }
       app.zoneSelect = { cardUid: cardUid, targetUid: null };
       renderGame();
       return;
@@ -2374,7 +2370,7 @@
         }
         card.appendChild(art);
         card.appendChild(el("strong", null, def.name));
-        card.appendChild(el("small", null, (def.type === "spell" ? "法术 · " : "角色 · ") + def.cost + " 费" + (def.type === "minion" ? " · " + def.attack + "/" + def.health : "")));
+        card.appendChild(el("small", null, (def.type === "spell" ? "法术 · " : "随从 · ") + def.cost + " 费" + (def.type === "minion" ? " · " + def.attack + "/" + def.health : "")));
         const txt = el("p", null, def.text || "—");
         card.appendChild(txt);
         card.onclick = () => {
@@ -2425,7 +2421,6 @@
     if (app.net && app.net.role === "host") {
       s.status = "gameover";
       s.winner = 1;
-      log(s, "房主认输。", s.players[0], "gameover");
       sendNet({ type: "state", state: redactStateForGuest(s) });
       renderGame();
       showEnd();
@@ -2470,8 +2465,8 @@
         ["轮数", s.round],
         ["流脉峰值", s.stats.veinPeak],
         ["4 / 7 / 10", (s.stats.thresholds[4] || 0) + " / " + (s.stats.thresholds[7] || 0) + " / " + (s.stats.thresholds[10] || 0)],
-        ["召唤角色", s.stats.minionsSummoned],
-        ["阵亡角色", s.stats.minionsDied],
+        ["召唤随从", s.stats.minionsSummoned],
+        ["阵亡随从", s.stats.minionsDied],
         ["剩余手牌", s.players[app.human].hand.length]
       ];
       for (const pair of items) {
@@ -2534,7 +2529,7 @@
       content.appendChild(el("div", "eyebrow", "CREDITS / ARCHIVE"));
       content.appendChild(el("h3", null, "制作与素材说明"));
       const p1 = el("p", null, "《戈克世界：流脉牌局》推演版 1.0。当前开放普卫岛、学院、西昭、共和国与帝国五个阵营，支持起手调度、单人 AI 与局域网双人对战。");
-      const p2 = el("p", null, "角色立绘与场景图来自《戈克世界》项目现有素材；音效与背景音乐来自《戈克纪元：流脉》项目。卡牌框架、规则引擎与界面由本作制作。");
+      const p2 = el("p", null, "随从立绘与场景图来自《戈克世界》项目现有素材；音效与背景音乐来自《戈克纪元：流脉》项目。卡牌框架、规则引擎与界面由本作制作。");
       const p3 = el("p", null, "本作为非正史档案推演，卡牌效果不写入小说正史；未使用 NSFW 私设、参考图或带文字介绍卡。");
       content.appendChild(p1); content.appendChild(p2); content.appendChild(p3);
       const actions = el("div", "modal-actions");
@@ -2629,6 +2624,29 @@
     card.addEventListener("pointerup", () => { start = null; clear(); });
     card.addEventListener("pointercancel", () => { start = null; clear(); });
     card.addEventListener("pointerleave", () => { start = null; clear(); });
+  }
+
+  function showDeckHover(def, anchor) {
+    const tip = $("deck-hover-tip");
+    if (!tip || !anchor) return;
+    clear(tip);
+    tip.appendChild(el("strong", null, def.name));
+    tip.appendChild(el("small", null, typeLine(def) + " · " + def.cost + " 行动槽" + (def.type === "minion" ? " · " + def.attack + "/" + def.health : "") + " · " + factionName(def.faction)));
+    tip.appendChild(el("p", null, def.text || "没有额外效果。"));
+    if (def.flavor) tip.appendChild(el("em", null, "“" + def.flavor + "”"));
+    tip.hidden = false;
+    const r = anchor.getBoundingClientRect();
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let left = r.left + r.width / 2 - w / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+    let top = r.top - h - 10;
+    if (top < 8) top = Math.min(window.innerHeight - h - 8, r.bottom + 10);
+    tip.style.left = left + "px";
+    tip.style.top = top + "px";
+  }
+  function hideDeckHover() {
+    const tip = $("deck-hover-tip");
+    if (tip) tip.hidden = true;
   }
 
   function showPreview(def, minion) {
@@ -2814,6 +2832,20 @@
   /* ===== 档案编成 ===== */
   const DECK_STORAGE_KEY = "gok_custom_decks_v1";
 
+  function normalizeSavedDeck(faction, list) {
+    if (!Array.isArray(list)) return null;
+    if (D.validateDeck(faction, list).ok) return list.slice();
+    // 旧版 30 主牌 + 2 阵型 + 1 遗物（33 张）迁移到 30 带牌 + 1 遗物。
+    if (list.length === 33) {
+      const relics = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "relic");
+      const formations = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "formation");
+      const main = list.filter((id) => D.CARDS[id] && D.CARDS[id].type !== "relic" && D.CARDS[id].type !== "formation");
+      const migrated = main.slice(0, 28).concat(formations.slice(0, 2), relics.slice(0, 1));
+      if (D.validateDeck(faction, migrated).ok) return migrated;
+    }
+    return null;
+  }
+
   function loadCustomDecks() {
     app.customDecks = {};
     try {
@@ -2822,7 +2854,8 @@
       const parsed = JSON.parse(raw);
       for (const f of D.FACTION_IDS) {
         const list = parsed && parsed[f];
-        if (Array.isArray(list) && D.validateDeck(f, list).ok) app.customDecks[f] = list.slice();
+        const migrated = normalizeSavedDeck(f, list);
+        if (migrated) app.customDecks[f] = migrated.slice();
       }
     } catch (e) {
       app.customDecks = {};
@@ -2843,7 +2876,7 @@
     const custom = app.customDecks[app.faction];
     const valid = !!(custom && D.validateDeck(app.faction, custom).ok);
     if (!$("setup-deck-name")) return;
-    $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+2+1" : "预设牌组 · 30+2+1";
+    $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+1" : "预设牌组 · 30+1";
     $("setup-deck-detail").textContent = valid ? "已保存在本机 · 可继续编成" : "官方预组 · 可编成或自动构筑";
     $("btn-deck-preset").disabled = !valid;
   }
@@ -2903,11 +2936,22 @@
     const formationCount = list.filter(id => D.CARDS[id].type === "formation").length;
     const relicCount = list.filter(id => D.CARDS[id].type === "relic").length;
     const headerCount = $("deck-head-count");
-    if (headerCount) headerCount.textContent = list.length + " / 33";
-    $("deck-count").textContent = "主 " + mainCount + "/30 · 阵 " + formationCount + "/2 · 遗 " + relicCount + "/1";
+    const fieldCount = mainCount + formationCount;
+    if (headerCount) headerCount.textContent = list.length + " / 31";
+    $("deck-count").textContent = "带牌 " + fieldCount + "/30 · 阵型 " + formationCount + "/2（可选）· 遗 " + relicCount + "/1";
+    const heroDef = D.HEROES[D.FACTIONS[f].hero];
     const leaderName = $("deck-leader-name");
-    if (leaderName) leaderName.textContent = D.HEROES[D.FACTIONS[f].hero].name;
-    const mainEl = $("deck-main-count"); if (mainEl) mainEl.textContent = mainCount + " / 30";
+    if (leaderName) leaderName.textContent = heroDef.name;
+    const leaderSkill = $("deck-leader-skill");
+    if (leaderSkill) {
+      clear(leaderSkill);
+      const main = el("div", "deck-skill-main");
+      main.appendChild(el("strong", null, "领袖技能 · " + heroDef.power.name + " · " + heroDef.power.cost + " 行动槽"));
+      main.appendChild(el("span", null, heroDef.power.text));
+      if (heroDef.passive) main.appendChild(el("span", "deck-skill-passive", "被动 · " + heroDef.passive.name + "：" + heroDef.passive.text));
+      leaderSkill.appendChild(main);
+    }
+    const mainEl = $("deck-main-count"); if (mainEl) mainEl.textContent = fieldCount + " / 30";
     const formEl = $("deck-formation-count"); if (formEl) formEl.textContent = formationCount + " / 2";
     const relicEl = $("deck-relic-count"); if (relicEl) relicEl.textContent = relicCount + " / 1";
     const validEl = $("deck-valid");
@@ -2932,9 +2976,9 @@
     clear(msg);
     if (!validation.ok) {
       if (validation.errors.length) msg.textContent = validation.errors.slice(0, 2).join("；");
-      else msg.textContent = "需要 30 主牌 + 2 阵型 + 1 遗物。";
+      else msg.textContent = "需要 30 张带牌（阵型可选）+ 1 遗物。";
     } else {
-      msg.textContent = "30 主牌 + 2 阵型 + 1 遗物 · 牌组合法。保存后可在单人或局域网房主使用。";
+      msg.textContent = "30 张带牌（阵型可选）+ 1 遗物 · 牌组合法。保存后可在单人或局域网房主使用。";
     }
 
     const curve = $("deck-curve");
@@ -2954,10 +2998,10 @@
     const tactics = list.filter(id => D.CARDS[id].type === "spell").length;
     const formations = list.filter(id => D.CARDS[id].type === "formation").length;
     const drawTotal = deckDrawCount(list);
-    $("deck-type-stats").textContent = "角色 " + minions + " · 战术 " + tactics + " · 阵型 " + formations + " · 传说 " + list.filter(id => D.CARDS[id].rarity === "legendary").length + " · 过牌 " + drawTotal;
+    $("deck-type-stats").textContent = "随从 " + minions + " · 战术 " + tactics + " · 阵型 " + formations + " · 传说 " + list.filter(id => D.CARDS[id].rarity === "legendary").length + " · 过牌 " + drawTotal;
     msg.classList.toggle("warn", validation.ok && drawTotal > 10);
     if (validation.ok && drawTotal > 10) {
-      msg.textContent = "30 主牌 + 2 阵型 + 1 遗物 · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
+      msg.textContent = "30 张带牌（阵型可选）+ 1 遗物 · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
     }
 
     const selected = $("deck-selected");
@@ -2973,9 +3017,12 @@
       minus.title = "从牌组移除一张";
       minus.onclick = () => removeDeckCard(g.id);
       row.appendChild(minus);
+      row.onmouseenter = () => showDeckHover(g.def, row);
+      row.onmouseleave = hideDeckHover;
       selected.appendChild(row);
     }
 
+    hideDeckHover();
     const poolBox = $("deck-pool");
     clear(poolBox);
     const filter = app.deckBuildFilter;
@@ -2991,8 +3038,8 @@
       const def = D.CARDS[id];
       const count = counts[id] || 0;
       const max = D.maxCopies(def);
-      const typeFull = def.type === "formation" ? formationCount >= 2 : def.type === "relic" ? relicCount >= 1 : mainCount >= 30;
-      const card = el("div", "deck-mini" + (count >= max || typeFull || list.length >= 33 ? " full" : ""));
+      const typeFull = def.type === "formation" ? (formationCount >= 2 || fieldCount >= 30) : def.type === "relic" ? relicCount >= 1 : fieldCount >= 30;
+      const card = el("div", "deck-mini" + (count >= max || typeFull || list.length >= 31 ? " full" : ""));
       const art = el("div", "deck-mini-art");
       if (def.art) art.style.backgroundImage = "url('" + portraitImage(def.art) + "')";
       else {
@@ -3016,7 +3063,10 @@
       }
       body.appendChild(el("div", "deck-mini-text", def.text || "—"));
       card.appendChild(body);
+      card.title = def.text || def.name;
       card.onclick = () => addDeckCard(id);
+      card.onmouseenter = () => showDeckHover(def, card);
+      card.onmouseleave = hideDeckHover;
       poolBox.appendChild(card);
     }
 
@@ -3031,7 +3081,7 @@
     }
     document.querySelectorAll(".auto-deck-btn").forEach((b) => b.classList.toggle("active", b.dataset.deckStrategy === app.lastAutoStrategy));
     const autoStatus = $("deck-auto-status");
-    if (autoStatus) autoStatus.textContent = app.lastAutoStrategy ? "当前策略：" + D.DECK_STRATEGIES[app.lastAutoStrategy].name + " · 可继续手动调整" : "选择一套策略，一键补满 30 主牌 + 2 阵型 + 1 遗物。";
+    if (autoStatus) autoStatus.textContent = app.lastAutoStrategy ? "当前策略：" + D.DECK_STRATEGIES[app.lastAutoStrategy].name + " · 可继续手动调整" : "选择一套策略，一键补满 30 张带牌（阵型可选）+ 1 张遗物。";
   }
 
   function addDeckCard(id) {
@@ -3040,10 +3090,11 @@
     const mainCount = app.deckBuildList.filter(x => D.CARDS[x].type !== "formation" && D.CARDS[x].type !== "relic").length;
     const formationCount = app.deckBuildList.filter(x => D.CARDS[x].type === "formation").length;
     const relicCount = app.deckBuildList.filter(x => D.CARDS[x].type === "relic").length;
-    if (def.type === "formation" && formationCount >= 2) { toast("阵型槽已满。"); return; }
+    const fieldCount = mainCount + formationCount;
+    if (def.type === "formation" && formationCount >= 2) { toast("阵位牌最多带 2 张。"); return; }
     if (def.type === "relic" && relicCount >= 1) { toast("遗物槽已满。"); return; }
-    if (def.type !== "formation" && def.type !== "relic" && mainCount >= 30) { toast("主牌已满 30 张。"); return; }
-    if (app.deckBuildList.length >= 29) { toast("牌组已满。"); return; }
+    if (def.type !== "relic" && fieldCount >= 30) { toast("30 张带牌已满。"); return; }
+    if (app.deckBuildList.length >= 31) { toast("牌组已满。"); return; }
     if (count >= D.maxCopies(def)) { toast(def.name + " 已达同名张数上限。"); return; }
     app.deckBuildList.push(id);
     AudioBox.play("click");
@@ -3162,9 +3213,9 @@
     { id: "first_win", name: "第一次落笔", desc: "赢得第一局推演。", icon: "I" },
     { id: "academy_win", name: "学院的答案", desc: "使用学院赢得一局。", icon: "书" },
     { id: "tide_10", name: "魔物潮", desc: "在一局中触发流脉 10。", icon: "X" },
-    { id: "summoner_10", name: "六阵位", desc: "单局召唤 10 个角色。", icon: "VI" },
+    { id: "summoner_10", name: "六阵位", desc: "单局召唤 10 个随从。", icon: "VI" },
     { id: "lan_win", name: "隔桌", desc: "赢得一局局域网对战。", icon: "LAN" },
-    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 主牌 + 2 阵型 + 1 遗物牌组。", icon: "30" },
+    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 张带牌（阵型可选）+ 1 遗物牌组。", icon: "30" },
     { id: "tutorial", name: "第一课", desc: "进入新手演练。", icon: "01" },
     { id: "play_10", name: "档案常客", desc: "累计完成 10 局推演。", icon: "10" },
     { id: "ranked_first", name: "记分员", desc: "完成第一场排位赛。", icon: "S1" },
@@ -3460,8 +3511,9 @@
     }
   }
 
-  function openCodexCard(d) {
+  function openCodexCard(d, backLabel) {
     openModal((content) => {
+      content.classList.add("card-large-modal");
       content.appendChild(el("div", "eyebrow", "ARCHIVE / CARD"));
       content.appendChild(el("h3", null, d.name));
       content.appendChild(el("div", "preview-meta", factionName(d.faction) + " · " + typeLine(d) + " · " + d.cost + " 费" + (d.type === "minion" ? " · 攻 " + d.attack + " / 血 " + d.health : "")));
@@ -3479,7 +3531,7 @@
       content.appendChild(el("p", null, d.text || "—"));
       if (d.flavor) content.appendChild(el("div", "preview-flavor", "“" + d.flavor + "”"));
       const actions = el("div", "modal-actions");
-      const close = el("button", "btn btn-primary", "返回图鉴");
+      const close = el("button", "btn btn-primary", backLabel || "返回图鉴");
       close.onclick = () => closeModal(true);
       actions.appendChild(close);
       content.appendChild(actions);
@@ -3490,14 +3542,14 @@
     openModal((content) => {
       content.appendChild(el("div", "eyebrow", "ARCHIVE / GAME GUIDE"));
       content.appendChild(el("h3", null, "游戏教程"));
-      content.appendChild(el("p", null, "经典模式：不同领袖拥有不同生命与护甲，法力成长、角色互殴、英雄技能不变。"));
+      content.appendChild(el("p", null, "经典模式：不同领袖拥有不同生命与护甲，法力成长、随从互殴、领袖技能不变。"));
       const intro = el("div", "guide-sections");
       const sections = [
-        ["胜利条件", "先把对方英雄生命降到 0。角色可以攻击敌方角色或英雄；拦截角色必须先被处理。"],
-        ["牌组结构", "30 张主牌 + 2 张阵型 + 1 件遗物 + 1 位领袖。领袖由阵营决定，不进入抽牌堆。"],
-        ["阵位", "左 / 中 / 右三线，每线最多 2 个角色。同阵位会触发协同；双方同一列互为对位。"],
+        ["胜利条件", "先把对方领袖生命降到 0。随从可以攻击敌方随从或领袖；拦截随从必须先被处理。"],
+        ["牌组结构", "30 张带牌（含 0–2 张阵型）+ 1 件遗物 + 1 位领袖。领袖由阵营决定，不进入抽牌堆。"],
+        ["阵位", "左 / 中 / 右三线，每线最多 2 个随从。同阵位会触发协同；双方同一列互为对位。"],
         ["流脉", "共享流脉 0→12。4 震荡、7 裂隙、10 魔物潮，12 回流清空。引脉是达到阈值后的额外效果。"],
-        ["卡牌类型", "角色站场；战术一次性结算；阵型挂在某一线持续生效；遗物装备在领袖身上；领袖提供技能与被动。"]
+        ["卡牌类型", "随从站场；战术一次性结算；阵型挂在某一线持续生效；遗物装备在领袖身上；领袖提供技能与被动。"]
       ];
       for (const [title, desc] of sections) {
         const sec = el("div", "guide-section");
@@ -3512,11 +3564,11 @@
       for (const step of [
         "1. 先看手牌、行动槽和共享流脉。",
         "2. 点击「开始推演」，选择单人或多人的阵营。",
-        "3. 点击手牌；角色会自动进入选择的阵位。",
+        "3. 点击手牌；随从会自动进入选择的阵位。",
         "4. 带目标的效果先选目标；带阵位的效果先选左/中/右。",
-        "5. 点击自己的角色，再点敌方角色或英雄进行攻击；拦截角色优先。",
+        "5. 点击自己的随从，再点敌方随从或领袖进行攻击；拦截随从优先。",
         "6. 流脉到 4 / 7 / 10 会触发世界事件，12 回流清空。",
-        "7. 结束回合，先让对手行动，再继续推演直到英雄生命归零。"
+        "7. 结束回合，先让对手行动，再继续推演直到领袖生命归零。"
       ]) tutorialList.appendChild(el("span", null, step));
       tutorialBox.appendChild(tutorialList);
       content.appendChild(tutorialBox);
@@ -3699,7 +3751,13 @@
 
   function isHostPage() {
     if (!lanServerAvailable()) return false;
-    return new URLSearchParams(location.search).get("host") === "1";
+    const hostParam = new URLSearchParams(location.search).get("host");
+    if (hostParam === "1") return true;
+    if (hostParam === "0") return false;
+    if (app.roomCode) return false;
+    // 本机启动器打开 localhost 时默认是房主；远程设备打开同一地址时默认是挑战者。
+    const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    return local && !sessionStorage.getItem("gok_lan_guest");
   }
 
   async function lanApi(path, options) {
@@ -3788,11 +3846,33 @@
     }
   }
 
+  function lanHasCustom(faction) {
+    const custom = app.customDecks[faction];
+    return !!(custom && D.validateDeck(faction, custom).ok);
+  }
+
   function updateGuestDeckLabel() {
-    const custom = app.customDecks[app.lanFaction];
-    const valid = !!(custom && D.validateDeck(app.lanFaction, custom).ok);
+    const valid = lanHasCustom(app.lanFaction);
     const label = $("lan-guest-deck-label");
-    if (label) label.textContent = (valid ? "自定义牌组" : "预设牌组") + " · 30+2+1";
+    if (label) label.textContent = (valid && app.lanGuestUseCustom ? "自定义牌组" : "预设牌组") + " · 30+1";
+    const select = $("lan-guest-deck-select");
+    if (select) {
+      select.value = app.lanGuestUseCustom && valid ? "custom" : "preset";
+      const customOption = select.querySelector('option[value="custom"]');
+      if (customOption) customOption.disabled = !valid;
+    }
+  }
+
+  function updateHostDeckLabel() {
+    const valid = lanHasCustom(app.lanFaction);
+    const label = $("lan-host-deck-label");
+    if (label) label.textContent = (valid && app.lanHostUseCustom ? "自定义牌组" : "预设牌组") + " · 30+1";
+    const select = $("lan-host-deck-select");
+    if (select) {
+      select.value = app.lanHostUseCustom && valid ? "custom" : "preset";
+      const customOption = select.querySelector('option[value="custom"]');
+      if (customOption) customOption.disabled = !valid;
+    }
   }
 
   function renderLanAddresses(st) {
@@ -3856,6 +3936,7 @@
       $("lan-status").classList.remove("online");
       $("lan-hint").textContent = "正在检测局域网与服务器…";
       document.querySelectorAll("#lan-faction .faction-card").forEach((b) => { b.classList.toggle("active", b.dataset.lanFaction === app.lanFaction); b.style.setProperty("--emblem", "url('" + D.FACTIONS[b.dataset.lanFaction].emblem + "')"); });
+      updateHostDeckLabel();
       app.lanStatusTimer = setInterval(refreshLanStatus, 1400);
       refreshLanStatus();
     } else {
@@ -3874,6 +3955,7 @@
         b.style.setProperty("--emblem", "url('" + D.FACTIONS[b.dataset.guestFaction].emblem + "')");
       });
       const gd = $("btn-lan-guest-deck"); if (gd) gd.disabled = false;
+      const gsel = $("lan-guest-deck-select"); if (gsel) gsel.disabled = false;
       updateGuestDeckLabel();
       $("lan-guest-status").textContent = "尚未准备";
     }
@@ -3898,6 +3980,7 @@
       b.onclick = () => {
         app.lanFaction = b.dataset.lanFaction;
         document.querySelectorAll("#lan-faction .faction-card").forEach((x) => x.classList.toggle("active", x === b));
+        updateHostDeckLabel();
         AudioBox.play("click");
       };
     });
@@ -3913,6 +3996,12 @@
     });
     const guestDeck = $("btn-lan-guest-deck");
     if (guestDeck) guestDeck.onclick = () => { AudioBox.play("ui_open"); openDeckBuilder(app.lanFaction || "pus", "lan"); };
+    const hostDeck = $("btn-lan-host-deck");
+    if (hostDeck) hostDeck.onclick = () => { AudioBox.play("ui_open"); openDeckBuilder(app.lanFaction || "pus", "lan"); };
+    const hostSelect = $("lan-host-deck-select");
+    if (hostSelect) hostSelect.onchange = () => { app.lanHostUseCustom = hostSelect.value === "custom" && lanHasCustom(app.lanFaction); updateHostDeckLabel(); };
+    const guestSelect = $("lan-guest-deck-select");
+    if (guestSelect) guestSelect.onchange = () => { app.lanGuestUseCustom = guestSelect.value === "custom" && lanHasCustom(app.lanFaction); updateGuestDeckLabel(); };
     const publicBtn = $("btn-lan-public");
     if (publicBtn) publicBtn.onclick = () => {
       const input = $("lan-public-input");
@@ -3974,7 +4063,7 @@
       p2AI: false,
       mode: "lan",
       mulligan: true,
-      p1Deck: getPlayDeck(faction),
+      p1Deck: app.lanHostUseCustom ? getPlayDeck(faction) : null,
       p2Deck: (() => {
         const gd = app.lanGuestDecks && app.lanGuestDecks[other];
         return gd && D.validateDeck(other, gd).ok ? gd : null;
@@ -4019,13 +4108,14 @@
       await lanApi("/api/join?player=1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decks: app.customDecks, faction: app.lanFaction || "pus" })
+        body: JSON.stringify({ decks: (app.lanGuestUseCustom && lanHasCustom(app.lanFaction)) ? (() => { const d = {}; d[app.lanFaction || "pus"] = app.customDecks[app.lanFaction || "pus"].slice(); return d; })() : {}, faction: app.lanFaction || "pus" })
       });
       app.net = { role: "guest", player: 1, active: true, since: 0 };
       app.lanGuestFaction = app.lanFaction || "pus";
       try { sessionStorage.setItem("gok_lan_faction", app.lanFaction || "pus"); } catch (e) {}
       document.querySelectorAll("#lan-guest-faction .faction-card").forEach((b) => { b.disabled = true; });
       const gd = $("btn-lan-guest-deck"); if (gd) gd.disabled = true;
+      const gsel = $("lan-guest-deck-select"); if (gsel) gsel.disabled = true;
       app.lanGuestReady = true;
       if (join) { join.disabled = true; join.textContent = "已准备"; }
       if ($("lan-guest-status")) $("lan-guest-status").textContent = "已准备 · " + factionName(app.lanFaction || "pus") + " · 等待房主开始";
@@ -4147,6 +4237,14 @@
       return;
     }
     if (!app.game) return;
+    if (action.kind === "surrender") {
+      app.game.status = "gameover";
+      app.game.winner = 0;
+      sendNet({ type: "state", state: redactStateForGuest(app.game) });
+      renderGame();
+      showEnd();
+      return;
+    }
     if (action.kind === "mulligan") {
       if (app.game.mulliganPhase) E.mulliganPlayer(app.game, 1, action.uids || []);
       renderGame();
@@ -4160,15 +4258,6 @@
     else if (action.kind === "end") result = E.endTurn(app.game, 1);
     else if (action.kind === "discover") result = E.resolveDiscover(app.game, 1, action.cardId);
     else if (action.kind === "retreat") result = E.retreatMinion(app.game, 1, action.uid);
-    else if (action.kind === "surrender") {
-      app.game.status = "gameover";
-      app.game.winner = 0;
-      log(app.game, "挑战者认输。", app.game.players[0], "gameover");
-      sendNet({ type: "state", state: redactStateForGuest(app.game) });
-      renderGame();
-      showEnd();
-      return;
-    }
     if (!result || !result.ok) {
       // 回发当前状态，让挑战者解除等待
       sendNet({ type: "state", state: redactStateForGuest(app.game) });
@@ -4357,6 +4446,34 @@
     $("btn-codex").onclick = () => { AudioBox.play("ui_open"); openCodex(); };
     document.querySelectorAll("[data-ai-diff]").forEach((b) => { b.onclick = () => { app.aiDifficulty = b.dataset.aiDiff; document.querySelectorAll("[data-ai-diff]").forEach((x) => x.classList.toggle("active", x === b)); }; });
     if ($("codex-search")) $("codex-search").oninput = (e) => { app.codexSearch = e.target.value; app.codexLimit = 60; renderCodex(); };
+    const fieldDrop = $("battlefield");
+    if (fieldDrop) {
+      fieldDrop.addEventListener("dragover", (ev) => {
+        if (!app.draggingUid) return;
+        const def = handDef(app.draggingUid);
+        if (!def || def.type !== "spell") return;
+        const opt = E.getPlayOptions(app.game, app.game.current, app.draggingUid);
+        if (!opt.ok) return;
+        if (ev.target.closest && ev.target.closest(".zone, .board-card")) return;
+        ev.preventDefault();
+        fieldDrop.classList.add("drop-ready");
+      });
+      fieldDrop.addEventListener("dragleave", (ev) => { if (!fieldDrop.contains(ev.relatedTarget)) fieldDrop.classList.remove("drop-ready"); });
+      fieldDrop.addEventListener("drop", (ev) => {
+        fieldDrop.classList.remove("drop-ready");
+        if (!app.draggingUid) return;
+        if (ev.target.closest && ev.target.closest(".zone, .board-card")) return;
+        const uid = app.draggingUid;
+        const def = handDef(uid);
+        if (!def || def.type !== "spell") return;
+        const opt = E.getPlayOptions(app.game, app.game.current, uid);
+        if (!opt.ok) return;
+        ev.preventDefault();
+        finishCardDrag();
+        if (opt.targetType) beginCard(uid);
+        else commitPlay(uid, null, null);
+      });
+    }
     document.addEventListener("pointerdown", (e) => { if (!e.target.closest || !e.target.closest(".keyword-tag, .preview-keyword")) hideKeywordTip(); }, true);
     window.addEventListener("scroll", hideKeywordTip, true);
     $("btn-achievements").onclick = () => { AudioBox.play("ui_open"); openAchievements(); };
