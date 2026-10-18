@@ -1,0 +1,1468 @@
+{
+  "project": "《戈克世界：流脉牌局》",
+  "version": "0.1.0",
+  "generated": "2026-10-18T11:37:12+0800",
+  "asset_root": "public/assets",
+  "counts": {
+    "characters": 36,
+    "portraits": 36,
+    "heroes": 36,
+    "backgrounds": 3
+  },
+  "specs": {
+    "portrait": {
+      "size": [
+        480,
+        640
+      ],
+      "format": "webp",
+      "quality": 84,
+      "crop": "top 75% height, horizontally centered, fit 3:4"
+    },
+    "hero": {
+      "size": [
+        512,
+        512
+      ],
+      "format": "webp",
+      "quality": 84,
+      "crop": "top 55% height, horizontally centered, fit 1:1"
+    },
+    "background": {
+      "size": [
+        1920,
+        1080
+      ],
+      "format": "webp",
+      "quality": 84
+    }
+  },
+  "faction_labels": {
+    "pus": "普卫岛",
+    "academy": "学院",
+    "republic": "共和国",
+    "xizhao": "西昭",
+    "empire": "帝国",
+    "neutral": "中立/自由人"
+  },
+  "characters": [
+    {
+      "id": "lain",
+      "name": "莱恩·科斯特",
+      "faction": "pus",
+      "portrait": "portraits/lain.webp",
+      "hero": "heroes/lain.webp",
+      "source": "立绘/精二/莱恩_精二v2.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 71180,
+        "hero": 61312
+      }
+    },
+    {
+      "id": "marta",
+      "name": "玛尔塔·冯·艾森",
+      "faction": "academy",
+      "portrait": "portraits/marta.webp",
+      "hero": "heroes/marta.webp",
+      "source": "立绘/精二/玛尔塔·冯·艾森.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 40958,
+        "hero": 32996
+      }
+    },
+    {
+      "id": "wolfram",
+      "name": "沃尔夫拉姆·冯·施泰因",
+      "faction": "republic",
+      "portrait": "portraits/wolfram.webp",
+      "hero": "heroes/wolfram.webp",
+      "source": "立绘/精二/沃尔夫拉姆·冯·施泰因.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 54352,
+        "hero": 46568
+      }
+    },
+    {
+      "id": "karna",
+      "name": "卡尔纳",
+      "faction": "xizhao",
+      "portrait": "portraits/karna.webp",
+      "hero": "heroes/karna.webp",
+      "source": "立绘/精二/卡尔纳.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 40412,
+        "hero": 32048
+      }
+    },
+    {
+      "id": "otto",
+      "name": "奥托·汉瑟尔",
+      "faction": "empire",
+      "portrait": "portraits/otto.webp",
+      "hero": "heroes/otto.webp",
+      "source": "立绘/精二/奥托·汉瑟尔.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 39938,
+        "hero": 29968
+      }
+    },
+    {
+      "id": "shextena",
+      "name": "希斯蒂娜",
+      "faction": "pus",
+      "portrait": "portraits/shextena.webp",
+      "hero": "heroes/shextena.webp",
+      "source": "立绘/精二/希斯蒂娜_精二v2.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 61282,
+        "hero": 52506
+      }
+    },
+    {
+      "id": "verious",
+      "name": "维里欧斯",
+      "faction": "pus",
+      "portrait": "portraits/verious.webp",
+      "hero": "heroes/verious.webp",
+      "source": "立绘/精二/维里欧斯_精二v3.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 41144,
+        "hero": 36216
+      }
+    },
+    {
+      "id": "timon",
+      "name": "提蒙·克若诺",
+      "faction": "pus",
+      "portrait": "portraits/timon.webp",
+      "hero": "heroes/timon.webp",
+      "source": "立绘/精二/提蒙_精二v2.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 61352,
+        "hero": 45294
+      }
+    },
+    {
+      "id": "aidric",
+      "name": "艾德里克",
+      "faction": "pus",
+      "portrait": "portraits/aidric.webp",
+      "hero": "heroes/aidric.webp",
+      "source": "立绘/精二/艾德里克_精二.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 55220,
+        "hero": 50578
+      }
+    },
+    {
+      "id": "orlicas",
+      "name": "欧莉卡斯",
+      "faction": "pus",
+      "portrait": "portraits/orlicas.webp",
+      "hero": "heroes/orlicas.webp",
+      "source": "立绘/精二/欧莉卡斯_精二.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 58634,
+        "hero": 49334
+      }
+    },
+    {
+      "id": "miyuki",
+      "name": "一之濑·深雪",
+      "faction": "pus",
+      "portrait": "portraits/miyuki.webp",
+      "hero": "heroes/miyuki.webp",
+      "source": "立绘/精二/一之濑·深雪_精二.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 54578,
+        "hero": 43068
+      }
+    },
+    {
+      "id": "karl_desmond",
+      "name": "卡尔·德斯蒙德",
+      "faction": "academy",
+      "portrait": "portraits/karl_desmond.webp",
+      "hero": "heroes/karl_desmond.webp",
+      "source": "立绘/精二/卡尔·德斯蒙德.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 41694,
+        "hero": 32922
+      }
+    },
+    {
+      "id": "justus",
+      "name": "尤斯图斯·维尔纳",
+      "faction": "academy",
+      "portrait": "portraits/justus.webp",
+      "hero": "heroes/justus.webp",
+      "source": "立绘/精二/尤斯图斯·维尔纳.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 40764,
+        "hero": 32442
+      }
+    },
+    {
+      "id": "cassian",
+      "name": "卡西安·维尔",
+      "faction": "academy",
+      "portrait": "portraits/cassian.webp",
+      "hero": "heroes/cassian.webp",
+      "source": "立绘/精二/卡西安·维尔_精二.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 49410,
+        "hero": 39358
+      }
+    },
+    {
+      "id": "samuel",
+      "name": "塞缪尔·奎因",
+      "faction": "academy",
+      "portrait": "portraits/samuel.webp",
+      "hero": "heroes/samuel.webp",
+      "source": "立绘/精二/塞缪尔·奎因.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 43814,
+        "hero": 33500
+      }
+    },
+    {
+      "id": "nina",
+      "name": "妮娜·索雷尔",
+      "faction": "academy",
+      "portrait": "portraits/nina.webp",
+      "hero": "heroes/nina.webp",
+      "source": "立绘/精二/妮娜·索雷尔.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 42530,
+        "hero": 33516
+      }
+    },
+    {
+      "id": "doorman",
+      "name": "老门房",
+      "faction": "academy",
+      "portrait": "portraits/doorman.webp",
+      "hero": "heroes/doorman.webp",
+      "source": "立绘/精二/老门房.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 32346,
+        "hero": 24902
+      }
+    },
+    {
+      "id": "konrad",
+      "name": "康拉德·威廉莱斯",
+      "faction": "republic",
+      "portrait": "portraits/konrad.webp",
+      "hero": "heroes/konrad.webp",
+      "source": "立绘/精二/康拉德·威廉莱斯.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 44106,
+        "hero": 36360
+      }
+    },
+    {
+      "id": "erhardt",
+      "name": "埃尔哈特·冯·罗森",
+      "faction": "republic",
+      "portrait": "portraits/erhardt.webp",
+      "hero": "heroes/erhardt.webp",
+      "source": "立绘/精二/埃尔哈特·冯·罗森.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 36564,
+        "hero": 30040
+      }
+    },
+    {
+      "id": "beatrix",
+      "name": "贝娅特丽克丝·冯·艾森胡特",
+      "faction": "republic",
+      "portrait": "portraits/beatrix.webp",
+      "hero": "heroes/beatrix.webp",
+      "source": "立绘/精二/贝娅特丽克丝·冯·艾森胡特.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 43768,
+        "hero": 38606
+      }
+    },
+    {
+      "id": "elena",
+      "name": "伊莲娜·索菲",
+      "faction": "republic",
+      "portrait": "portraits/elena.webp",
+      "hero": "heroes/elena.webp",
+      "source": "立绘/精二/伊莲娜·索菲.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 52862,
+        "hero": 41612
+      }
+    },
+    {
+      "id": "hans",
+      "name": "汉斯·冯·霍尔姆",
+      "faction": "republic",
+      "portrait": "portraits/hans.webp",
+      "hero": "heroes/hans.webp",
+      "source": "立绘/精二/汉斯·冯·霍尔姆.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 36894,
+        "hero": 28358
+      }
+    },
+    {
+      "id": "cedric",
+      "name": "塞德里克·威廉莱斯",
+      "faction": "republic",
+      "portrait": "portraits/cedric.webp",
+      "hero": "heroes/cedric.webp",
+      "source": "立绘/精二/塞德里克·威廉莱斯.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 36700,
+        "hero": 31772
+      }
+    },
+    {
+      "id": "tiega",
+      "name": "铁牙·阿古",
+      "faction": "xizhao",
+      "portrait": "portraits/tiega.webp",
+      "hero": "heroes/tiega.webp",
+      "source": "立绘/精二/铁牙·阿古.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 59924,
+        "hero": 49944
+      }
+    },
+    {
+      "id": "lanxi",
+      "name": "澜汐",
+      "faction": "xizhao",
+      "portrait": "portraits/lanxi.webp",
+      "hero": "heroes/lanxi.webp",
+      "source": "立绘/精二/澜汐.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 59000,
+        "hero": 52778
+      }
+    },
+    {
+      "id": "lize",
+      "name": "莉泽",
+      "faction": "xizhao",
+      "portrait": "portraits/lize.webp",
+      "hero": "heroes/lize.webp",
+      "source": "立绘/精二/莉泽.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 35540,
+        "hero": 32758
+      }
+    },
+    {
+      "id": "grayfeather",
+      "name": "灰羽·乌恩",
+      "faction": "xizhao",
+      "portrait": "portraits/grayfeather.webp",
+      "hero": "heroes/grayfeather.webp",
+      "source": "立绘/精二/灰羽·乌恩.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 52660,
+        "hero": 42810
+      }
+    },
+    {
+      "id": "lanzhou",
+      "name": "澜舟",
+      "faction": "xizhao",
+      "portrait": "portraits/lanzhou.webp",
+      "hero": "heroes/lanzhou.webp",
+      "source": "立绘/精二/澜舟.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 25928,
+        "hero": 16762
+      }
+    },
+    {
+      "id": "molan",
+      "name": "墨兰",
+      "faction": "xizhao",
+      "portrait": "portraits/molan.webp",
+      "hero": "heroes/molan.webp",
+      "source": "立绘/精二/墨兰.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 38488,
+        "hero": 31482
+      }
+    },
+    {
+      "id": "gunther",
+      "name": "京特·冯·艾森瓦尔德",
+      "faction": "empire",
+      "portrait": "portraits/gunther.webp",
+      "hero": "heroes/gunther.webp",
+      "source": "立绘/精二/京特·冯·艾森瓦尔德.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 42904,
+        "hero": 36268
+      }
+    },
+    {
+      "id": "klaus",
+      "name": "克劳斯·莱茵哈特",
+      "faction": "empire",
+      "portrait": "portraits/klaus.webp",
+      "hero": "heroes/klaus.webp",
+      "source": "立绘/精二/克劳斯·莱茵哈特.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 33182,
+        "hero": 26860
+      }
+    },
+    {
+      "id": "mia",
+      "name": "米娅·科尔贝",
+      "faction": "empire",
+      "portrait": "portraits/mia.webp",
+      "hero": "heroes/mia.webp",
+      "source": "立绘/精二/米娅·科尔贝.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 38228,
+        "hero": 33430
+      }
+    },
+    {
+      "id": "elsa",
+      "name": "艾尔莎·汉瑟尔",
+      "faction": "empire",
+      "portrait": "portraits/elsa.webp",
+      "hero": "heroes/elsa.webp",
+      "source": "立绘/精二/艾尔莎·汉瑟尔.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 43324,
+        "hero": 35928
+      }
+    },
+    {
+      "id": "karl_schwarz",
+      "name": "卡尔·冯·施瓦茨",
+      "faction": "empire",
+      "portrait": "portraits/karl_schwarz.webp",
+      "hero": "heroes/karl_schwarz.webp",
+      "source": "立绘/精二/卡尔·冯·施瓦茨.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 46758,
+        "hero": 38826
+      }
+    },
+    {
+      "id": "walter",
+      "name": "瓦尔特·克鲁格",
+      "faction": "empire",
+      "portrait": "portraits/walter.webp",
+      "hero": "heroes/walter.webp",
+      "source": "立绘/精二/瓦尔特·克鲁格.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 29742,
+        "hero": 25732
+      }
+    },
+    {
+      "id": "monarch",
+      "name": "莫纳克",
+      "faction": "neutral",
+      "portrait": "portraits/monarch.webp",
+      "hero": "heroes/monarch.webp",
+      "source": "立绘/精二/莫纳克_精二.png",
+      "crop": {
+        "portrait": {
+          "box": [
+            0,
+            0,
+            3040,
+            4053
+          ],
+          "anchor": "top-center",
+          "rule": "source top 75% height, horizontally centered, fit 3:4"
+        },
+        "hero": {
+          "box": [
+            34,
+            0,
+            3006,
+            2972
+          ],
+          "anchor": "top-center",
+          "rule": "source top 55% height, horizontally centered, fit 1:1"
+        }
+      },
+      "source_size": [
+        3040,
+        5404
+      ],
+      "bytes": {
+        "portrait": 61040,
+        "hero": 53232
+      }
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "menu",
+      "file": "backgrounds/menu.webp",
+      "description": "主菜单/雾港浮空城",
+      "source": "（小说正文）戈克降临/配图/配图1_雾港浮空城.png",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "size": [
+        1920,
+        1080
+      ],
+      "webp_quality": 84,
+      "bytes": 138108
+    },
+    {
+      "id": "battle",
+      "file": "backgrounds/battle.webp",
+      "description": "战斗背景/雪都全景",
+      "source": "（小说正文）戈克降临/配图/配图16_雪都全景.png",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "size": [
+        1920,
+        1080
+      ],
+      "webp_quality": 84,
+      "bytes": 132356
+    },
+    {
+      "id": "xizhao",
+      "file": "backgrounds/xizhao.webp",
+      "description": "西昭章节/雪都之战",
+      "source": "（小说正文）戈克降临/配图/配图17_雪都之战.png",
+      "source_size": [
+        2560,
+        1440
+      ],
+      "size": [
+        1920,
+        1080
+      ],
+      "webp_quality": 84,
+      "bytes": 389926
+    }
+  ]
+}

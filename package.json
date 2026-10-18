@@ -1,0 +1,12 @@
+{
+  "name": "gok-vein-gambit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "戈克世界：流脉牌局 - 浏览器在线版",
+  "scripts": {
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
