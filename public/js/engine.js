@@ -679,6 +679,7 @@
       player.overload = (player.overload || 0) + def.overload;
       log(state, player.name + " 反噬 " + def.overload + "：下回合行动槽减少。", player, "overload");
     }
+    state.lastAction = { type: "play", player: playerIndex, cardId: def.id, cardName: def.name, cardType: def.type, zone: zone || null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
     log(state, player.name + " 打出 " + def.name + "（" + cost + " 费）。", player, def.type === "spell" ? "spell" : "play", def.id);
     if (def.type === "spell") {
       player.spellsCastThisTurn = (player.spellsCastThisTurn || 0) + 1;
@@ -1494,6 +1495,7 @@
     if (!target) return { ok: false, reason: handTarget ? "请选择一张手牌" : (player.heroId === "otto" || player.heroId === "marta" ? "请选择一个敌方随从或领袖" : "请选择一个友方随从"), code: "target", targets: targetIds };
     player.mana -= (player.hero.power.cost || 2);
     player.heroPowerUsed = true;
+    state.lastAction = { type: "heroPower", player: playerIndex, heroId: player.heroId, powerName: player.hero.power.name, targetUid: targetUid || null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
     log(state, player.name + " 使用领袖技能「" + player.hero.power.name + "」。", player, "heroPower");
     if (handTarget) {
       transformHandCard(state, player, target);

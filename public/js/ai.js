@@ -268,12 +268,12 @@
     }
     if (p.heroId === "lain") {
       const target = allies.slice().sort((a, b) => (b.attack + b.health) - (a.attack + a.health))[0];
-      return { type: "heroPower", targetUid: target.uid, score: 4 };
+      return target ? { type: "heroPower", targetUid: target.uid, score: 4 } : null;
     }
     if (p.heroId === "karna") {
       if (p.hp <= 8) return null;
       const target = allies.slice().sort((a, b) => a.health - b.health)[0];
-      return { type: "heroPower", targetUid: target.uid, score: 3 };
+      return target ? { type: "heroPower", targetUid: target.uid, score: 3 } : null;
     }
     if (p.heroId === "marta") {
       const enemies = enemyMinions(state, p).filter(m => !m.stealth);
@@ -308,6 +308,92 @@
     return { type: "discover", cardId: scored[0].id, score: 99 };
   }
 
+  function boardValue(player) {
+    return ownMinions(player).reduce((sum, m) => sum + minionValue(m), 0);
+  }
+
+  function evaluateState(state, playerIndex) {
+    if (state.status === "gameover") {
+      if (state.winner === playerIndex) return 100000;
+      if (state.winner == null) return 0;
+      return -100000;
+    }
+    const me = state.players[playerIndex];
+    const op = enemyOf(state, me);
+    let score = 0;
+    score += (me.hp + me.armor) * 1.15 - (op.hp + op.armor) * 2.25;
+    score += boardValue(me) * 1.0 - boardValue(op) * 1.05;
+    score += (me.hand.length - op.hand.length) * 2.4;
+    score += (me.mana - op.mana) * 0.15;
+    score += (me.heroPowerUsed ? 0 : 1) * 1.2;
+    if (op.hp <= 0) score += 5000;
+    if (me.hp <= 0) score -= 5000;
+    return score;
+  }
+
+  function enumerateActions(state, p) {
+    const actions = [];
+    for (const c of p.hand) {
+      const def = D.CARDS[c.cardId];
+      if (!def) continue;
+      const opt = E.getPlayOptions(state, p.index, c.uid);
+      if (!opt.ok) continue;
+      const target = chooseTarget(state, p, def, opt);
+      if (opt.targetType && !target) continue;
+      const zone = chooseZone(state, p, def, opt);
+      if ((def.type === "minion" || def.type === "formation") && !zone) continue;
+      actions.push({
+        type: "play",
+        cardUid: c.uid,
+        opts: { targetUid: target ? target.uid : null, zone: zone, payBlood: shouldPayBlood(state, p, def) }
+      });
+    }
+    for (const m of ownMinions(p)) {
+      if (m.attacksLeft <= 0 || m.frozenTurns > 0) continue;
+      const o = E.getAttackOptions(state, p.index, m.uid);
+      if (!o.ok) continue;
+      for (const targetUid of o.targets) actions.push({ type: "attack", attackerUid: m.uid, targetUid: targetUid });
+    }
+    const hp = chooseHeroPower(state, p);
+    if (hp) actions.push(hp);
+    return actions;
+  }
+
+  function applyCandidate(state, action, playerIndex) {
+    const s = JSON.parse(JSON.stringify(state));
+    let result;
+    if (action.type === "play") result = E.playCard(s, playerIndex, action.cardUid, action.opts);
+    else if (action.type === "attack") result = E.attack(s, playerIndex, action.attackerUid, action.targetUid);
+    else if (action.type === "heroPower") result = E.useHeroPower(s, playerIndex, action.targetUid);
+    else return null;
+    let guard = 0;
+    while (result && result.ok !== false && s.pendingChoice && s.pendingChoice.player === playerIndex && guard++ < 8) {
+      const pick = chooseDiscover(s);
+      if (!pick) break;
+      result = E.resolveDiscover(s, playerIndex, pick.cardId);
+    }
+    return result && result.ok !== false ? s : null;
+  }
+
+  function searchBestAction(state, p, depth) {
+    const actions = enumerateActions(state, p);
+    let best = null;
+    for (const action of actions) {
+      let next = applyCandidate(state, action, p.index);
+      if (!next) continue;
+      if ((depth || 1) > 1 && next.status === "playing" && next.current === p.index) {
+        const second = searchBestAction(next, p, 1);
+        if (second) {
+          const afterSecond = applyCandidate(next, second.action, p.index);
+          if (afterSecond) next = afterSecond;
+        }
+      }
+      const score = evaluateState(next, p.index);
+      if (!best || score > best.score) best = { action: action, score: score };
+    }
+    return best;
+  }
+
   function chooseAction(state, playerIndex) {
     if (state.status !== "playing") return { type: "end", reason: "gameover" };
     if (state.aiDifficulty === "easy" && Math.random() < 0.22) return { type: "end", reason: "easy" };
@@ -317,6 +403,10 @@
     }
     const p = state.players[playerIndex];
     if (!p || state.current !== playerIndex) return { type: "end" };
+    if (state.aiDifficulty !== "easy") {
+      const searched = searchBestAction(state, p, state.aiDifficulty === "nightmare" ? 2 : 1);
+      if (searched && searched.action) return Object.assign({}, searched.action, { score: searched.score });
+    }
     if (lethalAvailable(state, p)) {
       const atk = chooseAttack(state, p);
       if (atk && atk.targetUid === "hero") return atk;

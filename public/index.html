@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>戈克世界：流脉牌局</title>
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/style.css?v=20261020al">
+  <link rel="stylesheet" href="css/style.css?v=20261020cx">
 </head>
 <body data-screen="home">
   <div id="boot-loading" class="boot-loading">
@@ -26,6 +26,7 @@
       <div class="home-atmosphere" aria-hidden="true">
         <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
       </div>
+      <div class="home-table-bg" aria-hidden="true"></div>
       <div class="home-stage">
         <div class="home-hero">
           <div class="home-kicker-row">
@@ -43,11 +44,15 @@
             <span data-faction-chip="republic"><i></i>共和国</span>
             <span data-faction-chip="empire"><i></i>帝国</span>
           </div>
+          <div class="home-play-modes" role="tablist" aria-label="玩法模式">
+            <button class="home-play-mode active" data-home-mode="classic" role="tab"><span class="home-play-icon">I</span><span><strong>经典模式</strong><small>标准规则 · 单人 / 多人</small></span></button>
+            <button class="home-play-mode" data-home-mode="arcade" role="tab"><span class="home-play-icon">II</span><span><strong>街机模式</strong><small>远征 · 竞技场 · 每日 · 残局 · 故事</small></span></button>
+          </div>
           <div class="home-start-row">
             <button id="btn-start-adventure" class="home-start">
-              <span class="home-start-eyebrow">ENTER / KESTER ARCHIVE</span>
-              <strong>开始推演</strong>
-              <span class="home-start-sub">单人 · 多人</span>
+              <span class="home-start-eyebrow">CLASSIC / ENTER ARCHIVE</span>
+              <strong id="home-start-title">开始推演</strong>
+              <span class="home-start-sub" id="home-start-sub">单人 AI · 局域网 · 在线房间</span>
               <span class="home-start-arrow">→</span>
             </button>
           </div>
@@ -64,6 +69,11 @@
             <strong id="home-legendary-name">—</strong>
             <span id="home-legendary-faction">—</span>
           </div>
+        </aside>
+        <aside class="home-account-dock" aria-label="账号与存档">
+          <div class="home-account-avatar">GK</div>
+          <div class="home-account-copy"><span>LOCAL ACCOUNT / SAVE</span><strong id="home-account-name">档案员</strong><small id="home-account-meta">自动备份已就绪</small></div>
+          <button id="btn-home-account" class="home-account-btn">账号与存档</button>
         </aside>
         <nav class="home-nav" aria-label="档案功能">
           <button id="btn-deck-home" class="home-nav-item"><span class="home-nav-no">01</span><strong>构筑牌组</strong><small>手动 / 自动构筑</small></button>
@@ -354,16 +364,31 @@
           </div>
           <div class="panel settings-panel">
             <div class="panel-label">LOCAL DATA</div>
+            <div class="settings-row"><div><strong>账号与存档</strong><span>本地账号 · 自动备份 · 导出 / 导入存档</span></div><button id="btn-settings-account" class="btn btn-small btn-primary">管理存档</button></div>
             <div class="settings-row"><div><strong>成就记录</strong><span>重置所有本地成就进度</span></div><button id="btn-settings-clear-achievements" class="btn btn-small btn-ghost">重置成就</button></div>
             <div class="settings-row"><div><strong>档案统计</strong><span>清除总局数、胜率与对阵记录</span></div><button id="btn-settings-clear-profile" class="btn btn-small btn-ghost">重置统计</button></div>
           </div>
           <div class="panel settings-panel settings-about-panel">
             <div class="panel-label">ABOUT</div>
             <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。五阵营、200 张主卡 + 11 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
-            <p class="settings-about">当前构建：20261020al</p>
+            <p class="settings-about">当前构建：20261020cx</p>
             <button id="btn-settings-credits" class="btn btn-small btn-ghost">制作与素材说明</button>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="screen-content" class="screen">
+      <div class="page-shell content-shell">
+        <header class="page-head">
+          <button id="btn-content-back" class="btn btn-small btn-ghost">← 返回档案处</button>
+          <div>
+            <div class="eyebrow">ARCADE / MODES</div>
+            <h1>街机模式</h1>
+          </div>
+          <span class="page-head-mark">SIDE ARCHIVE</span>
+        </header>
+        <div id="content-root" class="content-root"></div>
       </div>
     </section>
 
@@ -686,7 +711,7 @@
     <section id="screen-game" class="screen">
       <div class="game-shell">
         <header class="game-top">
-          <button id="btn-game-home" class="btn btn-small btn-ghost">← 档案处</button>
+          <button id="btn-game-home" class="btn btn-small btn-ghost">← 退出</button>
           <div class="game-mode" id="game-mode-label">普卫岛 vs 学院</div>
           <div class="turn-badge" id="turn-badge">第 1 轮</div>
           <div id="log-mini" class="log-mini" title="点击查看完整推演日志">等待第一条推演记录…</div>
@@ -697,6 +722,7 @@
             <button id="btn-toggle-log" class="btn btn-small btn-ghost">日志</button>
             <button id="btn-sound" class="btn btn-small btn-ghost">声音：开</button>
           </div>
+          <button id="btn-game-settings" class="btn btn-small btn-ghost">设置</button>
         </header>
         <div id="turn-banner" class="turn-banner"></div>
         <div id="vein-banner" class="vein-banner"></div>
@@ -721,9 +747,10 @@
             <div class="vein-title">
               <span class="eyebrow">SHARED VEIN</span>
               <strong>流脉 <span id="vein-value">0</span> / 12</strong>
+              <small id="vein-next" class="vein-next">下一阈值 4 · 震荡</small>
             </div>
             <div class="vein-track" id="vein-track"></div>
-            <div class="vein-thresholds"><span>4 震荡</span><span>7 裂隙</span><span>10 魔物潮</span><span>12 回流</span></div>
+            <button id="btn-end-turn" class="btn btn-primary end-turn-btn">结束回合</button>
           </div>
 
           <div class="side player-side">
@@ -749,9 +776,6 @@
           <div class="mobile-hint">长按卡牌查看详情 · 左右滑动浏览手牌</div>
           <div class="hand-row">
             <div class="hand" id="hand"></div>
-            <div class="turn-controls">
-              <button id="btn-end-turn" class="btn btn-primary end-turn-btn">结束回合</button>
-            </div>
           </div>
         </div>
 
@@ -772,7 +796,9 @@
   <script src="js/data.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/ui.js?v=20261020al"></script>
+  <script src="js/ui.js?v=20261020cx"></script>
+  <script src="js/content.js?v=20261020cx"></script>
+  <script src="js/final-ui.js?v=20261020cx"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

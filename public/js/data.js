@@ -2663,6 +2663,18 @@
 
   Object.assign(CARDS.losutai_beast, { noGeneratedArt: true, text: "" });
 
+  // ===== 阵营纹章 AI 资产 =====
+  {
+    const emblemMap = {
+      pus: "/assets/ui/emblem-pus.webp?v=20261020cc",
+      academy: "/assets/ui/emblem-academy.webp?v=20261020cc",
+      xizhao: "/assets/ui/emblem-xizhao.webp?v=20261020cc",
+      republic: "/assets/ui/emblem-republic.webp?v=20261020cc",
+      empire: "/assets/ui/emblem-empire.webp?v=20261020cc"
+    };
+    for (const f of Object.keys(emblemMap)) if (FACTIONS[f]) FACTIONS[f].emblem = emblemMap[f];
+  }
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 
