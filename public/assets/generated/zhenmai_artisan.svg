@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="1024" viewBox="0 0 768 1024">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2118"/><stop offset="1" stop-color="#1a1510"/></linearGradient>
+<radialGradient id="h" cx="0.5" cy="0.38" r="0.6"><stop offset="0" stop-color="#b08a5a" stop-opacity="0.22"/><stop offset="1" stop-color="#b08a5a" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="768" height="1024" fill="url(#g)"/><rect width="768" height="1024" fill="url(#h)"/>
+<circle cx="384" cy="420" r="238" fill="none" stroke="#b08a5a" stroke-width="5" opacity="0.5"/>
+<circle cx="384" cy="420" r="186" fill="#b08a5a" opacity="0.10"/>
+<circle cx="384" cy="420" r="150" fill="none" stroke="#b08a5a" stroke-width="2" opacity="0.45"/>
+<text x="384" y="472" text-anchor="middle" font-size="188" fill="#b08a5a" font-family="serif">冠</text>
+<text x="384" y="848" text-anchor="middle" font-size="56" fill="#f2f6f5" font-family="sans-serif">镇脉工匠</text>
+<text x="384" y="902" text-anchor="middle" font-size="26" fill="#b08a5a" font-family="sans-serif" opacity="0.85">EMPIRE · ARMOR</text>
+<text x="384" y="952" text-anchor="middle" font-size="20" fill="#b08a5a" font-family="sans-serif" opacity="0.5">GOK WORLD · VEIN GAMBIT</text>
+</svg>

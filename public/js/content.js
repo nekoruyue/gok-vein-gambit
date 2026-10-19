@@ -78,8 +78,19 @@
 
   /* ===== hub ===== */
   function open() {
-    if (global.GokUI) GokUI.showScreen("content");
-    renderHub();
+    const enter = () => {
+      if (global.GokUI) GokUI.showScreen("content");
+      renderHub();
+    };
+    if (global.GokCinema) {
+      global.GokCinema.playOnce("opening_v1", "opening.mp4", {
+        eyebrow: "GOK WORLD · VEIN GAMBIT",
+        title: "戈克降临",
+        text: "地脉在群山之下翻身，巨影自风暴中醒来。档案室记录下这一切，等待下一位执脉者。"
+      }).then(enter);
+    } else {
+      enter();
+    }
   }
   function renderHub() {
     const box = root();
@@ -173,7 +184,7 @@
   const ELITE_MODS = [
     { id: "bulwark", name: "铁壁", desc: "敌方领袖开局获得 4 点护甲。", apply: (s) => { s.players[1].armor += 4; } },
     { id: "bloodmoon", name: "血月", desc: "敌方领袖生命上限 +5。", apply: (s) => { const e = s.players[1]; e.maxHp += 5; e.hp += 5; } },
-    { id: "overload", name: "过载", desc: "敌方开局行动槽 +1。", apply: (s) => { const e = s.players[1]; e.maxMana = Math.min(10, (e.maxMana || 10) + 1); e.mana = Math.min(e.maxMana, (e.mana || 0) + 1); } },
+    { id: "overload", name: "过载", desc: "敌方开局行动力 +1。", apply: (s) => { const e = s.players[1]; e.maxMana = Math.min(10, (e.maxMana || 10) + 1); e.mana = Math.min(e.maxMana, (e.mana || 0) + 1); } },
     { id: "rapid_vein", name: "湍流", desc: "开局流脉 +3。", apply: (s) => { s.vein = Math.min(11, (s.vein || 0) + 3); } }
   ];
 
@@ -523,7 +534,7 @@
     { id: "armor", name: "铁壁日", desc: "双方领袖开局获得 2 点护甲。", apply: (s) => { s.players[0].armor += 2; s.players[1].armor += 2; } },
     { id: "vein", name: "流脉湍急", desc: "开局流脉为 5。", apply: (s) => { s.vein = 5; } },
     { id: "blood", name: "血月", desc: "双方生命上限 -5。", apply: (s) => { for (const p of s.players) { p.maxHp = Math.max(10, p.maxHp - 5); p.hp = Math.min(p.hp, p.maxHp); } } },
-    { id: "mana", name: "过载日", desc: "双方开局行动槽 +1。", apply: (s) => { for (const p of s.players) { p.maxMana = Math.min(10, (p.maxMana || 10) + 1); p.mana = Math.min(p.maxMana, (p.mana || 0) + 1); } } }
+    { id: "mana", name: "过载日", desc: "双方开局行动力 +1。", apply: (s) => { for (const p of s.players) { p.maxMana = Math.min(10, (p.maxMana || 10) + 1); p.mana = Math.min(p.maxMana, (p.mana || 0) + 1); } } }
   ];
   function dailyMod(date) {
     return DAILY_MODS[seedFrom("daily-mod:" + date) % DAILY_MODS.length];
@@ -702,14 +713,25 @@
     const row = el("div", "mode-actions");
     const start = el("button", "btn btn-primary", "进入战斗");
     start.onclick = () => {
-      runMode("story", "故事");
-      app.contentRun.chapter = ch.id;
-      global.GokUI.startGame({
-        faction: ch.faction, opponent: ch.opponent,
-        p1Deck: factionDeck(ch.faction), p2Deck: factionDeck(ch.opponent),
-        aiDifficulty: "hard", first: 0,
-        seed: seedFrom("story:" + ch.id)
-      });
+      const begin = () => {
+        runMode("story", "故事");
+        app.contentRun.chapter = ch.id;
+        global.GokUI.startGame({
+          faction: ch.faction, opponent: ch.opponent,
+          p1Deck: factionDeck(ch.faction), p2Deck: factionDeck(ch.opponent),
+          aiDifficulty: "hard", first: 0,
+          seed: seedFrom("story:" + ch.id)
+        });
+      };
+      if (global.GokCinema) {
+        global.GokCinema.play(ch.id + ".mp4", {
+          eyebrow: "STORY · " + factionName(ch.faction),
+          title: ch.title,
+          text: ch.text
+        }).then(begin);
+      } else {
+        begin();
+      }
     };
     row.appendChild(start);
     panel.appendChild(row);

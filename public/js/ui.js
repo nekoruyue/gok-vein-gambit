@@ -6,7 +6,16 @@
   const D = global.GokData;
   const E = global.GokEngine;
   const AI = global.GokAI;
-  const ART_VERSION = "20261020de";
+  const ART_VERSION = "20261020dq";
+
+  // 经典模式：每个阵营首次开局播放一段对应 CG（可跳过）
+  const CLASSIC_CG = {
+    pus: { clip: "ch1.mp4", title: "地脉与潮雾", text: "普卫岛守着地脉的入口，也守着最后一座不熄灯的港。" },
+    academy: { clip: "ch2.mp4", title: "钟塔的算式", text: "学院的钟停在零点，所有算式都指向同一个答案。" },
+    xizhao: { clip: "ch3.mp4", title: "赤潮的来客", text: "血潮越过旧边墙，来客没有名字，只带着一枚烧黑的流脉徽记。" },
+    republic: { clip: "ch4.mp4", title: "铁誓与议会", text: "共和国把誓言铸进铁里，也把代价写进议案。" },
+    empire: { clip: "ch5.mp4", title: "最后一炉", text: "帝国锻炉再次点火，炉火照亮每一张等待命令的脸。" }
+  };
 
   const $ = (id) => document.getElementById(id);
   function el(tag, cls, text) {
@@ -55,6 +64,7 @@
   function cardArtUrl(def) {
     if (!def) return "";
     if (def.art) return portraitImage(def.art);
+    if (def.noArtwork) return "";
     return "assets/generated/" + encodeURIComponent(def.id) + (def.noGeneratedArt ? ".svg" : ".webp") + "?v=" + ART_VERSION;
   }
 
@@ -75,7 +85,7 @@
   }
 
   function addGeneratedArt(art, def) {
-    if (!art || !def || def.art) return;
+    if (!art || !def || def.art || def.noArtwork) return;
     const img = el("img", "generated-art-img");
     img.alt = "";
     img.loading = "eager";
@@ -293,10 +303,11 @@
     document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
     const target = $("screen-" + name);
     if (target) target.classList.add("active");
-    if (name === "home" || name === "sim" || name === "setup" || name === "lan" || name === "deck" || name === "tutorial" || name === "codex" || name === "achievements" || name === "settings" || name === "rank") AudioBox.bgm("bgm_title");
+    if (name === "home" || name === "sim" || name === "setup" || name === "lan" || name === "deck" || name === "tutorial" || name === "codex" || name === "achievements" || name === "settings" || name === "rank" || name === "rules") AudioBox.bgm("bgm_title");
     if (name === "game") AudioBox.bgm("bgm_game");
     if (name !== "home") closeStartMenu();
     if (name === "home") { updateHomeLegendary(); updateHomeAccount(); }
+    if (name === "rules") renderRulesKeywords();
     closeModal(true);
     hideKeywordTip();
     clearToast();
@@ -316,7 +327,8 @@
     const img = $("home-legendary-img");
     if (img) {
       img.onerror = () => { img.src = "assets/backgrounds/menu.webp"; };
-      img.src = cardArtUrl(pick);
+      const url = cardArtUrl(pick);
+      img.src = url || "assets/backgrounds/menu.webp";
       img.alt = pick.name;
     }
     const name = $("home-legendary-name");
@@ -341,14 +353,25 @@
   }
 
   function openStartMenu() {
-    const menu = $("start-menu");
-    if (!menu) return;
-    menu.hidden = false;
-    const root = $("start-menu-root");
-    const multi = $("start-menu-multi");
-    if (root) root.hidden = false;
-    if (multi) multi.hidden = true;
-    AudioBox.play("ui_open");
+    const show = () => {
+      const menu = $("start-menu");
+      if (!menu) return;
+      menu.hidden = false;
+      const root = $("start-menu-root");
+      const multi = $("start-menu-multi");
+      if (root) root.hidden = false;
+      if (multi) multi.hidden = true;
+      AudioBox.play("ui_open");
+    };
+    if (global.GokCinema) {
+      global.GokCinema.playOnce("opening_classic_v1", "opening.mp4", {
+        eyebrow: "CLASSIC / ENTER ARCHIVE",
+        title: "戈克降临",
+        text: "地脉在群山之下翻身，巨影自风暴中醒来。档案室记录下这一切，等待下一位执脉者。"
+      }).then(show);
+    } else {
+      show();
+    }
   }
 
   function closeStartMenu() {
@@ -376,7 +399,7 @@
     art.style.backgroundImage = "url('" + heroImage(hero.id) + "')";
     $("setup-hero-name").textContent = hero.name;
     $("setup-hero-quote").textContent = "“" + hero.quote + "”";
-    $("setup-power-name").textContent = hero.power.name + " · " + hero.power.cost + " 行动槽";
+    $("setup-power-name").textContent = hero.power.name + " · " + hero.power.cost + " 行动力";
     $("setup-power-text").textContent = hero.power.text;
     const passiveEl = $("setup-passive-text");
     if (passiveEl) passiveEl.textContent = hero.passive ? "被动 · " + hero.passive.name + "：" + hero.passive.text : "";
@@ -492,6 +515,8 @@
     app.lastVein = state.vein;
     app.lastThresholds = Object.assign({}, state.stats.thresholds);
     app.lastConfig = { mode: mode, faction: faction };
+    app.endCGPlayed = false;
+    app.endCGPending = false;
     closeModal(true);
     showScreen("game");
     AudioBox.play("ui_open");
@@ -628,7 +653,7 @@
       actions.appendChild(keep);
       actions.appendChild(swap);
       content.appendChild(actions);
-      const hint = el("div", "mulligan-hint", "换牌不消耗行动槽；先手/后手都会进入调度。");
+      const hint = el("div", "mulligan-hint", "换牌不消耗行动力；先手/后手都会进入调度。");
       content.appendChild(hint);
     });
   }
@@ -720,7 +745,7 @@
     }
     if (s.current !== app.viewer) {
       title.textContent = "对手回合";
-      text.textContent = "先观察对手怎么使用行动槽和随从。轮到你时，再按提示操作。";
+      text.textContent = "先观察对手怎么使用行动力和随从。轮到你时，再按提示操作。";
       return;
     }
     if (app.targetInfo) {
@@ -781,12 +806,12 @@
     box.classList.add("mana-row", "mana-hud");
     box.style.setProperty("width", "fit-content", "important");
     box.style.setProperty("min-width", "0", "important");
-    box.title = "行动槽：本回合可用于出牌和领袖技能的资源";
+    box.title = "行动力：本回合可用于出牌和领袖技能的资源";
     const main = el("span", "mana-main");
     const manaIcon = el("i", "mana-icon");
     manaIcon.style.backgroundImage = "url('/assets/icons/action.svg')";
     main.appendChild(manaIcon);
-    main.appendChild(el("span", "mana-label", "行动槽"));
+    main.appendChild(el("span", "mana-label", "行动力"));
     box.appendChild(main);
     const pips = el("span", "mana-pips");
     pips.style.setProperty("display", "flex", "important");
@@ -1066,7 +1091,7 @@
       ghost.appendChild(el("div", "drag-sword", "⚔"));
       ghost.appendChild(el("span", null, def ? def.name : "攻击"));
     } else {
-      if (def) ghost.style.backgroundImage = "url('" + cardArtUrl(def) + "')";
+      if (def) { const url = cardArtUrl(def); if (url) ghost.style.backgroundImage = "url('" + url + "')"; }
       ghost.appendChild(el("span", null, def ? def.name : ""));
     }
     document.body.appendChild(ghost);
@@ -1220,6 +1245,11 @@
     if (m.frozenTurns > 0) card.classList.add("frozen");
     if (m.stealth) card.classList.add("stealthed");
     if (m.silenced) card.classList.add("silenced");
+    if (m.bounty != null) {
+      const badge = el("div", "bounty-mark", "悬赏");
+      badge.title = "悬赏名单：该随从死亡时，名单主人抽 1 张牌";
+      card.appendChild(badge);
+    }
     if (app.attacker === m.uid) card.classList.add("selected");
     if (targetList().indexOf(m.uid) >= 0) {
       card.classList.add("targetable");
@@ -1362,7 +1392,7 @@
       bannerText = "流脉震荡！所有随从受到 1 点伤害";
       tone = "hot";
     } else if (s.vein > app.lastVein) {
-      bannerText = "采掘：流脉 " + app.lastVein + " → " + s.vein;
+      bannerText = "流脉提升：" + app.lastVein + " → " + s.vein;
       tone = s.vein >= 7 ? "hot" : "";
     } else if (app.lastVein >= 12 && s.vein < app.lastVein) {
       bannerText = "流脉回流：12 → 0";
@@ -1592,9 +1622,9 @@
     "冻结": "被冻结的随从暂时不能攻击，持续到其下个回合。",
     "沉默": "移除随从的技能、余响与增益效果。",
     "隐匿": "无法被敌方选为目标，攻击后解除。",
-    "引脉": "当共享流脉达到卡牌标注的数值时，额外触发效果。",
+    "引脉": "当共享流脉达到标注阈值时触发；若有多个阈值，只结算其中最高的一个。",
     "检索": "从三张牌中选择一张加入手牌。",
-    "采掘": "触发采掘：共享流脉 +1。并不会自动将牌加入手牌。",
+    "采掘": "采掘 X：抽 X 张牌，并使共享流脉 +X。",
     "随从": "场上的单位牌，不包含领袖。",
     "领袖": "玩家操控的单位，拥有领袖技能与被动，不进入抽牌堆。",
     "血祭": "以支付生命为代价打出或触发效果。",
@@ -1605,14 +1635,18 @@
     "汲取": "造成伤害时为你的领袖恢复等量生命。",
     "袭扰": "召唤当回合可以攻击随从，但不能攻击领袖。",
     "回潮": "死亡后以 1 点生命返回战场一次。",
-    "反噬": "本牌使用后，下回合行动槽减少。",
+    "反噬": "本牌使用后，下回合行动力减少。",
     "顺势": "本回合打出过其他牌时触发强化效果。",
-    "阵位": "每个阵位最多容纳 3 个随从，但全场最多 6 个。卡牌可以要求同阵位、不同阵位，或指定某个阵位结算。",
+    "恢复": "恢复生命不能超过生命上限。",
+    "获得": "获得生命会同时提高生命上限与当前生命，可以超过原本的生命上限。",
+    "阵位": "每个阵位最多容纳 3 个随从，但全场最多 6 个。阵位的数值效果按当前同阵位随从数量即时计算，随从死亡或离开后对应加成会消失。",
+    "固定": "固定效果不随条件变化消失，当前和之后以任何方式进入该阵位的随从都会获得。",
     "对位": "双方左/中/右同一列的阵位互相对位。",
-    "借脉": "本回合先获得行动槽或牌，回合结束时补回流脉。",
-    "逆流": "主动降低流脉，换取恢复或召唤。",
-    "镇脉": "降低流脉并转化为护甲或防守收益。",
-    "压脉": "降低流脉并转化为伤害。",
+    "借脉": "本回合先获得行动力或牌，回合结束时补回流脉。",
+    "逆流": "消耗指定数量的流脉来触发；流脉不足时消耗到 0 仍可触发，流脉为 0 时无效。",
+    "镇脉": "消耗指定数量的流脉，获得等量护甲；流脉不足时只获得剩余流脉的护甲并把流脉清零。",
+    "压脉": "消耗指定数量的流脉，对敌方领袖造成等量伤害；流脉不足时整张牌效果无效。",
+    "悬赏": "被列入悬赏名单的敌方随从死亡时，名单主人抽 1 张牌；莫纳克额外获得 1 点护甲。",
     "遗物": "需要从牌库抽到并打出后装备，持续生效，不占用场上阵位；同一时间只能装备一件。",
   };
   const KEYWORD_ICONS = {
@@ -1621,7 +1655,8 @@
     "被动": "passive", "冻结": "freeze", "沉默": "silence", "隐匿": "stealth",
     "引脉": "vein", "检索": "discover", "采掘": "excavate", "血祭": "blood",
     "吞噬": "damage", "阵位": "summon", "遗物": "passive", "对位": "summon", "借脉": "vein", "逆流": "vein", "镇脉": "armor", "压脉": "damage",
-    "护幕": "armor", "连动": "charge", "蚀毒": "deathrattle", "汲取": "heal", "袭扰": "charge", "回潮": "passive", "反噬": "summon", "顺势": "damage"
+    "护幕": "armor", "连动": "charge", "蚀毒": "deathrattle", "汲取": "heal", "袭扰": "charge", "回潮": "passive", "反噬": "summon", "顺势": "damage", "悬赏": "damage",
+    "恢复": "heal", "获得": "heart", "固定": "passive"
   };
 
   let keywordTipTimer = null;
@@ -1681,17 +1716,25 @@
       if (def.keywords.indexOf("poisonous") >= 0) tags.push("蚀毒");
       if (def.keywords.indexOf("lifesteal") >= 0) tags.push("汲取");
       if (def.keywords.indexOf("rush") >= 0) tags.push("袭扰");
+      if (def.keywords.indexOf("stealth") >= 0) tags.push("隐匿");
       if (def.keywords.indexOf("reborn") >= 0) tags.push("回潮");
     }
     if (def.excavate) tags.push("采掘");
     if (def.bloodCost) tags.push("血祭");
     if (def.text && def.text.indexOf("引脉") >= 0) tags.push("引脉");
     if (def.text && def.text.indexOf("阵位") >= 0) tags.push("阵位");
+    if (def.text && def.text.indexOf("顺势") >= 0 && tags.indexOf("顺势") < 0) tags.push("顺势");
+    if (def.text && def.text.indexOf("吞噬") >= 0) tags.push("吞噬");
     if (def.text && def.text.indexOf("对位") >= 0) tags.push("对位");
     if (def.text && def.text.indexOf("借脉") >= 0) tags.push("借脉");
     if (def.text && def.text.indexOf("逆流") >= 0) tags.push("逆流");
     if (def.text && def.text.indexOf("镇脉") >= 0) tags.push("镇脉");
     if (def.text && def.text.indexOf("压脉") >= 0) tags.push("压脉");
+    if (def.text && def.text.indexOf("沉默") >= 0 && tags.indexOf("沉默") < 0) tags.push("沉默");
+    if (def.text && def.text.indexOf("护幕") >= 0 && tags.indexOf("护幕") < 0) tags.push("护幕");
+    if (def.text && def.text.indexOf("蚀毒") >= 0 && tags.indexOf("蚀毒") < 0) tags.push("蚀毒");
+    if (def.text && def.text.indexOf("袭扰") >= 0 && tags.indexOf("袭扰") < 0) tags.push("袭扰");
+    if (def.text && (def.text.indexOf("悬赏") >= 0 || def.text.indexOf("名单") >= 0) && tags.indexOf("悬赏") < 0) tags.push("悬赏");
     if (def.type === "relic") tags.push("遗物");
     return tags;
   }
@@ -1718,7 +1761,7 @@
       if (bt === "spellDiscover") tags.push("检索");
       if (bt === "armor" || bt === "armorPerTaunt") tags.push("护甲");
       if (bt === "veinOnly") tags.push("引脉");
-      if (bt === "rampMana") tags.push("行动槽");
+      if (bt === "rampMana") tags.push("行动力");
       if (bt === "discountSpell") tags.push("战术");
       if (bt === "devour") tags.push("吞噬");
       if (bt === "armorDamage") { tags.push("护甲"); tags.push("伤害"); }
@@ -1752,7 +1795,7 @@
       if (["freezeDraw"].indexOf(st) >= 0) tags.push("冻结");
       if (["buffTaunt"].indexOf(st) >= 0) tags.push("拦截");
       if (["buffCharge"].indexOf(st) >= 0) tags.push("突进");
-      if (st === "gainMana") tags.push("行动槽");
+      if (st === "gainMana") tags.push("行动力");
       if (st === "damageAllEnemiesDraw") { tags.push("伤害"); tags.push("抽牌"); }
       if (st === "damageAll") tags.push("伤害");
       if (st === "returnAllEnemies") tags.push("回手");
@@ -1764,7 +1807,7 @@
       if (st === "sacrificeSummon") { tags.push("血祭"); tags.push("召唤"); }
       if (st === "buffAllTaunt") tags.push("拦截");
       if (st === "armorAoe") { tags.push("护甲"); tags.push("伤害"); }
-      if (st === "rampSpell") tags.push("行动槽");
+      if (st === "rampSpell") tags.push("行动力");
       if (st === "bloodSummon") { tags.push("血祭"); tags.push("召唤"); }
     }
     return Array.from(new Set(tags));
@@ -1842,11 +1885,48 @@
       }
       content.appendChild(grid);
       const actions = el("div", "modal-actions");
+      const rulesBtn = el("button", "btn btn-ghost", "游戏规则");
+      rulesBtn.onclick = () => { closeModal(true); openRulesScreen(app.screen === "game" ? "game" : "home"); };
       const close = el("button", "btn btn-primary", "返回对局");
       close.onclick = () => closeModal(true);
+      actions.appendChild(rulesBtn);
       actions.appendChild(close);
       content.appendChild(actions);
     });
+  }
+
+  function renderRulesKeywords() {
+    const host = $("rules-keywords");
+    if (!host) return;
+    clear(host);
+    for (const [label, desc] of Object.entries(KEYWORD_HELP)) {
+      const item = el("div", "keyword-glossary-item");
+      const iconName = KEYWORD_ICONS[label];
+      if (iconName) {
+        const img = el("img", "keyword-glossary-icon");
+        img.src = "/assets/icons/" + iconName + ".svg";
+        img.alt = "";
+        item.appendChild(img);
+      }
+      const body = el("div", "keyword-glossary-copy");
+      body.appendChild(el("strong", null, label));
+      body.appendChild(el("span", null, desc));
+      item.appendChild(body);
+      host.appendChild(item);
+    }
+  }
+
+  function openRulesScreen(returnScreen) {
+    app.rulesReturn = returnScreen || (app.screen === "game" ? "game" : "home");
+    AudioBox.play("ui_open");
+    showScreen("rules");
+  }
+
+  function closeRulesScreen() {
+    const back = app.rulesReturn === "game" && app.game ? "game" : "home";
+    AudioBox.play("ui_open");
+    showScreen(back);
+    if (back === "game") renderGame();
   }
 
   function createHandCard(def, instance, player, cost, s) {
@@ -1893,7 +1973,7 @@
       }
       if (!playable) {
         if (s.current !== player.index) toast("还没轮到你。");
-        else if (player.mana < cost) toast("行动槽不足。");
+        else if (player.mana < cost) toast("行动力不足。");
         else toast("现在不能打出这张牌。");
         return;
       }
@@ -1952,12 +2032,12 @@
   function renderControls(viewer, s) {
     const power = $("btn-hero-power");
     const o = E.getHeroPowerOptions(s, app.viewer);
-    const icon = viewer.heroId === "lain" ? "协" : viewer.heroId === "karna" ? "血" : viewer.heroId === "marta" ? "演" : viewer.heroId === "wolfram" ? "律" : "炮";
+    const icon = viewer.heroId === "lain" ? "协" : viewer.heroId === "karna" ? "血" : viewer.heroId === "marta" ? "演" : viewer.heroId === "wolfram" ? "律" : viewer.heroId === "monarch" ? "悬" : "炮";
     const current = s.current === app.viewer;
     const disabled = !current || s.status !== "playing" || s.mulliganPhase || !o.ok || app.busy || app.modalOpen;
     const actionText = !current ? "等待你的回合" : o.used ? "本回合已用" : (o.targetType === "hand" ? "点击选择一张手牌" : o.targetType === "enemy" ? "点击选择敌方目标" : "点击选择友方目标");
     const stateText = o.used ? "已用" : !current ? "对方回合" : !o.ok ? "不可用" : "可用";
-    power.innerHTML = "<span class=\"hp-btn-icon\">" + icon + "<img class=\"hp-skill-icon\" src=\"/assets/icons/hero_power.svg\" alt=\"\"></span><span class=\"hp-btn-copy\"><strong>领袖技能 · " + viewer.hero.power.name + "</strong><small>" + (viewer.hero.power.cost || 2) + " 行动槽 · " + actionText + "</small></span><span class=\"hp-btn-state\">" + stateText + "</span>";
+    power.innerHTML = "<span class=\"hp-btn-icon\">" + icon + "<img class=\"hp-skill-icon\" src=\"/assets/icons/hero_power.svg\" alt=\"\"></span><span class=\"hp-btn-copy\"><strong>领袖技能 · " + viewer.hero.power.name + "</strong><small>" + (viewer.hero.power.cost || 2) + " 行动力 · " + actionText + "</small></span><span class=\"hp-btn-state\">" + stateText + "</span>";
     const iconEl = power.querySelector(".hp-btn-icon");
     if (iconEl) iconEl.style.backgroundImage = "linear-gradient(180deg, rgba(5,10,15,0.08), rgba(5,10,15,0.48)), url('" + heroImage(viewer.heroId) + "')";
     power.disabled = disabled;
@@ -2062,7 +2142,7 @@
     ghost.style.height = Math.min(132, sourceRect.height) + "px";
     ghost.style.left = sourceRect.left + "px";
     ghost.style.top = sourceRect.top + "px";
-    ghost.style.backgroundImage = "url('" + cardArtUrl(def) + "')";
+    { const url = cardArtUrl(def); if (url) ghost.style.backgroundImage = "url('" + url + "')"; }
     ghost.appendChild(el("span", null, def.name));
     document.body.appendChild(ghost);
     requestAnimationFrame(() => {
@@ -2401,7 +2481,7 @@
     commitPlay(cardUid, null, null);
   }
 
-  function commitPlay(cardUid, targetUid, zone) {
+  function commitPlay(cardUid, targetUid, zone, targetUid2) {
     const s = app.game;
     if (!s) return;
     const player = s.players[s.current];
@@ -2442,6 +2522,23 @@
         return;
       }
     }
+    if (def.target2 && (opt.target2Targets || []).length && !targetUid2) {
+      const secondTargets = opt.target2Targets.map(uid => E.findMinion(s, uid)).filter(Boolean);
+      app.pendingDragZone = null;
+      openModal((content) => {
+        content.appendChild(el("div", "eyebrow", "SECOND TARGET"));
+        content.appendChild(el("h3", null, "选择第二个目标"));
+        content.appendChild(el("p", null, "这张牌还需要选择一个目标。"));
+        const actions = el("div", "modal-actions");
+        for (const m of secondTargets) {
+          const b = el("button", "btn btn-small", m.name + "（" + E.ZONE_NAMES[m.zone] + "）");
+          b.onclick = () => { closeModal(true); commitPlay(cardUid, targetUid, zone, m.uid); };
+          actions.appendChild(b);
+        }
+        content.appendChild(actions);
+      });
+      return;
+    }
     app.pendingDragZone = null;
     const playPoint = capturePlayPoint(zone, targetUid);
     const sourceEl = document.querySelector(".hand-card.selected");
@@ -2451,6 +2548,7 @@
         kind: "play",
         cardUid: cardUid,
         targetUid: targetUid || null,
+        targetUid2: targetUid2 || null,
         zone: zone || null,
         payBlood: app.payBloodChoice === true
       });
@@ -2466,6 +2564,7 @@
     }
     const result = E.playCard(s, s.current, cardUid, {
       targetUid: targetUid || null,
+      targetUid2: targetUid2 || null,
       zone: zone || null,
       payBlood: app.payBloodChoice === true
     });
@@ -2790,6 +2889,30 @@
   function showEnd() {
     const s = app.game;
     if (!s) return;
+    if (app.modalOpen || app.endCGPending) return;
+    const classicOrStory = !app.contentRun || (app.contentRun && app.contentRun.mode === "story");
+    if (!app.endCGPlayed && s.winner != null && !app.tutorial && classicOrStory && global.GokCinema) {
+      app.endCGPlayed = true;
+      app.endCGPending = true;
+      app.busy = true;
+      app.aiRunning = false;
+      const win = s.winner === app.human;
+      global.GokCinema.play(win ? "victory.mp4" : "defeat.mp4", {
+        eyebrow: "SETTLEMENT · " + (win ? "VICTORY" : "DEFEAT"),
+        title: win ? "推演胜利" : "推演败北",
+        text: win ? "档案记下这一局：流脉站在你这边。" : "档案合上了这一页，但地脉仍在流动。"
+      }).then(() => {
+        app.endCGPending = false;
+        if (app.game === s) openEndModal();
+      });
+      return;
+    }
+    openEndModal();
+  }
+
+  function openEndModal() {
+    const s = app.game;
+    if (!s) return;
     app.busy = true;
     app.aiRunning = false;
     recordGameProfile();
@@ -2991,7 +3114,7 @@
     if (!tip || !anchor) return;
     clear(tip);
     tip.appendChild(el("strong", null, def.name));
-    tip.appendChild(el("small", null, typeLine(def) + " · " + def.cost + " 行动槽" + (def.type === "minion" ? " · " + def.attack + "/" + def.health : "") + " · " + factionName(def.faction)));
+    tip.appendChild(el("small", null, typeLine(def) + " · " + def.cost + " 行动力" + (def.type === "minion" ? " · " + def.attack + "/" + def.health : "") + " · " + factionName(def.faction)));
     tip.appendChild(el("p", null, def.text || "没有额外效果。"));
     if (def.flavor) tip.appendChild(el("em", null, "“" + def.flavor + "”"));
     tip.hidden = false;
@@ -3270,8 +3393,30 @@
   }
 
 
+  const DECK_REPAIR_POOL = ["neutral_wayfarer", "wandering_guard", "traveling_healer", "old_compass", "mercenary", "sim_assistant", "snow_medic", "mist_scout", "caravan_guard"];
+  function migrateUnavailableCards(faction, list) {
+    const usable = (id) => { const d = D.CARDS[id]; return !!d && !d.disabled; };
+    if (list.every(usable)) return list.slice();
+    const counts = {};
+    for (const id of list) if (usable(id)) counts[id] = (counts[id] || 0) + 1;
+    const isFiller = (id) => {
+      const d = D.CARDS[id];
+      return d && !d.disabled && !d.token && d.type !== "relic" && d.faction === "neutral";
+    };
+    const preferred = DECK_REPAIR_POOL.filter(isFiller);
+    const pool = preferred.concat(Object.keys(D.CARDS).filter((id) => isFiller(id) && preferred.indexOf(id) < 0));
+    const out = [];
+    for (const id of list) {
+      if (usable(id)) { out.push(id); continue; }
+      const repl = pool.find((nid) => (counts[nid] || 0) < D.maxCopies(D.CARDS[nid]));
+      if (repl) { counts[repl] = (counts[repl] || 0) + 1; out.push(repl); }
+    }
+    return out;
+  }
+
   function normalizeSavedDeck(faction, list) {
     if (!Array.isArray(list)) return null;
+    list = migrateUnavailableCards(faction, list);
     if (D.validateDeck(faction, list).ok) {
       const clean = list.slice();
       if (clean.length > 31) {
@@ -3455,7 +3600,7 @@
       clear(leaderSkill);
       const main = el("div", "deck-skill-main");
       main.appendChild(el("span", "deck-hero-stats", "领袖 " + heroDef.name + " · 生命 " + heroDef.hp + "（上限可成长）"));
-      main.appendChild(el("strong", null, "领袖技能 · " + heroDef.power.name + " · " + heroDef.power.cost + " 行动槽"));
+      main.appendChild(el("strong", null, "领袖技能 · " + heroDef.power.name + " · " + heroDef.power.cost + " 行动力"));
       // keep the deck header compact: skill details are available in-game / via tooltip
       leaderSkill.appendChild(main);
     }
@@ -4251,7 +4396,7 @@
       tutorialBox.appendChild(el("div", "panel-label", "新手教程 / 7 步"));
       const tutorialList = el("div", "guide-tutorial-steps");
       for (const step of [
-        "1. 先看手牌、行动槽和共享流脉。",
+        "1. 先看手牌、行动力和共享流脉。",
         "2. 点击「开始推演」，选择单人或多人的阵营。",
         "3. 点击手牌；随从会自动进入选择的阵位。",
         "4. 带目标的效果先选目标；带阵位的效果先选左/中/右。",
@@ -4280,11 +4425,45 @@
       }
       content.appendChild(grid);
       const actions = el("div", "modal-actions");
+      const rulesPage = el("button", "btn btn-ghost", "完整规则页");
+      rulesPage.onclick = () => { closeModal(true); openRulesScreen("home"); };
       const tutorial = el("button", "btn btn-ghost", "开始实战教学");
       tutorial.onclick = () => { closeModal(true); showScreen("tutorial"); };
       const close = el("button", "btn btn-primary", "关闭");
       close.onclick = () => closeModal(true);
+      actions.appendChild(rulesPage);
       actions.appendChild(tutorial);
+      actions.appendChild(close);
+      content.appendChild(actions);
+    });
+  }
+
+  function openRulesGuide() {
+    openModal((content) => {
+      content.appendChild(el("div", "eyebrow", "ARCHIVE / RULES"));
+      content.appendChild(el("h3", null, "规则速查"));
+      const box = el("div", "guide-sections");
+      const sections = [
+        ["目标", "把对方领袖生命降到 0。随从可攻击敌方随从或领袖；有拦截的随从必须先处理。"],
+        ["行动力", "每回合上限 +1，最高 10。出牌、阵型、领袖技能都消耗行动力。"],
+        ["阵位", "左 / 中 / 右三线，每线最多 3 个随从，但全场最多 6 个。同阵位可能触发协同，双方同列互为对位。"],
+        ["流脉", "共享流脉 0→12。到达 4 震荡、7 裂隙、10 魔物潮时触发世界事件；12 回流清空。"],
+        ["关键词", "登场、余响、拦截、突进、冻结、沉默、引脉、检索等关键词会在卡牌和标签上标明。"],
+        ["遗物", "遗物是一张牌，抽到并打出后才装备到领袖身上。"]
+      ];
+      for (const [title, desc] of sections) {
+        const sec = el("div", "guide-section");
+        sec.appendChild(el("strong", null, title));
+        sec.appendChild(el("span", null, desc));
+        box.appendChild(sec);
+      }
+      content.appendChild(box);
+      const actions = el("div", "modal-actions");
+      const keys = el("button", "btn btn-ghost", "打开关键词解释");
+      keys.onclick = () => { closeModal(true); openKeywordGlossary(); };
+      const close = el("button", "btn btn-primary", "关闭");
+      close.onclick = () => closeModal(true);
+      actions.appendChild(keys);
       actions.appendChild(close);
       content.appendChild(actions);
     });
@@ -4953,7 +5132,7 @@
     const prevCurrent = app.game.current;
     const playedDef = action.kind === "play" ? (() => { const h = app.game.players[1].hand.find(c => c.uid === action.cardUid); return h ? D.CARDS[h.cardId] : null; })() : null;
     let result = { ok: false };
-    if (action.kind === "play") result = E.playCard(app.game, 1, action.cardUid, { targetUid: action.targetUid || null, zone: action.zone || null, payBlood: !!action.payBlood });
+    if (action.kind === "play") result = E.playCard(app.game, 1, action.cardUid, { targetUid: action.targetUid || null, targetUid2: action.targetUid2 || null, zone: action.zone || null, payBlood: !!action.payBlood });
     else if (action.kind === "attack") result = E.attack(app.game, 1, action.attackerUid, action.targetUid);
     else if (action.kind === "heroPower") result = E.useHeroPower(app.game, 1, action.targetUid);
     else if (action.kind === "end") result = E.endTurn(app.game, 1);
@@ -5359,6 +5538,10 @@
     $("btn-settings-credits").onclick = () => showCredits();
     $("btn-tutorial-back").onclick = () => showScreen("home");
     $("btn-tutorial-skip").onclick = () => showScreen("home");
+    if ($("btn-rules-back")) $("btn-rules-back").onclick = closeRulesScreen;
+    if ($("btn-rules-back2")) $("btn-rules-back2").onclick = closeRulesScreen;
+    if ($("btn-rules-keywords-top")) $("btn-rules-keywords-top").onclick = () => { AudioBox.play("ui_open"); openKeywordGlossary(); };
+    if ($("btn-rules-tutorial")) $("btn-rules-tutorial").onclick = () => { AudioBox.play("ui_open"); showScreen("tutorial"); };
     $("btn-tutorial-start").onclick = () => runBootLoading("正在准备新手演练", "载入教学牌桌…", BOOT_ASSETS, () => startTutorial());
     $("btn-tutorial-exit").onclick = () => endTutorial();
     $("btn-lan").onclick = () => { closeStartMenu(); AudioBox.play("ui_open"); showScreen("lan"); initLanScreen(); };
@@ -5380,10 +5563,23 @@
     $("btn-log-close").onclick = () => { app.logOpen = false; $("log-panel").classList.remove("open"); };
     const keyBtn = $("btn-keywords");
     if (keyBtn) keyBtn.onclick = () => openKeywordGlossary();
+    if ($("btn-game-tutorial")) $("btn-game-tutorial").onclick = () => { AudioBox.play("ui_open"); openGameGuide(); };
     const logMini = $("log-mini");
     if (logMini) logMini.onclick = () => toggleGameLog();
     $("btn-sound").onclick = () => AudioBox.toggle();
-    $("btn-start-game").onclick = () => runBootLoading("正在铺开牌桌", "载入牌组、阵位与流脉…", BOOT_ASSETS, () => startGame({ mode: "ai", faction: app.faction, aiDifficulty: app.aiDifficulty }));
+    $("btn-start-game").onclick = () => {
+      const begin = () => runBootLoading("正在铺开牌桌", "载入牌组、阵位与流脉…", BOOT_ASSETS, () => startGame({ mode: "ai", faction: app.faction, aiDifficulty: app.aiDifficulty }));
+      const cg = CLASSIC_CG[app.faction];
+      if (global.GokCinema && cg) {
+        global.GokCinema.playOnce("classic_intro_" + app.faction, cg.clip, {
+          eyebrow: "CLASSIC · " + factionName(app.faction),
+          title: cg.title,
+          text: cg.text
+        }).then(begin);
+      } else {
+        begin();
+      }
+    };
     document.querySelectorAll("#setup-faction .faction-card").forEach((b) => {
       b.onclick = () => { app.faction = b.dataset.faction; AudioBox.play("click"); setupState(); };
     });

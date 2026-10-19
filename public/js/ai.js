@@ -288,6 +288,12 @@
       if (canFace && target.health > 4) return { type: "heroPower", targetUid: "hero", score: 3.6 };
       return { type: "heroPower", targetUid: target.uid, score: 3.6 };
     }
+    if (p.heroId === "monarch") {
+      const enemies = enemyMinions(state, p).filter(m => !m.stealth && m.bounty == null);
+      if (!enemies.length) return null;
+      const target = enemies.slice().sort((a, b) => minionValue(b) - minionValue(a))[0];
+      return { type: "heroPower", targetUid: target.uid, score: 3.7 };
+    }
     if (p.heroId === "wolfram") {
       const card = p.hand.slice().sort((a, b) => (D.CARDS[a.cardId].cost || 0) - (D.CARDS[b.cardId].cost || 0))[0];
       return card ? { type: "heroPower", targetUid: card.uid, score: 2.4 } : null;
@@ -340,12 +346,14 @@
       if (!opt.ok) continue;
       const target = chooseTarget(state, p, def, opt);
       if (opt.targetType && !target) continue;
+      const target2 = (def.target2 && (opt.target2Targets || []).length) ? E.findMinion(state, opt.target2Targets[0]) : null;
+      if (def.target2 && (opt.target2Targets || []).length && !target2) continue;
       const zone = chooseZone(state, p, def, opt);
       if ((def.type === "minion" || def.type === "formation") && !zone) continue;
       actions.push({
         type: "play",
         cardUid: c.uid,
-        opts: { targetUid: target ? target.uid : null, zone: zone, payBlood: shouldPayBlood(state, p, def) }
+        opts: { targetUid: target ? target.uid : null, targetUid2: target2 ? target2.uid : null, zone: zone, payBlood: shouldPayBlood(state, p, def) }
       });
     }
     for (const m of ownMinions(p)) {

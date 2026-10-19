@@ -12,10 +12,11 @@
     xizhao: { name: "西昭", short: "西昭", color: "#c0504d", dark: "#3a1215", icon: "血", emblem: "/assets/emblems/xizhao.svg", hero: "karna" },
     republic: { name: "共和国", short: "共和国", color: "#d6b25f", dark: "#2b2518", icon: "律", emblem: "/assets/emblems/republic.svg", hero: "wolfram" },
     empire: { name: "帝国", short: "帝国", color: "#b08a5a", dark: "#2a2118", icon: "冠", emblem: "/assets/emblems/empire.svg", hero: "otto" },
+    greyharbor: { name: "灰港同盟", short: "灰港", color: "#7fae8f", dark: "#1b2a23", icon: "匕", emblem: "/assets/emblems/greyharbor.svg", hero: "monarch" },
     neutral: { name: "中立", short: "中立", color: "#c9a86a", dark: "#2c271f", icon: "旅", emblem: "/assets/emblems/neutral.svg", hero: null }
   };
 
-  const FACTION_IDS = ["pus", "academy", "xizhao", "republic", "empire"];
+  const FACTION_IDS = ["pus", "academy", "xizhao", "republic", "empire", "greyharbor"];
 
   function nextFaction(faction) {
     const i = FACTION_IDS.indexOf(faction);
@@ -57,7 +58,7 @@
         target: "enemy",
         text: "对一个敌方领袖造成 2 点伤害。"
       },
-      passive: { name: "演算预载", text: "每回合第一张法术的行动槽消耗 -2。" }
+      passive: { name: "演算预载", text: "每回合第一张法术的行动力消耗 -2。" }
     },
     otto: {
       id: "otto",
@@ -112,6 +113,24 @@
         text: "对一个友方随从造成 1 点伤害，抽 1 张牌。"
       },
       passive: { name: "潮汐护体", text: "你的随从不能被冻结；友方随从死亡时，你的领袖恢复 1 点生命。" }
+    },
+    monarch: {
+      id: "monarch",
+      name: "莫纳克",
+      short: "莫纳克",
+      title: "灰港同盟 · 引荐人",
+      faction: "greyharbor",
+      hp: 30,
+      armor: 0,
+      art: "monarch",
+      quote: "守法公民，欠债必还。",
+      power: {
+        name: "悬赏",
+        cost: 2,
+        target: "enemy",
+        text: "将一个敌方随从列入悬赏名单；它死亡时你抽 1 张牌。"
+      },
+      passive: { name: "抽成", text: "每当悬赏名单上的随从死亡，你额外获得 1 点护甲。" }
     }
   };
 
@@ -137,7 +156,7 @@
       id: "timon", name: "提蒙", faction: "pus", type: "minion",
       cost: 3, attack: 2, health: 3, rarity: "legendary", art: "timon",
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合你打出的下一张牌行动槽消耗减少 1。",
+      text: "登场：本回合你打出的下一张牌行动力消耗减少 1。",
       flavor: "晚一秒，在她这里不是小事。",
       battlecry: { type: "nextCost", amount: 1 }
     },
@@ -184,7 +203,7 @@
       id: "courier", name: "协调部信使", faction: "pus", type: "minion",
       cost: 1, attack: 1, health: 1, rarity: "common", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合你打出的下一张牌行动槽消耗减少 1。",
+      text: "登场：本回合你打出的下一张牌行动力消耗减少 1。",
       flavor: "她跑过的路，比地图上画的还多。",
       battlecry: { type: "nextCost", amount: 1 }
     },
@@ -649,7 +668,7 @@
     mining_permit: {
       id: "mining_permit", name: "采掘许可", faction: "neutral", type: "spell",
       cost: 0, rarity: "token", art: null, target: "none", token: true,
-      text: "本回合获得 2 点行动槽。后手补偿牌，不进入构筑。",
+      text: "本回合获得 2 点行动力。后手补偿牌，不进入构筑。",
       flavor: "许可从来不是免费的。",
       spell: { type: "gainMana", amount: 2 }
     },
@@ -827,7 +846,7 @@
     borrow_vein: {
       id: "borrow_vein", name: "借脉", faction: "academy", type: "spell",
       cost: 1, rarity: "rare", art: null, target: "none",
-      text: "本回合获得 2 行动槽；你的回合结束时流脉 +2。",
+      text: "本回合获得 2 行动力；你的回合结束时流脉 +2。",
       flavor: "先借明天的蓝，再还昨天的债。",
       spell: { type: "borrowVein", mana: 2, debt: 2 }
     },
@@ -907,7 +926,7 @@
     spell_codex: {
       id: "spell_codex", name: "留存法典", faction: "academy", type: "relic",
       cost: 3, rarity: "epic", art: null, target: "none",
-      text: "遗物：每个你的回合第一张法术的行动槽消耗 -1。",
+      text: "遗物：每个你的回合第一张法术的行动力消耗 -1。",
       flavor: "法术释放之后，公式会留在书页上。"
     },
     blood_scythe: {
@@ -1039,7 +1058,7 @@
       id: "vein_channeler", name: "引脉导流者", faction: "pus", type: "minion",
       cost: 2, attack: 2, health: 2, rarity: "rare", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合获得 1 行动槽；流脉 +1。",
+      text: "登场：本回合获得 1 行动力；流脉 +1。",
       flavor: "她把地脉接进自己的手臂，只借一回合。",
       battlecry: { type: "rampMana", amount: 1, vein: 1 }
     },
@@ -1055,14 +1074,14 @@
       id: "spell_novice", name: "法术学徒", faction: "academy", type: "minion",
       cost: 1, attack: 1, health: 2, rarity: "common", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：本回合你的下一张法术行动槽消耗 -1。",
+      text: "登场：本回合你的下一张法术行动力消耗 -1。",
       flavor: "她只学会了一个咒语，但学会了怎么省着用。",
       battlecry: { type: "discountSpell", amount: 1 }
     },
     mana_surge: {
       id: "mana_surge", name: "奥能涌动", faction: "academy", type: "spell",
       cost: 1, rarity: "rare", art: null, target: "none",
-      text: "本回合获得 2 行动槽。",
+      text: "本回合获得 2 行动力。",
       flavor: "把明天的力气今天用完。",
       spell: { type: "rampSpell", amount: 2 }
     },
@@ -1875,7 +1894,7 @@
 
 
   const NEUTRAL_DECK = [
-    "monarch",
+    "neutral_wayfarer",
     "gok_digger", "gok_digger",
     "fog_sailor",
     "snow_medic", "snow_medic",
@@ -1889,7 +1908,8 @@
     academy: { formation: "formation_script", relic: "frost_prism", relic2: "spell_codex" },
     xizhao: { formation: "formation_tide", relic: "blood_scythe", relic2: "blood_censer" },
     republic: { formation: "formation_wall", relic: "iron_banner", relic2: "republic_seal" },
-    empire: { formation: "formation_cannon", relic: "powder_engine", relic2: "armor_forge" }
+    empire: { formation: "formation_cannon", relic: "powder_engine", relic2: "armor_forge" },
+    greyharbor: { formation: "gh_formation", relic: "gh_bounty_board", relic2: "gh_venom_vial" }
   };
 
   const DECK_TRIM = {
@@ -1897,7 +1917,8 @@
     xizhao: ["losutai_hunter", "shadow_raid", "blood_ritual", "snow_medic"],
     academy: ["archive_search", "frost_seal", "lecturer", "snow_medic"],
     republic: ["shield_bearer", "fortify", "volley", "levy"],
-    empire: ["ironclad", "barrage", "mobilize", "fortress"]
+    empire: ["ironclad", "barrage", "mobilize", "fortress"],
+    greyharbor: ["gh_bounty_notice", "gh_quick_strike", "gh_shield_mercenary", "gh_black_market"]
   };
 
   const DECK_STRATEGIES = {
@@ -2024,7 +2045,7 @@
       "formula_fix", "formula_fix", "double_formula", "double_formula",
       "frost_seal", "frost_seal", "debate", "debate",
       "prohibition", "mana_surge", "spellstorm", "frost_professor",
-      "monarch", "gok_digger", "gok_digger", "fog_sailor",
+      "neutral_wayfarer", "gok_digger", "gok_digger", "fog_sailor",
       "snow_medic", "snow_medic", "mist_scout", "mist_scout",
       "caravan_guard", "caravan_guard"
     ],
@@ -2047,6 +2068,17 @@
       "fortress", "zone_barrage",
       "martial_court", "powder_marshal",
       ...NEUTRAL_DECK
+    ],
+    greyharbor: [
+      "gh_cutthroat", "gh_venom_apprentice", "gh_contract_squire", "gh_bounty_notice",
+      "gh_silencer", "gh_poison_thrower", "gh_rush_archer", "gh_bounty_hunter",
+      "gh_bodyguard_contract", "gh_quick_strike",
+      "gh_venom_shield", "gh_silence_expert", "gh_shield_mercenary", "gh_ledger",
+      "gh_assassinate_contract", "gh_black_market",
+      "gh_legend_assassin", "gh_silence_field", "gh_shield_broker",
+      "gh_execution_contract", "gh_bounty_collector",
+      "gh_scorpion", "gh_captain", "gh_silence_master", "gh_bounty_verdict",
+      "gh_company", "gh_venom_behemoth", "gh_bounty_king"
     ]
   };
 
@@ -2347,14 +2379,14 @@
     keywords: ["passive"], battlecry: null, passive: { type: "spellDiscoverOnce" },
     text: "被动：每当你施放一张法术，检索一张法术牌。每回合一次。"
   });
-  Object.assign(CARDS.borrow_vein, { cost: 2, spell: { type: "gainManaNowNext", mana: 1, next: 1 }, text: "获得 1 行动槽；下回合开始时再获得 1 行动槽。" });
+  Object.assign(CARDS.borrow_vein, { cost: 2, spell: { type: "gainManaNowNext", mana: 1, next: 1 }, text: "获得 1 行动力；下回合开始时再获得 1 行动力。" });
   Object.assign(CARDS.battle_calc, { disabled: true });
   Object.assign(CARDS.frost_professor, {
     battlecry: { type: "freezeCombo", allAtVein: 6, destroyAtVein: 10 },
     text: "登场：冻结一个敌方随从；引脉 6：冻结所有敌方随从；引脉 10：消灭所有已被冻结的敌方随从。"
   });
   Object.assign(CARDS.arcane_conduit, {
-    text: "被动：每当你施放一张法术，获得等同于其行动槽消耗的护甲。",
+    text: "被动：每当你施放一张法术，获得等同于其行动力消耗的护甲。",
     passive: { type: "spellArmor", amount: 0 }
   });
   Object.assign(CARDS.vein_heart, { text: "遗物：每当流脉增加时，获得 1 点护甲；每回合最多一次。" });
@@ -2462,7 +2494,7 @@
   Object.assign(CARDS.prohibition, { cost: 2 });
 
   // ===== 双遗物与阵营特色遗物 =====
-  Object.assign(CARDS.spell_codex, { text: "遗物：每个你的回合第一张法术的行动槽消耗 -2。" });
+  Object.assign(CARDS.spell_codex, { text: "遗物：每个你的回合第一张法术的行动力消耗 -2。" });
   Object.assign(CARDS.blood_scythe, { text: "遗物：友方随从死亡时，你的领袖恢复 3 点生命。" });
   Object.assign(CARDS.iron_banner, { text: "遗物：你召唤的拦截随从获得 +1/+1。" });
   Object.assign(CARDS.powder_engine, { text: "遗物：你的回合开始时若敌方领袖没有护甲，造成 2 点伤害。" });
@@ -2699,6 +2731,1124 @@
         return true;
       });
     }
+  }
+
+  // ===== 2026-10-19 卡牌重构：行动力、动态阵位、引脉阈值、采掘、删卡 =====
+  Object.assign(CARDS.medic_apprentice, {
+    keywords: [],
+    deathrattle: null,
+    veinBonus: null,
+    text: "引脉 4：恢复你的领袖 1 点生命。引脉 8：恢复你的领袖 3 点生命。",
+    veinTiers: [{ vein: 4, healHero: 1 }, { vein: 8, healHero: 3 }]
+  });
+  Object.assign(CARDS.courier, {
+    text: "阵位：同阵位每有一个随从，获得 +0/+1。",
+    zoneBonus: { health: 1 }
+  });
+  Object.assign(CARDS.vein_attendant, {
+    text: "登场：流脉 +1。 引脉 2：获得 +1/+1。",
+    veinTiers: [{ vein: 2, attack: 1, health: 1 }]
+  });
+  Object.assign(CARDS.guard, {
+    name: "保卫部步兵",
+    keywords: [],
+    text: "阵位：同阵位每有一个随从，获得 +1/+0。 引脉 4：获得 +1/+0。 引脉 8：获得 +2/+0。",
+    zoneBonus: { attack: 1 },
+    veinBonus: null,
+    veinTiers: [{ vein: 4, attack: 1 }, { vein: 8, attack: 2 }]
+  });
+  Object.assign(CARDS.orlicas, {
+    text: "登场：抽 1 张牌；引脉 4：再抽 1 张牌。 阵位：同阵位其他随从获得 +1/+1。",
+    zoneBonus: null,
+    zoneAura: { attack: 1, health: 1 }
+  });
+  Object.assign(CARDS.timon, {
+    text: "登场：本回合你打出的下一张牌行动力消耗减少 1。 阵位：同阵位每有一个随从，获得 +0/+1。",
+    zoneBonus: { health: 1 }
+  });
+  Object.assign(CARDS.zone_keeper, {
+    text: "阵位：同阵位每有一个随从，获得 +2/+2。",
+    zoneBonus: { attack: 2, health: 2 }
+  });
+  Object.assign(CARDS.formation_weaver, {
+    text: "登场：若该卡被召唤到已经使用阵型卡的阵位，获得 +1/+1 并抽 1 张牌。"
+  });
+  Object.assign(CARDS.aidric, {
+    keywords: ["taunt"],
+    passive: null,
+    text: "拦截。 引脉 4：获得 +1/+1。 引脉 8：获得 +2/+2。",
+    veinBonus: null,
+    veinTiers: [{ vein: 4, attack: 1, health: 1 }, { vein: 8, attack: 2, health: 2 }]
+  });
+  Object.assign(CARDS.shextena, {
+    target: "none",
+    mirrorBonus: null,
+    text: "登场：恢复你的领袖 5 点生命；每实际恢复 1 点，希斯蒂娜获得 +1/+1。 引脉 10：恢复你的领袖 5 点生命。",
+    battlecry: { type: "healHeroSelfBuff", amount: 5 },
+    keywords: ["battlecry"],
+    zoneBonus: null,
+    veinBonus: null,
+    veinTiers: [{ vein: 10, healHero: 5 }]
+  });
+  Object.assign(CARDS.miyuki, {
+    cost: 6,
+    target: "none",
+    text: "登场：冻结场上除自己阵位以外的全部随从，包括友方。 阵位：深雪存活时，同阵位所有随从不会被冻结。",
+    battlecry: { type: "freezeAllExceptOwnZone" }
+  });
+  Object.assign(CARDS.vein_oracle, {
+    text: "引脉 6：抽 1 张牌。",
+    battlecry: null,
+    keywords: [],
+    veinTiers: [{ vein: 6, draw: 1 }]
+  });
+  Object.assign(CARDS.excavation_titan, {
+    text: "登场：流脉 +2。 引脉 4：获得 +2/+1。 引脉 8：获得 +3/+2。",
+    veinTiers: [{ vein: 4, attack: 2, health: 1 }, { vein: 8, attack: 3, health: 2 }]
+  });
+  Object.assign(CARDS.vein_heart, {
+    text: "遗物：每触发一次引脉，恢复你的领袖 2 点生命。"
+  });
+  Object.assign(CARDS.formation_standard, {
+    text: "遗物：使用过阵型卡的阵位上，所有随从固定获得 +1/+1。以任何方式来到该阵位的随从都会获得。"
+  });
+  Object.assign(CARDS.formation_vein, {
+    text: "阵型：该阵位随从固定获得余响：恢复你的领袖 1 点生命。",
+    formation: { attack: 0, health: 0, veinDeathrattle: true }
+  });
+  Object.assign(CARDS.coordination, {
+    cost: 2,
+    text: "使目标所在阵位的所有随从获得 +1/+1。",
+    spell: { type: "buffZone", attack: 1, health: 1 }
+  });
+  Object.assign(CARDS.vein_scout, {
+    text: "突进。 引脉 3：获得 +1/+0。",
+    veinTiers: [{ vein: 3, attack: 1 }]
+  });
+  Object.assign(CARDS.resonance, {
+    cost: 2,
+    excavate: 2,
+    text: "采掘 2：抽 2 张牌，流脉 +2。",
+    spell: { type: "none" }
+  });
+  Object.assign(CARDS.insight, { text: "采掘 1：抽 1 张牌，流脉 +1；复制下一张获得的法术牌。", spell: { type: "drawCopyNextSpell", draw: 0 } });
+  Object.assign(CARDS.recon, { text: "采掘 1：抽 1 张牌，流脉 +1。", spell: { type: "none" } });
+  Object.assign(CARDS.vein_prospect, { text: "采掘 2：抽 2 张牌，流脉 +2。", spell: { type: "none" } });
+  for (const id of ["vein_channeler","vein_sentinel","vein_bulwark","vein_surveyor","siphon_guard","vein_ward","overload_ritual","return_tide","formation_echo"]) {
+    if (CARDS[id]) Object.assign(CARDS[id], { disabled: true });
+  }
+  // 阵位数值效果现在都是动态的：把旧文案里的“另一个”统一成“每有一个随从”
+  for (const c of Object.values(CARDS)) {
+    if (!c || !c.text || !c.zoneBonus || (!c.zoneBonus.attack && !c.zoneBonus.health)) continue;
+    c.text = c.text.replace("若同阵位有另一个友方随从", "同阵位每有一个随从").replace("若同阵位有另一个友方随从", "同阵位每有一个随从");
+    if (c.id === "courier") c.text = "阵位：同阵位每有一个随从，获得 +0/+1。";
+    if (c.id === "guard") c.text = "阵位：同阵位每有一个随从，获得 +1/+0。 引脉 4：获得 +1/+0。 引脉 8：获得 +2/+0。";
+    if (c.id === "timon") c.text = "登场：本回合你打出的下一张牌行动力消耗减少 1。 阵位：同阵位每有一个随从，获得 +0/+1。";
+    if (c.id === "zone_keeper") c.text = "阵位：同阵位每有一个随从，获得 +2/+2。";
+  }
+  // 三人阵位后，不再使用“另一个”这种只能指代一个随从的措辞
+  for (const c of Object.values(CARDS)) {
+    if (!c || !c.text) continue;
+    c.text = c.text.replace(/若同阵位有另一个友方随从/g, "若同阵位有其他友方随从")
+      .replace(/若你控制另一个友方随从/g, "若你控制其他友方随从")
+      .replace(/若你控制另一个随从/g, "若你控制其他随从")
+      .replace(/每当另一个友方拦截随从死亡/g, "每当其他友方拦截随从死亡");
+  }
+  // 删除卡从普卫岛预组中移除，并补回 30 张带牌
+  {
+    const removed = new Set(["vein_channeler","vein_sentinel","vein_bulwark","vein_surveyor","siphon_guard","vein_ward","overload_ritual","return_tide","formation_echo"]);
+    const keep = DECKS.pus.filter(id => !removed.has(id));
+    const counts = {};
+    for (const id of keep) counts[id] = (counts[id] || 0) + 1;
+    const candidates = ["emergency","coordination","vein_scout","snow_medic","mist_scout","verious","medic_apprentice","vein_siphon","zone_keeper","fog_sailor"];
+    let ci = 0;
+    while (keep.filter(id => CARDS[id] && CARDS[id].type !== "relic").length < 30 && ci < 40) {
+      const id = candidates[ci % candidates.length];
+      const def = CARDS[id];
+      if (def && (counts[id] || 0) < maxCopies(def)) { counts[id] = (counts[id] || 0) + 1; keep.splice(Math.max(0, keep.length - 1), 0, id); }
+      ci++;
+    }
+    DECKS.pus = keep;
+  }
+
+  // ===== 2026-10-19 学院重做（用户指定） =====
+  // 逆流 N：消耗 N 点流脉来触发；流脉不足 N 时消耗到 0 仍触发；流脉为 0 时逆流效果无效。
+  // 冻结：不写“随机”的冻结一律为指定冻结；对方没有可冻结随从时冻结不触发，但随从照常落地。
+  Object.assign(CARDS.spell_novice, {
+    cost: 1, attack: 1, health: 3, reflux: 1,
+    keywords: ["battlecry"], target: "none",
+    battlecry: { type: "freeSpellTurn" },
+    text: "逆流 1：本回合你的下一张法术不消耗行动力。"
+  });
+  Object.assign(CARDS.doorman, {
+    cost: 1, attack: 1, health: 2, reflux: 1,
+    keywords: ["battlecry"], target: "none", taunt: false, veinBonus: null,
+    battlecry: { type: "gainMana", amount: 2 },
+    text: "逆流 1：获得 2 点行动力。"
+  });
+  Object.assign(CARDS.formula_apprentice, { disabled: true });
+  Object.assign(CARDS.nina, {
+    cost: 2, attack: 4, health: 4, reflux: 1,
+    keywords: ["battlecry"], target: "enemy", optionalTarget: true,
+    battlecry: { type: "freezeZone" }, zoneBonus: null, mirrorBonus: null,
+    text: "逆流 1：冻结目标所在阵位的所有敌方随从。"
+  });
+  Object.assign(CARDS.samuel, {
+    cost: 2, attack: 3, health: 4,
+    keywords: ["battlecry"], target: "none", zoneBonus: null,
+    battlecry: { type: "randomFreeze" },
+    text: "登场：随机冻结一名敌方随从。"
+  });
+  Object.assign(CARDS.zone_archivist, {
+    cost: 3, attack: 2, health: 4,
+    keywords: ["passive"], target: "none", battlecry: null,
+    passive: { type: "deathRecordShot" },
+    text: "被动：每当一个友方随从死亡，获得一张 0 费「记录弹」。"
+  });
+  Object.assign(CARDS.lecturer, {
+    cost: 3, attack: 4, health: 4, reflux: 1,
+    keywords: ["battlecry"], target: "none", deathrattle: null,
+    battlecry: { type: "draw", amount: 1 },
+    text: "逆流 1：抽 1 张牌。"
+  });
+  Object.assign(CARDS.justus, {
+    cost: 3, attack: 4, health: 4, veinBonus: null,
+    keywords: ["battlecry"], target: "none",
+    battlecry: { type: "copyLowestSpell" },
+    text: "登场：复制你手牌中费用最低的法术牌；若其费用小于 5，复制两张。"
+  });
+  Object.assign(CARDS.arcane_conduit, {
+    cost: 4, attack: 3, health: 5,
+    keywords: ["passive"], target: "none",
+    passive: { type: "spellDrawByCost" },
+    text: "被动：每当你施放一张法术，抽等同于其行动力消耗的牌。"
+  });
+  Object.assign(CARDS.echo_adept, {
+    cost: 4, attack: 3, health: 4, reflux: 2,
+    keywords: ["battlecry"], target: "enemy", optionalTarget: true, passive: null,
+    battlecry: { type: "freezeZoneGrowth", attack: 1, health: 1 },
+    text: "逆流 2：冻结目标所在阵位的所有敌方随从；每冻结一个随从，获得 +1/+1。"
+  });
+  Object.assign(CARDS.karl_desmond, {
+    cost: 4, attack: 4, health: 6,
+    keywords: ["passive"], target: "none", battlecry: null,
+    zoneBonus: null, mirrorBonus: null,
+    passive: { type: "deathDiscoverSpell" },
+    text: "被动：每当一个友方随从死亡，检索一张法术牌。"
+  });
+  Object.assign(CARDS.cassian, {
+    cost: 5, attack: 4, health: 4,
+    keywords: ["passive"], target: "none",
+    passive: { type: "repeatLastSpell" },
+    text: "被动：你的回合结束时，重复你最后使用的一张法术牌。"
+  });
+  Object.assign(CARDS.frost_professor, {
+    cost: 5, attack: 4, health: 6, reflux: 3,
+    keywords: ["battlecry", "passive"], target: "enemy", optionalTarget: true,
+    battlecry: { type: "freeze" },
+    passive: { type: "attackDestroyFrozen" },
+    text: "逆流 3：冻结一个敌方随从。 被动：你攻击已被冻结的随从时，直接消灭该随从。"
+  });
+  Object.assign(CARDS.spell_echo, { cost: 3 });
+  Object.assign(CARDS.formation_script, {
+    cost: 3,
+    formation: { attack: 0, health: 0, rush: true },
+    text: "阵型：该阵位随从固定获得袭扰。"
+  });
+  Object.assign(CARDS.formula_fix, {
+    cost: 4,
+    spell: { type: "damagePerMinionCount" },
+    text: "对一个敌方随从造成等同于场上所有随从数量的伤害。"
+  });
+  Object.assign(CARDS.prohibition, { cost: 3 });
+  Object.assign(CARDS.double_formula, {
+    cost: 3, target: "none",
+    spell: { type: "randomDamageUpgrade", amount: 2, bonus: 5 },
+    text: "随机对一个敌方单位造成 2 点伤害；若本回合此前已施放过法术，改为 5 点。"
+  });
+  Object.assign(CARDS.combo_spark, { cost: 3 });
+  Object.assign(CARDS.armor_break, {
+    cost: 3, target: "none",
+    spell: { type: "stripArmorToMana", amount: 5 },
+    text: "移除敌方领袖至多 5 点护甲；每移除 1 点护甲，获得 1 点行动力。"
+  });
+  Object.assign(CARDS.arcane_surge, {
+    cost: 4,
+    spell: { type: "damageAllPerSpell", amount: 1 },
+    text: "对所有敌方随从造成 1 点伤害；本回合你每施放过一张法术，伤害 +1。"
+  });
+
+  // ===== 2026-10-19 西昭重做（用户指定） =====
+  // 压脉 N：流脉 ≥ N 时消耗 N 点流脉，对敌方领袖造成 N 点伤害；流脉不足 N 点则不触发。
+  Object.assign(CARDS.tribal_warrior, {
+    bloodCost: 2, zoneBonus: null,
+    text: "血祭 2：获得 +1/+1。"
+  });
+  Object.assign(CARDS.lanzhou, {
+    keywords: ["battlecry", "stealth"], zoneBonus: null,
+    text: "登场：召唤一个 1/1 洛斯汰魔物。 隐匿。"
+  });
+  Object.assign(CARDS.lize, {
+    keywords: ["battlecry"], pressure: 2,
+    battlecry: { type: "draw", amount: 1 },
+    text: "登场：抽 1 张牌。 压脉 2：消耗 2 点流脉，对敌方领袖造成 2 点伤害。"
+  });
+  Object.assign(CARDS.blood_imp, {
+    keywords: ["lifesteal"], deathrattle: null,
+    text: "汲取。"
+  });
+  Object.assign(CARDS.blood_acolyte, {
+    keywords: ["battlecry"], bloodCost: 2,
+    battlecry: { type: "bloodDamageAllEnemies", amount: 1 },
+    text: "血祭 2：对所有敌方随从造成 1 点伤害。"
+  });
+  Object.assign(CARDS.venom_fang, {
+    keywords: ["poisonous", "lifesteal", "stealth"],
+    text: "蚀毒。汲取。隐匿。"
+  });
+  Object.assign(CARDS.losutai_hunter, {
+    keywords: ["deathrattle", "stealth"], zoneBonus: null, pressure: 1,
+    text: "隐匿。 余响：对随机敌方目标造成 1 点伤害。 压脉 1：消耗 1 点流脉，对敌方领袖造成 1 点伤害。"
+  });
+  Object.assign(CARDS.molan, {
+    keywords: ["battlecry"], target: "none", zoneBonus: null, bloodCost: 1,
+    battlecry: { type: "discoverMinionBloodBuff", attack: 2 },
+    text: "登场：检索一张随从牌；血祭 1：获得 +2 攻击。"
+  });
+  Object.assign(CARDS.blood_servant, {
+    keywords: ["deathrattle", "lifesteal"], pressure: 1,
+    text: "余响：使一个友方随从获得 +1 攻击。 汲取。 压脉 1：消耗 1 点流脉，对敌方领袖造成 1 点伤害。"
+  });
+  Object.assign(CARDS.grayfeather, {
+    keywords: ["battlecry"], target: "none", mirrorBonus: null, pressure: 1,
+    battlecry: { type: "devourZoneAllies" },
+    text: "登场：吞噬同阵位所有其他友方随从，获得其攻击力和生命值。 压脉 1：消耗 1 点流脉，对敌方领袖造成 1 点伤害。"
+  });
+  Object.assign(CARDS.tiega, {
+    bloodCost: 2,
+    text: "突进。血祭 2：获得 +2 攻击。"
+  });
+  Object.assign(CARDS.blood_executor, {
+    keywords: ["passive", "lifesteal"],
+    text: "汲取。被动：每当一个其他友方随从死亡，获得 +1/+1。"
+  });
+  Object.assign(CARDS.brood_matron, {
+    keywords: ["battlecry"], battlecry: { type: "summonCount", token: "losutai_imp", count: 2 },
+    text: "登场：召唤两个 1/1 洛斯汰魔物。"
+  });
+  Object.assign(CARDS.rebirth_serpent, { disabled: true });
+  Object.assign(CARDS.lanxi, {
+    keywords: ["passive"], target: "none", battlecry: null, veinBonus: null, pressure: 2,
+    passive: { type: "impGrowth", attack: 1, health: 1 },
+    text: "压脉 2：消耗 2 点流脉，对敌方领袖造成 2 点伤害。 被动：场上每有一个洛斯汰魔物，获得 +1/+1。"
+  });
+  Object.assign(CARDS.blood_priestess, {
+    keywords: ["battlecry", "lifesteal"],
+    battlecry: { type: "devourLowestHealth" },
+    text: "登场：吞噬生命值最低的友方随从，获得其攻击力和生命值。 汲取。"
+  });
+  Object.assign(CARDS.losutai_matriarch, {
+    keywords: ["battlecry"], deathrattle: null,
+    battlecry: { type: "summonCount", token: "losutai_imp", count: 2 },
+    text: "登场：召唤两个 1/1 洛斯汰魔物。"
+  });
+  Object.assign(CARDS.tide_colossus, {
+    keywords: ["battlecry", "lifesteal", "stealth"], bloodCost: 3, pressure: 1,
+    battlecry: { type: "devourBloodBuff", attack: 2, health: 2 },
+    text: "登场：吞噬一个攻击力最低的友方随从，获得其攻击力和生命值；血祭 3：获得 +2/+2。 汲取。 隐匿。 压脉 1：消耗 1 点流脉，对敌方领袖造成 1 点伤害。"
+  });
+  Object.assign(CARDS.formation_tide, {
+    formation: { attack: 0, health: 0, lifesteal: true, stealth: true },
+    text: "阵型：该阵位所有随从固定获得汲取和隐匿。"
+  });
+  Object.assign(CARDS.blood_censer, {
+    text: "遗物：你的回合开始时，对场上随机一个随从（不分敌我）造成 1 点伤害；若它存活，你抽 1 张牌。"
+  });
+  Object.assign(CARDS.shadow_raid, {
+    spell: { type: "buffStealth", attack: 2 },
+    text: "使一个友方随从获得 +2 攻击和隐匿。"
+  });
+  Object.assign(CARDS.reflux, {
+    cost: 2, pressure: 3, spell: { type: "healHero", amount: 3 },
+    text: "压脉 3：消耗 3 点流脉，对敌方领袖造成 3 点伤害；恢复你的领袖 3 点生命。"
+  });
+  Object.assign(CARDS.blood_path, {
+    spell: { type: "buffLifesteal", attack: 1 },
+    text: "使一个友方随从获得 +1 攻击和汲取。"
+  });
+  Object.assign(CARDS.blood_pact, {
+    cost: 2, target: "friendly", spell: { type: "bloodGrant", health: 3 },
+    text: "支付 3 点生命，使一个友方随从获得汲取和隐匿。"
+  });
+  Object.assign(CARDS.monster_summon, {
+    cost: 5, pressure: 1, spell: { type: "summonMonster", doubleIfZoneEmpty: true },
+    text: "召唤一个 3/3 洛斯汰巨兽；若其阵位没有其他随从，再召唤一个 3/3 洛斯汰巨兽。 压脉 1：消耗 1 点流脉，对敌方领袖造成 1 点伤害。"
+  });
+  Object.assign(CARDS.pressure_vein, {
+    pressure: 3, spell: { type: "none" },
+    text: "压脉 3：消耗 3 点流脉，对敌方领袖造成 3 点伤害。"
+  });
+
+  // ===== 2026-10-19 共和国重做（用户指定） =====
+  Object.assign(CARDS, {
+    republic_recruit: {
+      id: "republic_recruit", name: "共和国新兵", faction: "republic", type: "minion",
+      cost: 0, attack: 1, health: 1, rarity: "token", art: null, noGeneratedArt: true, noArtwork: true,
+      token: true, keywords: [], target: "none", text: ""
+    }
+  });
+  Object.assign(CARDS.bulwark_sentry, {
+    keywords: ["taunt", "reborn"],
+    text: "拦截。回潮。"
+  });
+  Object.assign(CARDS.shield_recruit, {
+    keywords: ["taunt"], mirrorBonus: { attack: 1 },
+    text: "拦截。 对位：若敌方对位阵位有随从，获得 +1/+0。"
+  });
+  Object.assign(CARDS.republic_guard, {
+    keywords: ["taunt", "deathrattle"], zoneBonus: null, mirrorBonus: { health: 1 },
+    deathrattle: { type: "damageRandomMinion", amount: 2 },
+    text: "余响：对随机一个敌方随从造成 2 点伤害。 对位：若敌方对位阵位有随从，生命值 +1。"
+  });
+  Object.assign(CARDS.shield_bearer, {
+    keywords: ["battlecry"], target: "none", zoneBonus: null,
+    battlecry: { type: "comboTauntGrowth", health: 1 },
+    text: "顺势：本回合你每打出一个友方拦截随从，获得 +0/+1。"
+  });
+  Object.assign(CARDS.elena, {
+    keywords: ["battlecry"], target: "none", deathrattle: null,
+    battlecry: { type: "mirrorSummon", token: "republic_recruit" },
+    text: "登场：若敌方对位阵位有随从，召唤一个 1/1 的共和国新兵。"
+  });
+  Object.assign(CARDS.erhardt, {
+    keywords: ["charge", "reborn", "battlecry"], zoneBonus: null,
+    battlecry: { type: "comboDeathGrowth", attack: 1, health: 1 },
+    text: "突进。回潮。 顺势：本回合场上每死亡一个随从，获得 +1/+1。"
+  });
+  Object.assign(CARDS.beatrix, {
+    veinBonus: null,
+    keywords: ["battlecry"], target: "friendly",
+    battlecry: { type: "grantReborn" },
+    text: "登场：使一个友方随从获得回潮。"
+  });
+  Object.assign(CARDS.shield_sergeant, {
+    keywords: ["taunt", "deathrattle"], battlecry: null,
+    deathrattle: { type: "buffAllTaunt", health: 1 },
+    text: "拦截。余响：所有友方拦截随从获得 +0/+1。"
+  });
+  Object.assign(CARDS.phalanx_warden, {
+    keywords: ["taunt", "deathrattle"], battlecry: null,
+    deathrattle: { type: "buffAllAllies", health: 1 },
+    mirrorBonus: { health: 2 },
+    text: "拦截。余响：所有友方随从获得 +0/+1。 对位：若敌方对位阵位有随从，获得 +0/+2。"
+  });
+  Object.assign(CARDS.phalanx_executor, {
+    keywords: ["passive"], mirrorBonus: { draw: 1 },
+    text: "被动：每当另一个友方拦截随从死亡，抽 1 张牌。 对位：若敌方对位阵位有随从，再抽 1 张牌。"
+  });
+  Object.assign(CARDS.konrad, {
+    keywords: ["battlecry"], target: "friendly", passive: null, veinBonus: null,
+    battlecry: { type: "grantDeathrattleDamage", amount: 1 },
+    mirrorBonus: { summon: "republic_recruit" },
+    text: "登场：使一个友方随从获得余响：对随机一个敌方随从造成 1 点伤害。 对位：若敌方对位阵位有随从，召唤一个 1/1 的共和国新兵。"
+  });
+  Object.assign(CARDS.iron_phalanx, {
+    keywords: ["taunt", "battlecry", "deathrattle"],
+    battlecry: { type: "comboMinionGrowth", attack: 1, health: 1 },
+    deathrattle: { type: "damageAllEnemyUnits", amount: 1 },
+    text: "拦截。顺势：本回合你每使用一个随从，获得 +1/+1。 余响：对敌方所有单位造成 1 点伤害。"
+  });
+  Object.assign(CARDS.shield_marshal, {
+    cost: 7, passive: null, keywords: ["taunt", "reborn", "deathrattle", "battlecry"],
+    battlecry: { type: "shieldMarshal", attack: 1, health: 1 },
+    deathrattle: { type: "summon", token: "republic_recruit", count: 2 },
+    text: "拦截。回潮。余响：召唤两个 1/1 的共和国新兵。 顺势：本回合你每召唤一个共和国新兵，获得 +1/+1。 对位：若敌方对位阵位没有随从，召唤一个 1/1 的共和国新兵。"
+  });
+  Object.assign(CARDS.formation_wall, {
+    formation: { attack: 0, health: 0, deathrattleSummon: "republic_recruit", summonOnPlay: "republic_recruit" },
+    text: "阵型：该线所有友方随从获得余响：召唤一个 1/1 的共和国新兵。布置时在该阵位召唤一个 1/1 的共和国新兵。"
+  });
+  Object.assign(CARDS.emergency_bill, {
+    target: "enemy", target2: "friendly",
+    spell: { type: "freezeGrantReborn" },
+    text: "冻结一个敌方随从；使一个友方随从获得回潮。"
+  });
+  Object.assign(CARDS.stabilize, { disabled: true });
+  Object.assign(CARDS.fortify, {
+    target: "friendly", spell: { type: "grantDeathrattleDamage", amount: 2 },
+    text: "使一个友方随从获得余响：对随机一个敌方随从造成 2 点伤害。"
+  });
+  Object.assign(CARDS.anti_rush, {
+    spell: { type: "drawIfEnemyNoMinions" },
+    text: "抽 1 张牌；若敌方场上没有随从，再抽 1 张牌。"
+  });
+  Object.assign(CARDS.levy, {
+    cost: 2, spell: { type: "nextTurnMana", amount: 3 },
+    text: "下回合开始时获得 3 点行动力。"
+  });
+  Object.assign(CARDS.martial_law, {
+    cost: 7, spell: { type: "tauntRebornAll" },
+    text: "使场上所有随从获得拦截与回潮。"
+  });
+
+  // ===== 2026-10-19 帝国重做（用户指定） =====
+  // 镇脉 N：消耗 N 点流脉，获得等量护甲；流脉不足 N 时只获得剩余流脉的护甲并清零。
+  // 反噬 N：下回合开始行动槽减少 N。
+  Object.assign(CARDS.powder_boy, {
+    keywords: ["charge"], deathrattle: null,
+    text: "突进。"
+  });
+  Object.assign(CARDS.empire_guard, {
+    keywords: ["battlecry"], target: "none", taunt: false, veinBonus: null, zhenmai: 1,
+    text: "镇脉 1：消耗 1 点流脉，获得等量护甲。"
+  });
+  Object.assign(CARDS.mia, {
+    keywords: ["battlecry", "deathrattle"], target: "none",
+    battlecry: { type: "draw", amount: 1 },
+    text: "登场：抽 1 张牌。 余响：抽 1 张牌。"
+  });
+  Object.assign(CARDS.iron_mechanic, {
+    cost: 3, keywords: ["windfury", "charge"], deathrattle: null,
+    text: "连动。突进。"
+  });
+  Object.assign(CARDS.elsa, {
+    cost: 3, attack: 2, health: 2, keywords: ["windfury", "battlecry"], target: "none",
+    zhenmai: 2, deathrattle: null, zoneBonus: null,
+    text: "镇脉 2：消耗 2 点流脉，获得等量护甲。 连动。"
+  });
+  Object.assign(CARDS.powder_keg, {
+    type: "spell", attack: undefined, health: undefined, keywords: [], target: "none",
+    deathrattle: null, passive: null,
+    spell: { type: "damageAllMinions", amount: 5 },
+    text: "对所有随从造成 5 点伤害。"
+  });
+  Object.assign(CARDS.klaus, {
+    keywords: ["taunt", "battlecry", "charge"], overload: 1,
+    text: "拦截。突进。反噬 1。 登场：场上每有一个其他随从（不分敌我），获得 +1/+1。"
+  });
+  Object.assign(CARDS.ironclad, {
+    keywords: ["charge"], zoneBonus: null,
+    text: "突进。"
+  });
+  Object.assign(CARDS.rush_lancer, {
+    keywords: [],
+    text: "造成伤害时，获得等量护甲。"
+  });
+  Object.assign(CARDS.siege_captain, {
+    zhenmai: 1,
+    text: "登场：对所有敌方随从造成 1 点伤害。 镇脉 1：消耗 1 点流脉，获得等量护甲。"
+  });
+  Object.assign(CARDS.gunther, {
+    keywords: ["taunt", "battlecry", "windfury"],
+    text: "拦截。连动。 登场：获得 4 点护甲。"
+  });
+  Object.assign(CARDS.karl_schwarz, {
+    cost: 3, health: 4, overload: 1, zoneBonus: null,
+    text: "突进。反噬 1。"
+  });
+  Object.assign(CARDS.secret_police, { disabled: true });
+  Object.assign(CARDS.wind_cannon, {
+    zhenmai: 1,
+    text: "连动。 镇脉 1：消耗 1 点流脉，获得等量护甲。"
+  });
+  Object.assign(CARDS.powder_marshal, {
+    keywords: ["battlecry", "charge"],
+    text: "突进。 登场：获得 5 点护甲。"
+  });
+  Object.assign(CARDS.iron_artillery, {
+    keywords: ["battlecry", "charge"],
+    text: "突进。 登场：对一个敌方随从造成等同于你护甲的伤害。"
+  });
+  Object.assign(CARDS.siege_train, {
+    keywords: ["battlecry", "windfury"],
+    text: "连动。 登场：对所有敌方随从造成 3 点伤害。"
+  });
+  Object.assign(CARDS.formation_cannon, {
+    formation: { attack: 0, health: 0, charge: true },
+    text: "阵型：该阵位所有随从固定获得突进。"
+  });
+  Object.assign(CARDS.pressure_vein, { disabled: true });
+  Object.assign(CARDS.fortress, {
+    cost: 3, spell: { type: "buffWindfury" },
+    text: "使一个友方随从获得连动。"
+  });
+  Object.assign(CARDS.quarantine, {
+    target: "none", spell: { type: "blockHeroPower" },
+    text: "下回合敌方领袖不能使用技能。"
+  });
+  Object.assign(CARDS.martial_court, {
+    spell: { type: "armorPerEnemy", amount: 2 },
+    text: "每有一个敌方单位（包括领袖），获得 2 点护甲。"
+  });
+
+  // ===== 2026-10-19 第六阵营：灰港同盟（悬赏名单） =====
+  // 悬赏名单：被列入名单的敌方随从死亡时，名单主人抽 1 张牌；莫纳克额外获得 1 点护甲。
+  Object.assign(CARDS.monarch, { disabled: true });
+  Object.assign(HEROES.monarch, { hp: 30 });
+  Object.assign(CARDS, {
+    gh_cutthroat: {
+      id: "gh_cutthroat", name: "灰港小刀手", faction: "greyharbor", type: "minion",
+      cost: 1, attack: 1, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["rush"], target: "none", text: "袭扰。",
+      flavor: "第一刀不求致命，只求见血。"
+    },
+    gh_venom_apprentice: {
+      id: "gh_venom_apprentice", name: "淬毒学徒", faction: "greyharbor", type: "minion",
+      cost: 1, attack: 1, health: 1, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["poisonous"], target: "none", text: "蚀毒。",
+      flavor: "师父说，毒要抹在刀刃不反光的那一面。"
+    },
+    gh_contract_squire: {
+      id: "gh_contract_squire", name: "契约侍从", faction: "greyharbor", type: "minion",
+      cost: 1, attack: 1, health: 1, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["divineShield"], target: "none", text: "护幕。",
+      flavor: "他递上的不是茶，是一份免责声明。"
+    },
+    gh_bounty_notice: {
+      id: "gh_bounty_notice", name: "悬赏告示", faction: "greyharbor", type: "spell",
+      cost: 1, rarity: "common", art: null, noGeneratedArt: true, target: "enemy",
+      text: "将一个敌方随从列入悬赏名单。",
+      flavor: "钉在灰港每一根灯柱上的，都是价格。",
+      spell: { type: "markBounty" }
+    },
+    gh_silencer: {
+      id: "gh_silencer", name: "封口人", faction: "greyharbor", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "enemy",
+      text: "登场：沉默一个敌方随从。",
+      flavor: "他从不杀人，只让死人安静。",
+      battlecry: { type: "silence" }
+    },
+    gh_poison_thrower: {
+      id: "gh_poison_thrower", name: "毒刃投手", faction: "greyharbor", type: "minion",
+      cost: 2, attack: 2, health: 1, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["poisonous"], target: "none", text: "蚀毒。",
+      flavor: "距离越远，谈判越有诚意。"
+    },
+    gh_rush_archer: {
+      id: "gh_rush_archer", name: "袭扰弓手", faction: "greyharbor", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["rush"], target: "none", text: "袭扰。",
+      flavor: "先射一箭，再考虑站在哪边。"
+    },
+    gh_bounty_hunter: {
+      id: "gh_bounty_hunter", name: "赏金猎人", faction: "greyharbor", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "rare", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "enemy",
+      text: "登场：将一个敌方随从列入悬赏名单。",
+      flavor: "他不问对方是谁，只问名单上有没有。",
+      battlecry: { type: "markBounty" }
+    },
+    gh_bodyguard_contract: {
+      id: "gh_bodyguard_contract", name: "替身契约", faction: "greyharbor", type: "spell",
+      cost: 2, rarity: "common", art: null, noGeneratedArt: true, target: "friendly",
+      text: "使一个友方随从获得护幕。",
+      flavor: "合同背面写着：替死一次，价另算。",
+      spell: { type: "grantDivineShield" }
+    },
+    gh_quick_strike: {
+      id: "gh_quick_strike", name: "先手突袭", faction: "greyharbor", type: "spell",
+      cost: 2, rarity: "common", art: null, noGeneratedArt: true, target: "friendly",
+      text: "使一个友方随从获得 +1 攻击和袭扰。",
+      flavor: "规矩是给讲规矩的人定的。",
+      spell: { type: "grantRushBuff", attack: 1 }
+    },
+    gh_venom_shield: {
+      id: "gh_venom_shield", name: "毒盾刺客", faction: "greyharbor", type: "minion",
+      cost: 3, attack: 2, health: 2, rarity: "rare", art: null, noGeneratedArt: true,
+      keywords: ["divineShield", "poisonous"], target: "none", text: "护幕。蚀毒。",
+      flavor: "挡下第一击，第二击交给毒。"
+    },
+    gh_silence_expert: {
+      id: "gh_silence_expert", name: "封口专家", faction: "greyharbor", type: "minion",
+      cost: 3, attack: 3, health: 3, rarity: "rare", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "enemy",
+      text: "登场：沉默一个敌方随从；若它是悬赏目标，抽 1 张牌。",
+      flavor: "封口费按字数收，不按人头。",
+      battlecry: { type: "silenceIfBountyDraw" }
+    },
+    gh_shield_mercenary: {
+      id: "gh_shield_mercenary", name: "护幕佣兵", faction: "greyharbor", type: "minion",
+      cost: 3, attack: 3, health: 4, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["divineShield"], target: "none", text: "护幕。",
+      flavor: "保命条款比战斗条款长三倍。"
+    },
+    gh_ledger: {
+      id: "gh_ledger", name: "悬赏账簿", faction: "greyharbor", type: "spell",
+      cost: 3, rarity: "rare", art: null, noGeneratedArt: true, target: "none",
+      text: "抽 2 张牌；若你完成过悬赏，再抽 1 张。",
+      flavor: "每一笔都记着，包括没兑现的那笔。",
+      spell: { type: "drawIfBountyClaimed", draw: 2, bonus: 1 }
+    },
+    gh_assassinate_contract: {
+      id: "gh_assassinate_contract", name: "刺杀契约", faction: "greyharbor", type: "spell",
+      cost: 3, rarity: "rare", art: null, noGeneratedArt: true, target: "enemy",
+      text: "对一个敌方随从造成 4 点伤害；若它是悬赏目标，改为消灭。",
+      flavor: "名单上的人，价格是要打折的。",
+      spell: { type: "damageOrDestroyBounty", amount: 4 }
+    },
+    gh_black_market: {
+      id: "gh_black_market", name: "黑市交易", faction: "greyharbor", type: "spell",
+      cost: 3, rarity: "common", art: null, noGeneratedArt: true, target: "enemy",
+      text: "抽 2 张牌；将一个敌方随从列入悬赏名单。",
+      flavor: "灰港没有买不到的东西，只有没谈拢的价。",
+      spell: { type: "drawMark", draw: 2 }
+    },
+    gh_legend_assassin: {
+      id: "gh_legend_assassin", name: "传奇刺客", faction: "greyharbor", type: "minion",
+      cost: 4, attack: 3, health: 3, rarity: "legendary", art: null, noGeneratedArt: true,
+      keywords: ["rush", "poisonous"], target: "none", text: "袭扰。蚀毒。",
+      flavor: "灰港的传说只有一句：他从不留第二刀。"
+    },
+    gh_silence_field: {
+      id: "gh_silence_field", name: "沉默领域", faction: "greyharbor", type: "spell",
+      cost: 4, rarity: "rare", art: null, noGeneratedArt: true, target: "none",
+      text: "沉默所有敌方随从。",
+      flavor: "整条街突然安静下来，说明生意谈成了。",
+      spell: { type: "silenceAll" }
+    },
+    gh_shield_broker: {
+      id: "gh_shield_broker", name: "护幕掮客", faction: "greyharbor", type: "minion",
+      cost: 4, attack: 4, health: 4, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["divineShield"], target: "none", text: "护幕。",
+      flavor: "他卖的保险，赔付对象永远是他自己。"
+    },
+    gh_execution_contract: {
+      id: "gh_execution_contract", name: "处刑契约", faction: "greyharbor", type: "spell",
+      cost: 4, rarity: "epic", art: null, noGeneratedArt: true, target: "none",
+      text: "消灭悬赏名单上的敌方随从；若名单为空，抽 1 张牌。",
+      flavor: "违约的代价，通常由别人承担。",
+      spell: { type: "destroyBounty", fallbackDraw: 1 }
+    },
+    gh_bounty_collector: {
+      id: "gh_bounty_collector", name: "赏金猎手", faction: "greyharbor", type: "minion",
+      cost: 4, attack: 4, health: 4, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["rush"], target: "none",
+      text: "袭扰。被动：每完成一次悬赏，获得 +1/+1。",
+      flavor: "他记得每一个名字，也记得每一个价码。",
+      passive: { type: "bountyClaimGrowth", attack: 1, health: 1 }
+    },
+    gh_scorpion: {
+      id: "gh_scorpion", name: "巨蝎", faction: "greyharbor", type: "minion",
+      cost: 5, attack: 4, health: 4, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["divineShield", "poisonous"], target: "none", text: "护幕。蚀毒。",
+      flavor: "灰港的蝎子有两层壳，和一根尾巴。"
+    },
+    gh_captain: {
+      id: "gh_captain", name: "佣兵头目", faction: "greyharbor", type: "minion",
+      cost: 5, attack: 5, health: 5, rarity: "legendary", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "none",
+      text: "登场：使所有友方随从获得袭扰。",
+      flavor: "他不管你去打谁，只问你几点回来交账。",
+      battlecry: { type: "grantRushAll" }
+    },
+    gh_silence_master: {
+      id: "gh_silence_master", name: "封口大师", faction: "greyharbor", type: "minion",
+      cost: 5, attack: 5, health: 5, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "none",
+      text: "登场：沉默所有敌方随从。",
+      flavor: "他说话的时候，整条街都不敢出声。",
+      battlecry: { type: "silenceAllEnemies" }
+    },
+    gh_bounty_verdict: {
+      id: "gh_bounty_verdict", name: "赏金清算", faction: "greyharbor", type: "spell",
+      cost: 5, rarity: "epic", art: null, noGeneratedArt: true, target: "none",
+      text: "消灭悬赏名单上的敌方随从；对敌方领袖造成 5 点伤害；若名单为空，抽 1 张牌。",
+      flavor: "账本合上的时候，价码就变成结论。",
+      spell: { type: "bountyVerdict", damage: 5, fallbackDraw: 1 }
+    },
+    gh_company: {
+      id: "gh_company", name: "佣兵团长", faction: "greyharbor", type: "minion",
+      cost: 6, attack: 6, health: 6, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "none",
+      text: "登场：随机将两个敌方随从列入悬赏名单。",
+      flavor: "名单越长，活越少，钱越多。",
+      battlecry: { type: "markRandomBounties", count: 2 }
+    },
+    gh_venom_behemoth: {
+      id: "gh_venom_behemoth", name: "毒潮巨兽", faction: "greyharbor", type: "minion",
+      cost: 7, attack: 6, health: 6, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["rush", "poisonous"], target: "none", text: "袭扰。蚀毒。",
+      flavor: "它从灰港的排污口爬上来，身上挂着旧账。"
+    },
+    gh_bounty_king: {
+      id: "gh_bounty_king", name: "赏金王", faction: "greyharbor", type: "minion",
+      cost: 8, attack: 7, health: 7, rarity: "legendary", art: null, noGeneratedArt: true,
+      keywords: [], target: "none",
+      text: "被动：每完成一次悬赏，对敌方领袖造成 2 点伤害。",
+      flavor: "灰港没有王，除非你把所有人都买了。",
+      passive: { type: "bountyClaimDamage", amount: 2 }
+    },
+    gh_formation: {
+      id: "gh_formation", name: "潜伏阵线", faction: "greyharbor", type: "formation",
+      cost: 3, rarity: "rare", art: null, noGeneratedArt: true, target: "none",
+      text: "阵型：该线所有友方随从获得袭扰。",
+      flavor: "灰港不设防线，只设伏击点。",
+      formation: { attack: 0, health: 0, rush: true }
+    },
+    gh_bounty_board: {
+      id: "gh_bounty_board", name: "悬赏榜", faction: "greyharbor", type: "relic",
+      cost: 3, rarity: "epic", art: null, noGeneratedArt: true, target: "none",
+      text: "遗物：每当你完成一次悬赏，额外抽 1 张牌。",
+      flavor: "榜单每天换一版，只有最上面那行不变。"
+    },
+    gh_venom_vial: {
+      id: "gh_venom_vial", name: "淬毒瓶", faction: "greyharbor", type: "relic",
+      cost: 3, rarity: "epic", art: null, noGeneratedArt: true, target: "none",
+      text: "遗物：你的蚀毒随从获得 +1 攻击。",
+      flavor: "瓶口封着蜡，蜡上有牙印。"
+    }
+  });
+
+  // 新阵营的卡牌定义在文件末尾，预组需要在这里手动修剪为 31 张（30 主卡 + 1 遗物）。
+  {
+    const list = DECKS.greyharbor || [];
+    let removed = false;
+    DECKS.greyharbor = list.filter(id => {
+      if (!removed && CARDS[id] && CARDS[id].type === "relic" && id !== "gh_bounty_board") { removed = true; return false; }
+      return true;
+    });
+  }
+
+  // ===== 2026-10-19 五阵营流派补强（新增 15 张） =====
+  Object.assign(CARDS, {
+    /* 普卫岛：阵位 / 阵型 / 流脉 / 恢复 */
+    spring_medic: {
+      id: "spring_medic", name: "涌泉医师", faction: "pus", type: "minion",
+      cost: 3, attack: 2, health: 4, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "none",
+      text: "登场：恢复所有友方随从 2 点生命。",
+      flavor: "她背着的不是药箱，是一口会走路的泉。",
+      battlecry: { type: "healAllAllies", amount: 2 }
+    },
+    vein_foreman: {
+      id: "vein_foreman", name: "掘脉工头", faction: "pus", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "none",
+      text: "采掘 1；登场：抽 1 张牌。",
+      flavor: "他挖到的第一块脉晶，现在镶在安全帽上。",
+      excavate: 1,
+      battlecry: { type: "draw", amount: 1 }
+    },
+    formation_bastion: {
+      id: "formation_bastion", name: "磐石阵线", faction: "pus", type: "formation",
+      cost: 4, rarity: "rare", art: null, noGeneratedArt: true, target: "none",
+      text: "阵型：该阵位随从固定获得 +0/+2 与拦截。",
+      flavor: "阵线不需要喊口号，站住就行。",
+      formation: { attack: 0, health: 2, taunt: true }
+    },
+    /* 学院：逆流 / 冻结 / 法术 / 被动 */
+    reflux_apprentice: {
+      id: "reflux_apprentice", name: "逆流学徒", faction: "academy", type: "minion",
+      cost: 2, attack: 2, health: 3, rarity: "rare", art: null, noGeneratedArt: true,
+      keywords: ["battlecry"], target: "none", reflux: 1,
+      text: "逆流 1：若本回合你施放过法术，抽 2 张牌。",
+      flavor: "别人背书，她背的是水位线。",
+      battlecry: { type: "spellDraw", draw: 2 }
+    },
+    frost_scribe: {
+      id: "frost_scribe", name: "霜印书记", faction: "academy", type: "spell",
+      cost: 2, rarity: "rare", art: null, noGeneratedArt: true, target: "enemy", reflux: 1,
+      text: "逆流 1：冻结一个敌方随从并抽 1 张牌。",
+      flavor: "她记下的每一笔，都要先冻住再落墨。",
+      spell: { type: "freezeDraw", draw: 1 }
+    },
+    echo_observer: {
+      id: "echo_observer", name: "回响观测者", faction: "academy", type: "minion",
+      cost: 4, attack: 3, health: 4, rarity: "epic", art: null, noGeneratedArt: true,
+      keywords: ["passive"], target: "none",
+      text: "被动：每回合你第一次施放法术后，随机冻结一个敌方随从。",
+      flavor: "他不记录法术，只记录法术留下的霜。",
+      passive: { type: "spellFreezeOnce" }
+    },
+    /* 西昭：血祭 / 吞噬 / 汲取 / 隐匿 / 压脉 */
+    blood_duelist: {
+      id: "blood_duelist", name: "血祭刀客", faction: "xizhao", type: "minion",
+      cost: 2, attack: 3, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["charge", "battlecry"], target: "none", bloodCost: 1,
+      battlecry: { type: "bloodAttack", amount: 2 },
+      text: "突进。血祭 1：获得 +2 攻击。",
+      flavor: "他出刀前先割自己，只为让刀更快一点。"
+    },
+    blood_wraith: {
+      id: "blood_wraith", name: "噬血幽魂", faction: "xizhao", type: "minion",
+      cost: 3, attack: 2, health: 3, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["lifesteal", "stealth"], target: "none", pressure: 1,
+      text: "汲取。隐匿。 压脉 1：消耗 1 点流脉，对敌方领袖造成 1 点伤害。",
+      flavor: "被它舔过的伤口，不会流血，只会发冷。"
+    },
+    blood_pool: {
+      id: "blood_pool", name: "血池献祭", faction: "xizhao", type: "spell",
+      cost: 4, rarity: "rare", art: null, noGeneratedArt: true, target: "friendly",
+      text: "消灭一个友方随从，恢复你的领袖等同于其生命值的生命，并抽 1 张牌。",
+      flavor: "池子从不挑剔，它只是等着有人先迈一步。",
+      spell: { type: "sacrificeHealDraw", draw: 1 }
+    },
+    /* 共和国：拦截 / 余响 / 回潮 / 顺势 / 对位 */
+    line_spearman: {
+      id: "line_spearman", name: "列阵枪兵", faction: "republic", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["taunt", "deathrattle"], target: "none",
+      text: "拦截。余响：召唤一个 1/1 的共和国新兵。",
+      flavor: "倒下时，他的枪还指着前面。",
+      deathrattle: { type: "summon", token: "republic_recruit", count: 1 }
+    },
+    combo_shield: {
+      id: "combo_shield", name: "顺势盾击", faction: "republic", type: "spell",
+      cost: 2, rarity: "rare", art: null, noGeneratedArt: true, target: "friendly",
+      text: "使一个友方随从获得 +0/+2 与拦截；顺势：改为 +0/+4 与拦截。",
+      flavor: "第一下是挡，第二下才是推。",
+      spell: { type: "comboBuffTaunt", health: 2, bonusHealth: 4 }
+    },
+    reborn_sentry: {
+      id: "reborn_sentry", name: "回潮哨卫", faction: "republic", type: "minion",
+      cost: 3, attack: 2, health: 3, rarity: "rare", art: null, noGeneratedArt: true,
+      keywords: ["reborn"], target: "none", mirrorBonus: { attack: 1 },
+      text: "回潮。 对位：若敌方对位阵位有随从，获得 +1/+0。",
+      flavor: "他倒下过一次，所以知道该在哪里重新站起来。"
+    },
+    /* 帝国：护甲 / 镇脉 / 反噬 / 连动 / 突进 */
+    zhenmai_artisan: {
+      id: "zhenmai_artisan", name: "镇脉工匠", faction: "empire", type: "minion",
+      cost: 2, attack: 2, health: 2, rarity: "common", art: null, noGeneratedArt: true,
+      keywords: ["windfury"], target: "none", zhenmai: 1,
+      text: "镇脉 1：消耗 1 点流脉，获得等量护甲。 连动。",
+      flavor: "他给炮管上脉纹，就像给别人上发条。"
+    },
+    overload_gunner: {
+      id: "overload_gunner", name: "反噬炮手", faction: "empire", type: "minion",
+      cost: 3, attack: 3, health: 3, rarity: "rare", art: null, noGeneratedArt: true,
+      keywords: ["charge"], target: "none", overload: 1,
+      passive: { type: "damageToArmor" },
+      text: "突进。反噬 1。造成伤害时，获得等量护甲。",
+      flavor: "他从不问这一炮会不会把自己也震伤。"
+    },
+    armor_drive: {
+      id: "armor_drive", name: "装甲动员", faction: "empire", type: "spell",
+      cost: 2, rarity: "common", art: null, noGeneratedArt: true, target: "none",
+      text: "获得 3 点护甲；若你已有护甲，再获得 2 点护甲。",
+      flavor: "钢板不会自己走过来，但命令会。",
+      spell: { type: "armorIfArmored", amount: 3, bonus: 2 }
+    }
+  });
+
+  // ===== 2026-10-19 关键词一致性修复 + 中立收尾 =====
+  // 修复：血祭侍从残留的旧余响（文本与关键词早已移除）
+  Object.assign(CARDS.blood_acolyte, { deathrattle: null });
+  // 修复：帝国卫兵仍生效的对位护甲，补回卡面
+  Object.assign(CARDS.empire_guard, {
+    text: "镇脉 1：消耗 1 点流脉，获得等量护甲。 对位：若敌方对位阵位有随从，获得 1 点护甲。"
+  });
+  // 修复：瓦尔特残留的引脉字段（卡面与指定改动都没有引脉）
+  Object.assign(CARDS.walter, { veinBonus: null });
+  // 修复：共和国卫兵关键词有拦截，卡面补回
+  Object.assign(CARDS.republic_guard, {
+    text: "拦截。余响：对随机一个敌方随从造成 2 点伤害。 对位：若敌方对位阵位有随从，生命值 +1。"
+  });
+  // 修复：终末钟声原实现会命中双方领袖，卡面改为“所有单位”
+  Object.assign(CARDS.final_bell, {
+    text: "对所有单位造成 5 点伤害。",
+    spell: { type: "damageAll", amount: 5 }
+  });
+  // 中立差异化：让同效果卡各自有定位
+  Object.assign(CARDS.field_engineer, {
+    keywords: ["taunt", "deathrattle"],
+    text: "拦截。余响：获得 2 点护甲。"
+  });
+  Object.assign(CARDS.sim_assistant, {
+    deathrattle: { type: "buffAllAllies", health: 1 },
+    text: "余响：所有友方随从获得 +0/+1。"
+  });
+  Object.assign(CARDS.chrono_scholar, {
+    keywords: ["deathrattle", "windfury"],
+    text: "连动。余响：抽 1 张牌。"
+  });
+  Object.assign(CARDS.archive_devourer, {
+    keywords: ["battlecry", "deathrattle"], target: "none",
+    battlecry: { type: "devour" },
+    text: "登场：吞噬一个攻击力最低的友方随从，获得其攻击力和生命值。 余响：抽 1 张牌。"
+  });
+  Object.assign(CARDS.mist_hound, {
+    keywords: ["charge", "reborn"],
+    text: "突进。回潮。"
+  });
+  Object.assign(CARDS.supply_cache, { cost: 1 });
+
+  // 中立重名/文本一致性
+  Object.assign(CARDS.bounty_hunter, { name: "赏金客" });
+  Object.assign(CARDS.rush_lancer, { text: "被动：造成伤害时，获得等量护甲。" });
+
+  // 新阵营暂无卡图：跳过卡图请求，使用阵营通用图，避免 404。
+  for (const id of [
+    "gh_cutthroat", "gh_venom_apprentice", "gh_contract_squire", "gh_bounty_notice",
+    "gh_silencer", "gh_poison_thrower", "gh_rush_archer", "gh_bounty_hunter",
+    "gh_bodyguard_contract", "gh_quick_strike", "gh_venom_shield", "gh_silence_expert",
+    "gh_shield_mercenary", "gh_ledger", "gh_assassinate_contract", "gh_black_market",
+    "gh_legend_assassin", "gh_silence_field", "gh_shield_broker", "gh_execution_contract",
+    "gh_bounty_collector", "gh_scorpion", "gh_captain", "gh_silence_master",
+    "gh_bounty_verdict", "gh_company", "gh_venom_behemoth", "gh_bounty_king",
+    "gh_formation", "gh_bounty_board", "gh_venom_vial",
+    "vein_foreman", "spring_medic", "formation_bastion",
+    "reflux_apprentice", "frost_scribe", "echo_observer"
+  ]) {
+    if (CARDS[id]) CARDS[id].noArtwork = true;
+  }
+
+  Object.assign(CARDS, {
+    vein_echo: {
+      id: "vein_echo", name: "地脉回响", faction: "pus", type: "spell",
+      cost: 2, rarity: "common", art: null, noGeneratedArt: true, target: "none",
+      text: "恢复你的领袖 3 点生命；流脉 +2；若流脉达到 7，抽 1 张牌。",
+      flavor: "地脉翻身的时候，整座城都听见了。",
+      spell: { type: "healVeinDrawAt", heal: 3, vein: 2, threshold: 7, draw: 1 }
+    }
+  });
+
+  // ===== 灰港同盟数值调整：只改费用 / 攻击 / 生命，不改机制 =====
+  // 第一轮：整体提高 1~2 点身材，降低三张条件法术的费用。
+  Object.assign(CARDS.gh_contract_squire, { health: 2 });
+  Object.assign(CARDS.gh_silencer, { health: 3 });
+  Object.assign(CARDS.gh_poison_thrower, { health: 2 });
+  Object.assign(CARDS.gh_bounty_hunter, { attack: 3 });
+  Object.assign(CARDS.gh_venom_shield, { attack: 3, health: 3 });
+  Object.assign(CARDS.gh_silence_expert, { health: 4 });
+  Object.assign(CARDS.gh_shield_mercenary, { health: 5 });
+  Object.assign(CARDS.gh_legend_assassin, { attack: 4, health: 4 });
+  Object.assign(CARDS.gh_shield_broker, { health: 5 });
+  Object.assign(CARDS.gh_bounty_collector, { health: 5 });
+  Object.assign(CARDS.gh_scorpion, { attack: 5, health: 5 });
+  Object.assign(CARDS.gh_captain, { health: 6 });
+  Object.assign(CARDS.gh_silence_master, { health: 6 });
+  Object.assign(CARDS.gh_company, { health: 7 });
+  Object.assign(CARDS.gh_venom_behemoth, { attack: 7, health: 7 });
+  Object.assign(CARDS.gh_bounty_king, { attack: 8, health: 8 });
+  Object.assign(CARDS.gh_silence_field, { cost: 3 });
+  Object.assign(CARDS.gh_execution_contract, { cost: 3 });
+  Object.assign(CARDS.gh_bounty_verdict, { cost: 4 });
+
+  // 第二轮：继续补前期身材，并微调两张条件法术的数值（机制不变）
+  Object.assign(CARDS.gh_cutthroat, { attack: 2 });
+  Object.assign(CARDS.gh_venom_apprentice, { health: 2 });
+  Object.assign(CARDS.gh_contract_squire, { attack: 2 });
+  Object.assign(CARDS.gh_silencer, { attack: 3 });
+  Object.assign(CARDS.gh_poison_thrower, { attack: 3 });
+  Object.assign(CARDS.gh_rush_archer, { health: 3 });
+  Object.assign(CARDS.gh_bounty_hunter, { health: 3 });
+  Object.assign(CARDS.gh_quick_strike, { spell: { type: "grantRushBuff", attack: 2 }, text: "使一个友方随从获得 +2 攻击和袭扰。" });
+  Object.assign(CARDS.gh_venom_shield, { attack: 4, health: 4 });
+  Object.assign(CARDS.gh_silence_expert, { health: 5 });
+  Object.assign(CARDS.gh_shield_mercenary, { attack: 4 });
+  Object.assign(CARDS.gh_formation, { cost: 2 });
+  Object.assign(CARDS.gh_legend_assassin, { health: 5 });
+  Object.assign(CARDS.gh_shield_broker, { attack: 5 });
+  Object.assign(CARDS.gh_bounty_collector, { attack: 5 });
+  Object.assign(CARDS.gh_assassinate_contract, { spell: { type: "damageOrDestroyBounty", amount: 5 }, text: "对一个敌方随从造成 5 点伤害；若它是悬赏目标，改为消灭。" });
+  Object.assign(CARDS.gh_scorpion, { health: 6 });
+  Object.assign(CARDS.gh_captain, { attack: 6 });
+  Object.assign(CARDS.gh_silence_master, { health: 7 });
+  Object.assign(CARDS.gh_company, { attack: 7 });
+  Object.assign(CARDS.gh_venom_behemoth, { health: 8 });
+  Object.assign(CARDS.gh_bounty_king, { attack: 9, health: 9 });
+
+  // ===== 即梦生图接入（2026-10-19）：新卡与灰港改用 generated/<id>.webp =====
+  for (const id of [
+    "spring_medic", "vein_foreman", "formation_bastion", "vein_echo",
+    "reflux_apprentice", "frost_scribe", "echo_observer",
+    "blood_duelist", "blood_wraith", "blood_pool",
+    "line_spearman", "combo_shield", "reborn_sentry",
+    "zhenmai_artisan", "overload_gunner", "armor_drive",
+    "gh_cutthroat", "gh_venom_apprentice", "gh_contract_squire", "gh_bounty_notice",
+    "gh_silencer", "gh_poison_thrower", "gh_rush_archer", "gh_bounty_hunter",
+    "gh_bodyguard_contract", "gh_quick_strike", "gh_venom_shield", "gh_silence_expert",
+    "gh_shield_mercenary", "gh_ledger", "gh_assassinate_contract", "gh_black_market",
+    "gh_legend_assassin", "gh_silence_field", "gh_shield_broker", "gh_execution_contract",
+    "gh_bounty_collector", "gh_scorpion", "gh_captain", "gh_silence_master",
+    "gh_bounty_verdict", "gh_company", "gh_venom_behemoth", "gh_bounty_king",
+    "gh_formation", "gh_bounty_board", "gh_venom_vial"
+  ]) {
+    if (CARDS[id]) { CARDS[id].noGeneratedArt = false; CARDS[id].noArtwork = false; }
+  }
+
+  // 第三轮：收回部分前期提速，保留中后期身材补强
+  Object.assign(CARDS.gh_cutthroat, { attack: 1 });
+  Object.assign(CARDS.gh_venom_apprentice, { health: 1 });
+  Object.assign(CARDS.gh_contract_squire, { attack: 1 });
+  Object.assign(CARDS.gh_silencer, { attack: 2 });
+  Object.assign(CARDS.gh_poison_thrower, { attack: 2 });
+  Object.assign(CARDS.gh_quick_strike, { spell: { type: "grantRushBuff", attack: 1 }, text: "使一个友方随从获得 +1 攻击和袭扰。" });
+  Object.assign(CARDS.gh_formation, { cost: 3 });
+  Object.assign(CARDS.gh_assassinate_contract, { spell: { type: "damageOrDestroyBounty", amount: 4 }, text: "对一个敌方随从造成 4 点伤害；若它是悬赏目标，改为消灭。" });
+
+  // ===== 阵位 / 对位 扩充：六阵营各加少量定位效果，用于扶弱 =====
+  {
+    const addText = (c, extra) => { if (c && c.text && c.text.indexOf(extra) < 0) c.text = c.text + " " + extra; };
+    // 共和国（最弱，给实打实的定位收益）
+    Object.assign(CARDS.hans, { zoneBonus: { health: 1 } });
+    addText(CARDS.hans, "阵位：同阵位每有一个随从，生命值 +1。");
+    Object.assign(CARDS.cedric, { mirrorBonus: { armor: 2 } });
+    addText(CARDS.cedric, "对位：若敌方对位阵位有随从，获得 2 点护甲。");
+    Object.assign(CARDS.aegis_guard, { zoneAura: { health: 1 } });
+    addText(CARDS.aegis_guard, "阵位：同阵位其他友方随从获得 +0/+1。");
+    Object.assign(CARDS.erhardt, { mirrorBonus: { attack: 1 } });
+    addText(CARDS.erhardt, "对位：若敌方对位阵位有随从，攻击力 +1。");
+    // 灰港（默认预组偏弱，补节奏与续航）
+    Object.assign(CARDS.gh_rush_archer, { zoneBonus: { attack: 1 } });
+    addText(CARDS.gh_rush_archer, "阵位：同阵位每有一个随从，攻击力 +1。");
+    Object.assign(CARDS.gh_shield_mercenary, { mirrorBonus: { health: 1 } });
+    addText(CARDS.gh_shield_mercenary, "对位：若敌方对位阵位有随从，生命值 +1。");
+    Object.assign(CARDS.gh_bounty_collector, { mirrorBonus: { draw: 1 } });
+    addText(CARDS.gh_bounty_collector, "对位：若敌方对位阵位有随从，抽 1 张牌。");
+    Object.assign(CARDS.gh_company, { zoneAura: { health: 1 } });
+    addText(CARDS.gh_company, "阵位：同阵位其他友方随从获得 +0/+1。");
+    // 帝国（中位，小幅）
+    Object.assign(CARDS.ironclad, { zoneBonus: { health: 1 } });
+    addText(CARDS.ironclad, "阵位：同阵位每有一个随从，生命值 +1。");
+    Object.assign(CARDS.gunther, { mirrorBonus: { armor: 2 } });
+    addText(CARDS.gunther, "对位：若敌方对位阵位有随从，获得 2 点护甲。");
+    // 学院（中位，小幅）
+    Object.assign(CARDS.samuel, { zoneBonus: { health: 1 } });
+    addText(CARDS.samuel, "阵位：同阵位每有一个随从，生命值 +1。");
+    Object.assign(CARDS.frost_professor, { mirrorBonus: { draw: 1 } });
+    addText(CARDS.frost_professor, "对位：若敌方对位阵位有随从，抽 1 张牌。");
+    // 普卫岛（偏强，只给很小的定位收益）
+    Object.assign(CARDS.medic_apprentice, { mirrorBonus: { healHero: 1 } });
+    addText(CARDS.medic_apprentice, "对位：若敌方对位阵位有随从，恢复你的领袖 1 点生命。");
+    Object.assign(CARDS.aidric, { mirrorBonus: { armor: 1 } });
+    addText(CARDS.aidric, "对位：若敌方对位阵位有随从，获得 1 点护甲。");
+    // 西昭（偏强，只给很小的定位收益）
+    Object.assign(CARDS.blood_servant, { zoneBonus: { health: 1 } });
+    addText(CARDS.blood_servant, "阵位：同阵位每有一个随从，生命值 +1。");
+    Object.assign(CARDS.blood_imp, { mirrorBonus: { healHero: 1 } });
+    addText(CARDS.blood_imp, "对位：若敌方对位阵位有随从，恢复你的领袖 1 点生命。");
+  }
+
+  // ===== 阵位 / 对位 第二轮：把最弱的共和国再抬一档（保底数值型） =====
+  {
+    const addText = (c, extra) => { if (c && c.text && c.text.indexOf(extra) < 0) c.text = c.text + " " + extra; };
+    const repText = (c, from, to) => { if (c && c.text) c.text = c.text.replace(from, to); };
+    // 保底型：同阵位每有一个随从（至少含自己），数值型阵位稳定生效
+    Object.assign(CARDS.shield_recruit, { zoneBonus: { health: 1 } });
+    addText(CARDS.shield_recruit, "阵位：同阵位每有一个随从，生命值 +1。");
+    Object.assign(CARDS.elena, { zoneBonus: { attack: 1 } });
+    addText(CARDS.elena, "阵位：同阵位每有一个随从，攻击力 +1。");
+    Object.assign(CARDS.shield_bearer, { zoneBonus: { health: 1 } });
+    addText(CARDS.shield_bearer, "阵位：同阵位每有一个随从，生命值 +1。");
+    Object.assign(CARDS.konrad, { zoneBonus: { health: 1 } });
+    addText(CARDS.konrad, "阵位：同阵位每有一个随从，生命值 +1。");
+    // 已有对位/阵位效果加强
+    Object.assign(CARDS.hans, { zoneBonus: { health: 2 } });
+    repText(CARDS.hans, "生命值 +1。", "生命值 +2。");
+    Object.assign(CARDS.cedric, { mirrorBonus: { armor: 3 } });
+    repText(CARDS.cedric, "获得 2 点护甲。", "获得 3 点护甲。");
+    Object.assign(CARDS.aegis_guard, { zoneAura: { health: 2 } });
+    repText(CARDS.aegis_guard, "+0/+1。", "+0/+2。");
+    Object.assign(CARDS.erhardt, { mirrorBonus: { attack: 2 } });
+    repText(CARDS.erhardt, "攻击力 +1。", "攻击力 +2。");
+    // 新增对位/阵位
+    Object.assign(CARDS.shield_sergeant, { mirrorBonus: { armor: 1 } });
+    addText(CARDS.shield_sergeant, "对位：若敌方对位阵位有随从，获得 1 点护甲。");
+    Object.assign(CARDS.phalanx_warden, { zoneAura: { health: 1 } });
+    addText(CARDS.phalanx_warden, "阵位：同阵位其他友方随从获得 +0/+1。");
   }
 
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };

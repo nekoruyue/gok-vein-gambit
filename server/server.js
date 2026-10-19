@@ -23,6 +23,8 @@ const MIME = {
   ".ogg": "audio/ogg",
   ".wav": "audio/wav",
   ".mp3": "audio/mpeg",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
   ".svg": "image/svg+xml"
 };
 

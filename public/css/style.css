@@ -2502,6 +2502,24 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .home-guide-copy small { color: #4d3517; font-size: 9px; font-weight: 600; }
 .home-guide-arrow { color: #1d1308; }
 
+/* secondary home guide: rules entry */
+.home-guide.home-guide-secondary {
+  min-height: 48px; padding: 7px 14px;
+  border-color: rgba(242,198,109,0.5);
+  background: linear-gradient(100deg, rgba(217,164,65,0.10), rgba(217,164,65,0.03));
+  color: #e8cf9a; box-shadow: 0 0 14px rgba(217,164,65,0.06);
+}
+.home-guide.home-guide-secondary:hover { background: linear-gradient(100deg, rgba(217,164,65,0.2), rgba(217,164,65,0.06)); border-color: var(--gold-soft); }
+.home-guide.home-guide-secondary .home-guide-icon { width: 24px; height: 24px; flex-basis: 24px; font-size: 14px; color: var(--gold-soft); border-color: rgba(242,198,109,0.5); font-weight: 500; }
+.home-guide.home-guide-secondary .home-guide-copy strong { color: #ffe6ad; font-size: 15px; font-weight: 500; }
+.home-guide.home-guide-secondary .home-guide-copy small { color: #c2a872; font-weight: 400; }
+.home-guide.home-guide-secondary .home-guide-arrow { color: var(--gold-soft); }
+
+/* rules page */
+.rules-shell { max-width: 1180px; }
+.rules-keyword-panel { margin-top: 18px; padding: 14px 16px; }
+.rules-keyword-panel .keyword-glossary { margin-top: 10px; }
+
 .guide-tutorial { margin: 12px 0 4px; padding: 10px 12px; border: 1px solid rgba(217,164,65,0.22); background: rgba(217,164,65,0.055); }
 .guide-tutorial .panel-label { margin-bottom: 7px; }
 .guide-tutorial-steps { display: flex; flex-direction: column; gap: 4px; }
@@ -5843,4 +5861,45 @@ body[data-screen="game"] .hero-skill-inline { display:none !important; }
   body[data-screen="game"] .deck-dock { padding:6px 7px; }
   body[data-screen="game"] .deck-dock strong { font-size:18px; }
   body[data-screen="game"] .hand-meta .hint { display:none !important; }
+}
+
+
+/* Always-visible in-game help actions */
+body[data-screen="game"] .game-help-actions { display:flex !important; align-items:center; gap:4px; flex:0 0 auto; margin-left:6px; }
+body[data-screen="game"] .game-help-actions .btn {
+  padding:6px 9px !important; font-size:10px !important; white-space:nowrap;
+  color:#f2e4c5 !important; border-color:rgba(217,164,65,.38) !important;
+  background:rgba(22,33,27,.82) !important;
+}
+body[data-screen="game"] .game-help-actions .btn:hover { color:#161006 !important; background:#e7bf6a !important; border-color:#f0d18a !important; }
+@media (max-width:1100px) { body[data-screen="game"] .game-help-actions .btn { padding:5px 7px !important; font-size:9px !important; } }
+@media (max-width:760px) { body[data-screen="game"] .game-help-actions { margin-left:0; } body[data-screen="game"] .game-help-actions .btn { padding:4px 5px !important; font-size:8px !important; } }
+
+/* ===== 灰港同盟 / 悬赏名单 ===== */
+:root { --greyharbor: #7fae8f; }
+.home-factions [data-faction-chip="greyharbor"] i { background: var(--greyharbor); color: var(--greyharbor); }
+.card[data-faction="greyharbor"] { border-color: rgba(127,174,143,0.5); --accent: #7fae8f; }
+.hero-panel[data-faction="greyharbor"] { border-color: rgba(127,174,143,0.48); }
+.hero-panel[data-faction="greyharbor"] .hero-name { color: #c9e6d2; }
+.side[data-faction="greyharbor"] {
+  border-color: rgba(127,174,143,0.24);
+  background: linear-gradient(180deg, rgba(20,42,32,0.4), rgba(4,9,14,0.56));
+}
+.side[data-faction="greyharbor"] .zone::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(127,174,143,0.06), transparent 65%);
+}
+.faction-card[data-faction="greyharbor"] .faction-portrait,
+.faction-card[data-lan-faction="greyharbor"] .faction-portrait,
+.faction-card[data-guest-faction="greyharbor"] .faction-portrait {
+  background-color: #1b2a23; box-shadow: inset 0 0 20px rgba(127,174,143,0.22);
+}
+.faction-card[data-faction="greyharbor"].active,
+.faction-card[data-lan-faction="greyharbor"].active,
+.faction-card[data-guest-faction="greyharbor"].active { border-color: var(--gold); }
+.bounty-mark {
+  position: absolute; top: 5px; right: 5px; z-index: 6;
+  padding: 1px 5px; font-size: 9px; letter-spacing: 0.08em;
+  color: #161006; background: #d8a84e; border: 1px solid #f0d18a; border-radius: 2px;
+  pointer-events: none; box-shadow: 0 0 8px rgba(216,168,78,0.45);
 }

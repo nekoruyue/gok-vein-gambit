@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>戈克世界：流脉牌局</title>
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/style.css?v=20261020de">
+  <link rel="stylesheet" href="css/style.css?v=20261020dq">
 </head>
 <body data-screen="home">
   <div id="boot-loading" class="boot-loading">
@@ -37,12 +37,13 @@
           <h1>戈克世界<span>流脉牌局</span></h1>
           <div class="brand-en">GOK WORLD · VEIN GAMBIT</div>
           <p class="brand-copy">流脉会自然回流。采掘戈克会加速它。<br>当它涨到 4 / 7 / 10，世界会替你们结算。</p>
-          <div class="home-factions" aria-label="五个阵营">
+          <div class="home-factions" aria-label="六个阵营">
             <span data-faction-chip="pus"><i></i>普卫岛</span>
             <span data-faction-chip="academy"><i></i>学院</span>
             <span data-faction-chip="xizhao"><i></i>西昭</span>
             <span data-faction-chip="republic"><i></i>共和国</span>
             <span data-faction-chip="empire"><i></i>帝国</span>
+            <span data-faction-chip="greyharbor"><i></i>灰港同盟</span>
           </div>
           <div class="home-play-modes" role="tablist" aria-label="玩法模式">
             <button class="home-play-mode active" data-home-mode="classic" role="tab"><span class="home-play-icon">I</span><span><strong>经典模式</strong><small>标准规则 · 单人 / 多人</small></span></button>
@@ -57,7 +58,7 @@
             </button>
           </div>
           <button id="btn-game-guide" class="home-guide"><span class="home-guide-icon">?</span><span class="home-guide-copy"><strong>游戏教程</strong><small>规则 · 阵位 · 流脉 · 关键词</small></span><span class="home-guide-arrow">→</span></button>
-          <div class="home-version">非正史档案推演 · 五阵营 · 200 张可收集卡</div>
+          <div class="home-version">非正史档案推演 · 六阵营 · 230 张可收集卡</div>
         </div>
         <aside class="home-legendary" id="home-legendary">
           <div class="home-legendary-art" id="home-legendary-art">
@@ -77,7 +78,7 @@
         </aside>
         <nav class="home-nav" aria-label="档案功能">
           <button id="btn-deck-home" class="home-nav-item"><span class="home-nav-no">01</span><strong>构筑牌组</strong><small>手动 / 自动构筑</small></button>
-          <button id="btn-codex" class="home-nav-item"><span class="home-nav-no">02</span><strong>图鉴</strong><small>200 张卡牌档案</small></button>
+          <button id="btn-codex" class="home-nav-item"><span class="home-nav-no">02</span><strong>图鉴</strong><small>230 张卡牌档案</small></button>
           <button id="btn-achievements" class="home-nav-item"><span class="home-nav-no">03</span><strong>成就</strong><small>档案记录与解锁</small></button>
           <button id="btn-settings" class="home-nav-item"><span class="home-nav-no">04</span><strong>设置</strong><small>画面 · 音效 · 操作</small></button>
         </nav>
@@ -136,7 +137,7 @@
           <div class="panel sim-control-panel">
             <div class="panel-label">AUTOMATED MATCHES</div>
             <h3>让两台推演体互相对打</h3>
-            <p class="muted">双方使用 30 张带牌 + 1 张遗物测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得 2 点额外行动槽。所有对局可复现。</p>
+            <p class="muted">双方使用 30 张带牌 + 1 张遗物测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得 2 点额外行动力。所有对局可复现。</p>
             <div class="sim-buttons">
               <button class="btn btn-primary sim-run" data-count="100">跑 100 局</button>
               <button class="btn btn-ghost sim-run" data-count="300">300 局</button>
@@ -187,7 +188,7 @@
         <div class="tutorial-intro">
           <div class="eyebrow">WELCOME TO THE ARCHIVE · 7 STEPS</div>
           <h3>七步之后，再谈输赢。</h3>
-          <p>先认识领袖与行动槽，再学阵位、攻击、技能目标和流脉。读完这七步，直接进入实战演练。</p>
+          <p>先认识领袖与行动力，再学阵位、攻击、技能目标和流脉。读完这七步，直接进入实战演练。</p>
         </div>
         <div class="tutorial-grid tutorial-grid-seven">
           <article class="tutorial-card">
@@ -197,7 +198,7 @@
           </article>
           <article class="tutorial-card">
             <div class="tutorial-icon">02</div>
-            <h4>行动槽</h4>
+            <h4>行动力</h4>
             <p>每回合增加 1 格，最多 10 格；牌左上角的数字就是消耗。用光就只能结束回合。</p>
           </article>
           <article class="tutorial-card">
@@ -231,6 +232,43 @@
           <button id="btn-tutorial-skip" class="btn btn-ghost">暂时跳过</button>
         </div>
         <div class="tutorial-footnote">演练中会显示随步骤变化的提示；随时可以点「退出教程」回到档案处。</div>
+      </div>
+    </section>
+
+    <section id="screen-rules" class="screen">
+      <div class="tutorial-shell rules-shell">
+        <header class="page-head">
+          <button id="btn-rules-back" class="btn btn-small btn-ghost">← 返回</button>
+          <div>
+            <div class="eyebrow">ARCHIVE / RULES</div>
+            <h2>游戏规则</h2>
+          </div>
+          <div class="head-spacer"></div>
+          <button id="btn-rules-keywords-top" class="btn btn-small btn-ghost">关键词说明</button>
+        </header>
+        <div class="tutorial-intro">
+          <div class="eyebrow">GOK WORLD · VEIN GAMBIT</div>
+          <h3>先把规则看清，再谈输赢。</h3>
+          <p>30 张带牌 + 1 件遗物 + 1 位领袖。把对方领袖的生命打到 0 即获胜。流脉是双方共享的风险条：它既是资源，也是倒计时。</p>
+        </div>
+        <div class="tutorial-grid tutorial-grid-seven">
+          <article class="tutorial-card"><div class="tutorial-icon">01</div><h4>对局目标</h4><p>把对方领袖生命打到 0。随从可以攻击敌方随从或领袖；敌方有拦截随从时，必须先处理拦截。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">02</div><h4>回合流程</h4><p>回合开始：行动槽 +1（上限 10）、抽 1 张牌、阵型倒计时 -1。之后可以出牌、攻击、使用领袖技能，最后结束回合交给对手。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">03</div><h4>行动力</h4><p>卡牌左上角数字是行动力消耗。先手 3 张起手，后手 4 张并额外获得「采掘许可」；反噬会减少下回合行动槽，借脉则先借后还。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">04</div><h4>流脉</h4><p>共享流脉 0→12。达到 4 / 7 / 10 会触发全场世界事件，12 时回流清空。引脉是达到阈值后的额外效果；采掘会同时抽牌并加速流脉。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">05</div><h4>阵位与对位</h4><p>左翼 / 中枢 / 右翼三线，每线最多 3 个随从，全场最多 6 个。同阵位会触发协同数值；双方同一列互为对位。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">06</div><h4>卡牌与牌组</h4><p>随从站场，战术一次性结算，阵型挂在某一线持续生效，遗物装备在领袖身上。牌组为 30 张带牌（含 0–2 张阵型）+ 1 件启用遗物 + 1 位领袖。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">07</div><h4>关键词</h4><p>登场、余响、拦截、突进、冻结、引脉、血祭、镇脉、压脉、顺势、对位、悬赏等关键词会在卡牌标签上标明；把鼠标移到标签上可查看说明。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">08</div><h4>胜负与模式</h4><p>支持单人 AI、局域网与在线房间。领袖生命归零即败；双方同时归零为平局。对局中可认输，起手阶段可调度手牌。</p></article>
+        </div>
+        <div class="panel rules-keyword-panel">
+          <div class="panel-label">KEYWORDS / 关键词速查</div>
+          <div id="rules-keywords" class="keyword-glossary"></div>
+        </div>
+        <div class="tutorial-actions">
+          <button id="btn-rules-tutorial" class="btn btn-primary">进入新手教程</button>
+          <button id="btn-rules-back2" class="btn btn-ghost">返回</button>
+        </div>
       </div>
     </section>
 
@@ -370,8 +408,8 @@
           </div>
           <div class="panel settings-panel settings-about-panel">
             <div class="panel-label">ABOUT</div>
-            <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。五阵营、200 张主卡 + 11 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
-            <p class="settings-about">当前构建：20261020de</p>
+            <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。六阵营、230 张主卡 + 13 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
+            <p class="settings-about">当前构建：20261020dq</p>
             <button id="btn-settings-credits" class="btn btn-small btn-ghost">制作与素材说明</button>
           </div>
         </div>
@@ -524,6 +562,15 @@
                   <span class="faction-stats">30 生命</span>
                 </div>
               </button>
+              <button class="faction-card" data-faction="greyharbor">
+                <div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div>
+                <div class="faction-body">
+                  <span class="faction-tag">灰港同盟</span>
+                  <strong>莫纳克「赏」</strong>
+                  <small>悬赏 / 沉默 / 毒袭 · 中速</small>
+                  <span class="faction-stats">30 生命</span>
+                </div>
+              </button>
             </div>
 
             <div class="panel-label section-gap">02 / 牌组</div>
@@ -539,7 +586,7 @@
             <div class="setup-summary" id="setup-summary">普卫岛 vs 学院 · 30+1 · 先手随机</div>
             <div class="setup-ai-row"><span>AI 难度</span><button class="ai-diff-btn active" data-ai-diff="normal">标准</button><button class="ai-diff-btn" data-ai-diff="easy">简单</button><button class="ai-diff-btn" data-ai-diff="hard">困难</button><button class="ai-diff-btn" data-ai-diff="nightmare">噩梦</button></div>
             <button id="btn-start-game" class="btn btn-primary btn-wide">开始推演</button>
-            <div class="fine-print">开局先进行起手调度；双方开场无护甲；先手首回合正常抽牌，后手获得 2 点额外行动槽。</div>
+            <div class="fine-print">开局先进行起手调度；双方开场无护甲；先手首回合正常抽牌，后手获得 2 点额外行动力。</div>
           </div>
 
           <div class="panel setup-hero-panel" id="setup-hero-panel">
@@ -549,7 +596,7 @@
               <h3 id="setup-hero-name">莱恩·科斯特「序」</h3>
               <p id="setup-hero-quote">“他不是强者。他只是第一个试图理解的人。”</p>
               <div class="hero-power-preview">
-                <span class="hero-power-name" id="setup-power-name">协调 · 2 行动槽</span>
+                <span class="hero-power-name" id="setup-power-name">协调 · 2 行动力</span>
                 <span id="setup-power-text">使一个友方随从获得 +1/+1；若它与另一个友方随从同阵位，改为 +2/+2。</span>
                 <span id="setup-passive-text" class="setup-passive-text"></span>
               </div>
@@ -645,6 +692,14 @@
                     <small>炮击 / 护甲 / 重装</small>
                   </div>
                 </button>
+                <button class="faction-card" data-lan-faction="greyharbor">
+                  <div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div>
+                  <div class="faction-body">
+                    <span class="faction-tag">灰港同盟</span>
+                    <strong>莫纳克「赏」</strong>
+                    <small>悬赏 / 沉默 / 毒袭</small>
+                  </div>
+                </button>
               </div>
               <div class="rank-mode-box">
                 <div class="rank-mode-head"><span class="panel-label">对局模式</span><span id="lan-rank-label" class="rank-mini">青铜 · 0</span></div>
@@ -675,6 +730,7 @@
                 <button class="faction-card" data-guest-faction="academy"><div class="faction-portrait" style="background-image:url('assets/heroes/marta.webp')"></div><div class="faction-body"><span class="faction-tag">学院</span><strong>玛尔塔·冯·艾森「演」</strong><small>抽牌 / 冻结 / 检索</small></div></button>
                 <button class="faction-card" data-guest-faction="republic"><div class="faction-portrait" style="background-image:url('assets/heroes/wolfram.webp')"></div><div class="faction-body"><span class="faction-tag">共和国</span><strong>沃尔夫拉姆·冯·施泰因「律」</strong><small>护甲 / 拦截 / 秩序</small></div></button>
                 <button class="faction-card" data-guest-faction="empire"><div class="faction-portrait" style="background-image:url('assets/heroes/otto_centered.webp')"></div><div class="faction-body"><span class="faction-tag">帝国</span><strong>奥托·汉瑟尔「炮」</strong><small>炮击 / 护甲 / 重装</small></div></button>
+                <button class="faction-card" data-guest-faction="greyharbor"><div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div><div class="faction-body"><span class="faction-tag">灰港同盟</span><strong>莫纳克「赏」</strong><small>悬赏 / 沉默 / 毒袭</small></div></button>
               </div>
               <div class="lan-guest-deck-row">
                 <div><span id="lan-guest-deck-label">预设牌组 · 30+1</span><small>加入后使用这套牌组</small></div>
@@ -718,6 +774,9 @@
             <button id="btn-keywords" class="btn btn-small btn-ghost">关键词</button>
             <button id="btn-toggle-log" class="btn btn-small btn-ghost">日志</button>
             <button id="btn-sound" class="btn btn-small btn-ghost">声音：开</button>
+          </div>
+          <div class="game-help-actions" aria-label="帮助">
+            <button id="btn-game-tutorial" class="btn btn-small btn-ghost">教程</button>
           </div>
           <button id="btn-game-settings" class="btn btn-small btn-ghost">设置</button>
         </header>
@@ -769,7 +828,7 @@
               <div class="deck-dock"><span>牌库剩余</span><strong id="deck-dock-value">—</strong><small>张</small></div>
             </div>
             <div class="hint" id="game-hint">点击手牌出牌；点击随从攻击。</div>
-            <div class="mana-display" id="mana-display">行动槽 0 / 0</div>
+            <div class="mana-display" id="mana-display">行动力 0 / 0</div>
           </div>
           <div class="mobile-hint">长按卡牌查看详情 · 左右滑动浏览手牌</div>
           <div class="hand-row">
@@ -794,9 +853,10 @@
   <script src="js/data.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/ui.js?v=20261020de"></script>
-  <script src="js/content.js?v=20261020de"></script>
-  <script src="js/final-ui.js?v=20261020de"></script>
+  <script src="js/cinematic.js?v=20261020dq"></script>
+  <script src="js/ui.js?v=20261020dq"></script>
+  <script src="js/content.js?v=20261020dq"></script>
+  <script src="js/final-ui.js?v=20261020dq"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
