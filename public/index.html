@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>戈克世界：流脉牌局</title>
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/style.css?v=20261020cx">
+  <link rel="stylesheet" href="css/style.css?v=20261020de">
 </head>
 <body data-screen="home">
   <div id="boot-loading" class="boot-loading">
@@ -94,7 +94,7 @@
             <div id="start-menu-root" class="start-menu-step">
               <button id="btn-solo" class="start-choice">
                 <span class="start-choice-icon">SOLO</span>
-                <span class="start-choice-copy"><strong>单人推演</strong><small>对 AI · 30 张带牌（阵型可选）+ 1 上阵遗物（2 候选） · 随时开始</small></span>
+                <span class="start-choice-copy"><strong>单人推演</strong><small>对 AI · 30 张带牌 + 1 张遗物 · 随时开始</small></span>
                 <span class="start-choice-arrow">→</span>
               </button>
               <button id="btn-mode-multi" class="start-choice">
@@ -136,7 +136,7 @@
           <div class="panel sim-control-panel">
             <div class="panel-label">AUTOMATED MATCHES</div>
             <h3>让两台推演体互相对打</h3>
-            <p class="muted">双方使用 30 张带牌（阵型可选）+ 1 上阵遗物（2 候选）测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得 2 点额外行动槽。所有对局可复现。</p>
+            <p class="muted">双方使用 30 张带牌 + 1 张遗物测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得 2 点额外行动槽。所有对局可复现。</p>
             <div class="sim-buttons">
               <button class="btn btn-primary sim-run" data-count="100">跑 100 局</button>
               <button class="btn btn-ghost sim-run" data-count="300">300 局</button>
@@ -371,7 +371,7 @@
           <div class="panel settings-panel settings-about-panel">
             <div class="panel-label">ABOUT</div>
             <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。五阵营、200 张主卡 + 11 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
-            <p class="settings-about">当前构建：20261020cx</p>
+            <p class="settings-about">当前构建：20261020de</p>
             <button id="btn-settings-credits" class="btn btn-small btn-ghost">制作与素材说明</button>
           </div>
         </div>
@@ -409,13 +409,6 @@
           </div>
         </header>
         <div class="deck-leader-skill" id="deck-leader-skill"></div>
-        <div class="deck-relic-pick"><span>本局启用遗物（需抽到后打出）</span><select id="deck-relic-select" class="lan-deck-select"></select></div>
-        <div class="deck-loadout-bar">
-          <span>领袖 <strong id="deck-leader-name">—</strong></span>
-          <span>带牌 <b id="deck-main-count">0 / 30</b></span>
-          <span>阵型 <b id="deck-formation-count">0 / 2</b></span>
-          <span>上阵遗物 <b id="deck-relic-count">0 / 1</b></span>
-        </div>
 
         <div class="deck-layout">
           <div class="panel deck-pool-panel">
@@ -438,7 +431,10 @@
 
           <aside class="panel deck-side">
             <div class="deck-side-head">
-              <span id="deck-count">带牌 0/30 · 阵型 0/2（可选）· 遗 0/1</span>
+              <div class="deck-count-stack">
+                <strong id="deck-count">31 / 31 张</strong>
+                <small id="deck-count-note">30 张带牌（含阵型，最多 2 张）+ 1 张遗物</small>
+              </div>
               <span id="deck-valid" class="deck-valid">未完成</span>
             </div>
             <div id="deck-message" class="deck-message"></div>
@@ -447,13 +443,13 @@
             <div id="deck-type-stats" class="deck-type-stats"></div>
 
             <div class="panel-label section-gap">策略自动构筑 <span class="deck-section-hint">一键替换为 30+1</span></div>
-            <div class="auto-deck-help">选择策略会重新生成整套牌，之后仍可手动增减。</div>
+            <div class="auto-deck-help">30 张带牌 + 1 张遗物，阵型最多 2 张。</div>
             <div class="auto-deck-buttons">
               <button class="auto-deck-btn" data-deck-strategy="aggro"><strong>快攻</strong><span>低费抢血</span><small>铺场 · 抢节奏</small></button>
               <button class="auto-deck-btn" data-deck-strategy="midrange"><strong>中速</strong><span>按费拍怪</span><small>稳定 · 站场</small></button>
               <button class="auto-deck-btn" data-deck-strategy="control"><strong>控制</strong><span>解场续航</span><small>解牌 · 拖后期</small></button>
             </div>
-            <div id="deck-auto-status" class="deck-auto-status">选择一套策略，一键补满 30 张带牌（阵型可选）+ 1 上阵遗物（2 候选）。</div>
+            <div id="deck-auto-status" class="deck-auto-status">选择策略会重新生成 31 张牌组。</div>
 
             <div class="panel-label section-gap">已选牌</div>
             <div id="deck-selected" class="deck-selected"></div>
@@ -714,6 +710,7 @@
           <button id="btn-game-home" class="btn btn-small btn-ghost">← 退出</button>
           <div class="game-mode" id="game-mode-label">普卫岛 vs 学院</div>
           <div class="turn-badge" id="turn-badge">第 1 轮</div>
+          <div class="deck-left-badge" id="deck-left-badge" title="你的牌库剩余张数"><span>牌库</span><b id="deck-left-value">—</b></div>
           <div id="log-mini" class="log-mini" title="点击查看完整推演日志">等待第一条推演记录…</div>
           <div class="game-top-actions">
             <button id="btn-concede" class="btn btn-small btn-ghost">认输</button>
@@ -769,9 +766,10 @@
               <div id="hero-power-dock" class="hero-power-dock">
                 <button id="btn-hero-power" class="btn btn-ghost hero-power-btn">领袖技能</button>
               </div>
-              <div class="mana-display" id="mana-display">行动槽 0 / 0</div>
+              <div class="deck-dock"><span>牌库剩余</span><strong id="deck-dock-value">—</strong><small>张</small></div>
             </div>
             <div class="hint" id="game-hint">点击手牌出牌；点击随从攻击。</div>
+            <div class="mana-display" id="mana-display">行动槽 0 / 0</div>
           </div>
           <div class="mobile-hint">长按卡牌查看详情 · 左右滑动浏览手牌</div>
           <div class="hand-row">
@@ -796,9 +794,9 @@
   <script src="js/data.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/ui.js?v=20261020cx"></script>
-  <script src="js/content.js?v=20261020cx"></script>
-  <script src="js/final-ui.js?v=20261020cx"></script>
+  <script src="js/ui.js?v=20261020de"></script>
+  <script src="js/content.js?v=20261020de"></script>
+  <script src="js/final-ui.js?v=20261020de"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

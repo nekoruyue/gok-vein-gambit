@@ -6,7 +6,7 @@
   const D = global.GokData;
   const E = global.GokEngine;
   const AI = global.GokAI;
-  const ART_VERSION = "20261020cx";
+  const ART_VERSION = "20261020de";
 
   const $ = (id) => document.getElementById(id);
   function el(tag, cls, text) {
@@ -779,18 +779,33 @@
     if (!box) return;
     clear(box);
     box.classList.add("mana-row", "mana-hud");
+    box.style.setProperty("width", "fit-content", "important");
+    box.style.setProperty("min-width", "0", "important");
     box.title = "行动槽：本回合可用于出牌和领袖技能的资源";
     const main = el("span", "mana-main");
     const manaIcon = el("i", "mana-icon");
     manaIcon.style.backgroundImage = "url('/assets/icons/action.svg')";
     main.appendChild(manaIcon);
     main.appendChild(el("span", "mana-label", "行动槽"));
-    main.appendChild(el("strong", "mana-current", String(player.mana)));
-    main.appendChild(el("span", "mana-total", "/ " + player.maxMana));
     box.appendChild(main);
     const pips = el("span", "mana-pips");
-    for (let i = 0; i < player.maxMana; i++) {
-      pips.appendChild(el("span", "mana-pip" + (i < player.mana ? " filled" : "")));
+    pips.style.setProperty("display", "flex", "important");
+    pips.style.setProperty("width", "auto", "important");
+    pips.style.setProperty("gap", "5px", "important");
+    const slots = Math.max(1, player.maxMana);
+    for (let i = 0; i < slots; i++) {
+      const pip = el("span", "mana-pip" + (i < player.mana ? " filled" : ""));
+      pip.style.setProperty("flex", "0 0 26px", "important");
+      pip.style.setProperty("width", "26px", "important");
+      pip.style.setProperty("height", "34px", "important");
+      pip.style.setProperty("clip-path", "none", "important");
+      pip.style.setProperty("transform", "none", "important");
+      pip.style.setProperty("min-width", "0", "important");
+      pip.style.setProperty("border-radius", "2px", "important");
+      pip.style.setProperty("border", "1px solid " + (i < player.mana ? "rgba(182,238,226,.9)" : "rgba(142,190,183,.34)"), "important");
+      pip.style.setProperty("background", i < player.mana ? "#8fd8cc" : "rgba(3,14,16,.75)", "important");
+      pip.style.setProperty("box-shadow", "none", "important");
+      pips.appendChild(pip);
     }
     box.appendChild(pips);
   }
@@ -854,18 +869,9 @@
     crest.style.backgroundImage = "url('" + (D.FACTIONS[player.faction].emblem || "") + "')";
     container.appendChild(crest);
     addHeroFrame(container);
-    if (player.relic && D.CARDS[player.relic]) {
-      const relicDef = D.CARDS[player.relic];
-      const gem = el("div", "hero-relic-gem");
-      gem.style.backgroundImage = "url('" + cardArtUrl(relicDef) + "')";
-      gem.title = "遗物 · " + relicDef.name;
-      gem.appendChild(el("span", "hero-relic-gem-label", relicDef.name));
-      container.appendChild(gem);
-    }
     const info = el("div", "hero-info");
     info.appendChild(el("div", "hero-name", player.name));
     info.appendChild(el("div", "hero-sub", player.hero.title));
-    if (player.hero.passive) info.appendChild(el("div", "hero-passive", "被动 · " + player.hero.passive.name));
     const skill = el("button", "hero-skill-inline");
     const skillIcon = el("span", "hero-skill-icon");
     skillIcon.style.backgroundImage = "url('assets/ui/hero-power-medallion.webp?v=" + ART_VERSION + "')";
@@ -911,13 +917,6 @@
     else if (hpPct <= 55) hpFill.classList.add("mid");
     hpTrack.appendChild(hpFill);
     info.appendChild(hpTrack);
-    info.appendChild(el("div", "hero-meta-line", "手牌 " + player.hand.length + " · 牌库 " + player.deck.length));
-    const deckBox = el("div", "hero-deck");
-    const back = el("i", "hero-deck-back");
-    back.style.backgroundImage = "url('assets/ui/deck-stack.webp?v=" + ART_VERSION + "')";
-    deckBox.appendChild(back);
-    deckBox.appendChild(el("span", null, "牌库 " + player.deck.length));
-    info.appendChild(deckBox);
     info.appendChild(skill);
     if (side === "bottom") {
       const resetSkillFeedback = () => {
@@ -944,8 +943,27 @@
       skill.addEventListener("pointercancel", resetSkillFeedback);
       skill.addEventListener("blur", resetSkillFeedback);
     }
+    if (side === "top") {
+      if (skill.parentNode) skill.parentNode.removeChild(skill);
+      const cardsLeft = el("div", "hero-opponent-resources");
+      const count = el("div", "op-resource-count");
+      count.appendChild(el("strong", null, String(player.deck.length)));
+      count.appendChild(el("span", null, "张"));
+      cardsLeft.appendChild(count);
+      cardsLeft.appendChild(el("div", "op-resource-label", "对手剩余牌库"));
+      cardsLeft.appendChild(el("div", "op-resource-hand", "手牌 " + player.hand.length));
+      info.appendChild(cardsLeft);
+    }
     container.title = player.name + (player.hero.passive ? " · 被动：" + player.hero.passive.name + " " + player.hero.passive.text : "");
     container.appendChild(info);
+    if (side === "bottom") {
+      const deckBadge = $("deck-left-value");
+      if (deckBadge) deckBadge.textContent = String(player.deck.length);
+      const deckDock = $("deck-dock-value");
+      if (deckDock) deckDock.textContent = String(player.deck.length);
+      const deckBadgeBox = $("deck-left-badge");
+      if (deckBadgeBox) deckBadgeBox.classList.toggle("low", player.deck.length <= 8);
+    }
     container.onmouseenter = () => showHeroTooltip(container, player);
     container.onmouseleave = hideHeroTooltip;
     if (side === "top") {
@@ -1957,6 +1975,8 @@
     const end = $("btn-end-turn");
     end.disabled = !current || s.status !== "playing" || s.mulliganPhase || app.busy || !!app.modalOpen;
     end.textContent = current ? "结束回合" : "对方回合";
+    end.classList.toggle("my-phase", current);
+    end.classList.toggle("enemy-phase", !current);
     end.onclick = () => endTurn();
   }
 
@@ -3174,6 +3194,7 @@
   const RELIC_STORAGE_KEY = "gok_active_relics_v1";
   const LEGACY_DECK_KEY = "gok_legacy_decks_v1";
   const ACCOUNT_KEY = "gok_account_v1";
+  const ACCOUNT_NAMED_KEY = "gok_account_named_v1";
   const SAVE_BACKUP_KEY = "gok_save_backup_v1";
   let saveBackupTimer = null;
 
@@ -3185,6 +3206,7 @@
       try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account)); } catch (e) {}
     }
     app.account = account;
+    if (account.name && account.name !== "档案员") { try { localStorage.setItem(ACCOUNT_NAMED_KEY, "1"); } catch (e) {} }
     return account;
   }
 
@@ -3231,7 +3253,7 @@
     snapshotSave("before-import");
     const account = bundle.account && bundle.account.id ? bundle.account : ensureAccount();
     app.account = account;
-    try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account)); } catch (e) {}
+    try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(account)); if (account.name && account.name !== "档案员") localStorage.setItem(ACCOUNT_NAMED_KEY, "1"); } catch (e) {}
     app.customDecks = bundle.customDecks && typeof bundle.customDecks === "object" ? bundle.customDecks : {};
     app.rawCustomDecks = bundle.rawCustomDecks || null;
     app.legacyDecks = bundle.legacyDecks || {};
@@ -3250,7 +3272,15 @@
 
   function normalizeSavedDeck(faction, list) {
     if (!Array.isArray(list)) return null;
-    if (D.validateDeck(faction, list).ok) return list.slice();
+    if (D.validateDeck(faction, list).ok) {
+      const clean = list.slice();
+      if (clean.length > 31) {
+        for (let i = clean.length - 1; i >= 0; i--) {
+          if (D.CARDS[clean[i]] && D.CARDS[clean[i]].type === "relic") { clean.splice(i, 1); break; }
+        }
+      }
+      return clean.slice(0, 31);
+    }
     const special = D.DECK_SPECIALS[faction] || {};
     const relics = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "relic");
     const formations = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "formation");
@@ -3397,8 +3427,12 @@
     const relicCount = list.filter(id => D.CARDS[id].type === "relic").length;
     const headerCount = $("deck-head-count");
     const fieldCount = mainCount + formationCount;
-    if (headerCount) headerCount.textContent = fieldCount + " / 30";
-    $("deck-count").textContent = "带牌 " + fieldCount + "/30 · 阵型 " + formationCount + "/2（可选）· 上阵遗物 1/1（需抽到） · 候选 " + relicCount + "/2";
+    if (headerCount) headerCount.textContent = (fieldCount + Math.min(1, relicCount)) + " / 31";
+    const totalEl = $("deck-count");
+    if (totalEl) totalEl.textContent = (fieldCount + Math.min(1, relicCount)) + " / 31 张";
+    const noteEl = $("deck-count-note");
+    if (noteEl) noteEl.textContent = "由 30 张带牌（含阵型，最多 2 张）+ 1 张遗物组成";
+
     const heroDef = D.HEROES[D.FACTIONS[f].hero];
     const leaderName = $("deck-leader-name");
     if (leaderName) leaderName.textContent = heroDef.name;
@@ -3422,13 +3456,9 @@
       const main = el("div", "deck-skill-main");
       main.appendChild(el("span", "deck-hero-stats", "领袖 " + heroDef.name + " · 生命 " + heroDef.hp + "（上限可成长）"));
       main.appendChild(el("strong", null, "领袖技能 · " + heroDef.power.name + " · " + heroDef.power.cost + " 行动槽"));
-      main.appendChild(el("span", null, heroDef.power.text));
-      if (heroDef.passive) main.appendChild(el("span", "deck-skill-passive", "被动 · " + heroDef.passive.name + "：" + heroDef.passive.text));
+      // keep the deck header compact: skill details are available in-game / via tooltip
       leaderSkill.appendChild(main);
     }
-    const mainEl = $("deck-main-count"); if (mainEl) mainEl.textContent = fieldCount + " / 30";
-    const formEl = $("deck-formation-count"); if (formEl) formEl.textContent = formationCount + " / 2";
-    const relicEl = $("deck-relic-count"); if (relicEl) relicEl.textContent = (app.activeRelics[f] ? "1" : "0") + " / 1";
     const validEl = $("deck-valid");
     validEl.textContent = validation.ok ? "合法牌组" : "未完成";
     validEl.className = "deck-valid " + (validation.ok ? "ok" : "bad");
@@ -3451,9 +3481,9 @@
     clear(msg);
     if (!validation.ok) {
       if (validation.errors.length) msg.textContent = validation.errors.slice(0, 2).join("；");
-      else msg.textContent = "需要 30 张带牌（阵型可选）+ 2 张遗物候选（上阵 1 张，需抽到后打出）。";
+      else msg.textContent = "需要 31 张：30 张带牌 + 1 张遗物；阵型最多 2 张。";
     } else {
-      msg.textContent = "30 张带牌（阵型可选）+ 2 张遗物候选（上阵 1 张，需抽到后打出）· 牌组合法。";
+      msg.textContent = "31 张自由编成：30 张带牌 + 1 张遗物，阵型最多 2 张。";
     }
 
     const curve = $("deck-curve");
@@ -3475,8 +3505,9 @@
     const drawTotal = deckDrawCount(list);
     $("deck-type-stats").textContent = "随从 " + minions + " · 战术 " + tactics + " · 阵型 " + formations + " · 传说 " + list.filter(id => D.CARDS[id].rarity === "legendary").length + " · 过牌 " + drawTotal;
     msg.classList.toggle("warn", validation.ok && drawTotal > 10);
+    msg.hidden = validation.ok && !(drawTotal > 10);
     if (validation.ok && drawTotal > 10) {
-      msg.textContent = "30 张带牌（阵型可选）+ 1 上阵遗物（2 候选，需抽到后打出） · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
+      msg.textContent = "31 张自由编成 · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
     }
 
     const selected = $("deck-selected");
@@ -3513,9 +3544,10 @@
       const def = D.CARDS[id];
       const count = counts[id] || 0;
       const max = D.maxCopies(def);
-      const typeFull = def.type === "formation" ? (formationCount >= 2 || fieldCount >= 30) : def.type === "relic" ? relicCount >= 2 : fieldCount >= 30;
+      const typeFull = def.type === "formation" ? (formationCount >= 2 || fieldCount >= 30) : def.type === "relic" ? relicCount >= 1 : fieldCount >= 30;
       const card = buildLibraryCard(def, { variant: "mini", faction: false, count: count + "/" + max });
-      card.classList.add("deck-mini", "rarity-" + (def.rarity || "common"), (count >= max || typeFull ? "full" : ""));
+      card.classList.add("deck-mini", "rarity-" + (def.rarity || "common"));
+      if (count >= max || typeFull) card.classList.add("full");
       addCardTags(card, def, null, "lib-tags");
       card.title = def.text || def.name;
       card.onclick = () => addDeckCard(id);
@@ -3535,7 +3567,7 @@
     }
     document.querySelectorAll(".auto-deck-btn").forEach((b) => b.classList.toggle("active", b.dataset.deckStrategy === app.lastAutoStrategy));
     const autoStatus = $("deck-auto-status");
-    if (autoStatus) autoStatus.textContent = app.lastAutoStrategy ? "当前策略：" + D.DECK_STRATEGIES[app.lastAutoStrategy].name + " · 可继续手动调整" : "选择一套策略，一键补满 30 张带牌（阵型可选）+ 1 张遗物（需抽到打出）。";
+    if (autoStatus) autoStatus.textContent = app.lastAutoStrategy ? "当前策略：" + D.DECK_STRATEGIES[app.lastAutoStrategy].name + " · 可继续手动调整" : "选择一套策略，一键生成 31 张牌组。";
   }
 
   function addDeckCard(id) {
@@ -3546,9 +3578,9 @@
     const relicCount = app.deckBuildList.filter(x => D.CARDS[x].type === "relic").length;
     const fieldCount = mainCount + formationCount;
     if (def.type === "formation" && formationCount >= 2) { toast("阵位牌最多带 2 张。"); return; }
-    if (def.type === "relic" && relicCount >= 2) { toast("遗物槽已满。"); return; }
+    if (def.type === "relic" && relicCount >= 1) { toast("遗物只能带 1 张。"); return; }
     if (def.type !== "relic" && fieldCount >= 30) { toast("30 张带牌已满。"); return; }
-    if (app.deckBuildList.length >= 32) { toast("牌组已满。"); return; }
+    if (app.deckBuildList.length >= 31) { toast("牌组已满（31 张）。"); return; }
     if (count >= D.maxCopies(def)) { toast(def.name + " 已达同名张数上限。"); return; }
     app.deckBuildList.push(id);
     AudioBox.play("click");
@@ -3669,7 +3701,7 @@
     { id: "tide_10", name: "魔物潮", desc: "在一局中触发流脉 10。", icon: "X" },
     { id: "summoner_10", name: "六阵位", desc: "单局召唤 10 个随从。", icon: "VI" },
     { id: "lan_win", name: "隔桌", desc: "赢得一局局域网对战。", icon: "LAN" },
-    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 张带牌（阵型可选）+ 1 上阵遗物（2 候选）牌组。", icon: "30" },
+    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 31 张牌组：30 张带牌 + 1 张遗物。", icon: "30" },
     { id: "tutorial", name: "第一课", desc: "进入新手演练。", icon: "01" },
     { id: "play_10", name: "档案常客", desc: "累计完成 10 局推演。", icon: "10" },
     { id: "ranked_first", name: "记分员", desc: "完成第一场排位赛。", icon: "S1" },
@@ -3820,7 +3852,7 @@
       saveName.onclick = () => {
         const name = String(nameInput.value || "").trim().slice(0, 24) || "档案员";
         app.account.name = name;
-        try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(app.account)); } catch (e) {}
+        try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(app.account)); localStorage.setItem(ACCOUNT_NAMED_KEY, "1"); } catch (e) {}
         snapshotSave("rename-account");
         toast("账号昵称已保存。");
         accountLine.querySelector("strong").textContent = name;
@@ -3915,6 +3947,45 @@
     });
   }
 
+  function maybePromptArchiveName() {
+    let named = false;
+    try { named = localStorage.getItem(ACCOUNT_NAMED_KEY) === "1"; } catch (e) {}
+    if (named) return;
+    const account = ensureAccount();
+    if (account.name && account.name !== "档案员") return;
+    if (app.screen !== "home" || app.modalOpen) return;
+    openModal((content) => {
+      content.classList.add("first-run-account");
+      content.appendChild(el("div", "eyebrow", "FIRST OPENING / ARCHIVE"));
+      content.appendChild(el("h3", null, "先给你的档案起个名字"));
+      content.appendChild(el("p", null, "这个名字会显示在主页存档牌上，也会跟着你的牌组、远征进度、成就一起保存在本机。之后可以在「账号与存档」里修改。"));
+      const input = el("input", "account-name-input first-run-name");
+      input.type = "text";
+      input.maxLength = 24;
+      input.placeholder = "例如：灰港旅人";
+      input.value = account.name && account.name !== "档案员" ? account.name : "";
+      content.appendChild(input);
+      const actions = el("div", "modal-actions");
+      const save = el("button", "btn btn-primary", "确认档案名");
+      save.onclick = () => {
+        const name = String(input.value || "").trim().slice(0, 24);
+        if (!name) { toast("请输入一个档案名。"); input.focus(); return; }
+        app.account.name = name;
+        try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(app.account)); localStorage.setItem(ACCOUNT_NAMED_KEY, "1"); } catch (e) {}
+        snapshotSave("first-run-name");
+        updateHomeAccount();
+        closeModal(true);
+        toast("档案已建立：" + name);
+      };
+      const skip = el("button", "btn btn-ghost", "稍后再说");
+      skip.onclick = () => { try { localStorage.setItem(ACCOUNT_NAMED_KEY, "1"); } catch (e) {} closeModal(true); };
+      actions.appendChild(skip);
+      actions.appendChild(save);
+      content.appendChild(actions);
+      setTimeout(() => input.focus(), 50);
+    });
+  }
+
   function updateHomeAccount() {
     const account = ensureAccount();
     const nameEl = $("home-account-name");
@@ -3928,6 +3999,8 @@
     const time = backup && backup.savedAt ? new Date(backup.savedAt).toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }) : null;
     const deckCount = Object.keys(app.customDecks || {}).length;
     metaEl.textContent = (time ? "自动备份 " + time : "自动备份已就绪") + " · 牌组 " + deckCount + " · 街机印记 " + (content.marks || 0);
+    const dock = document.querySelector(".home-account-dock");
+    if (dock) dock.classList.toggle("unset", !account.name || account.name === "档案员");
   }
 
   function afterAccountUI() { updateHomeAccount(); }
@@ -5210,6 +5283,7 @@
     snapshotSave("startup");
     updateHomeProfile();
     updateHomeAccount();
+    setTimeout(maybePromptArchiveName, 1200);
     updateHomeLegendary();
     const savedHomeMode = (() => { try { return localStorage.getItem("gok_home_mode") || "classic"; } catch (e) { return "classic"; } })();
     setHomeMode(savedHomeMode);

@@ -5662,3 +5662,185 @@ body[data-screen="game"] .hand-card.library-hand:last-child { margin-right: 8px 
 .library-mini .card-tags.lib-tags .keyword-tag[data-tag="采掘"] { background:rgba(43,65,92,.96); color:#d9ebff; border-color:#8bb8e2; }
 .library-mini .card-tags.lib-tags .keyword-tag[data-tag="血祭"] { background:rgba(92,24,34,.96); color:#ffd8d6; border-color:#d47b73; }
 .library-mini .card-tags.lib-tags .keyword-tag[data-tag="登场"] { background:rgba(138,88,28,.96); color:#fff0c9; border-color:#e0b164; }
+
+
+/* End-turn button changes color by side */
+body[data-screen="game"] .vein-row .end-turn-btn.enemy-phase {
+  background:linear-gradient(180deg,#e8c46a,#a87827 58%,#6b4b18) !important;
+  border:1px solid rgba(255,226,155,.72) !important;
+  color:#251806 !important; text-shadow:0 1px 0 rgba(255,255,255,.28) !important;
+  box-shadow:inset 0 1px 0 rgba(255,248,210,.6),0 0 20px rgba(242,198,109,.18),0 6px 16px rgba(0,0,0,.28) !important;
+  opacity:1 !important; filter:none !important;
+}
+body[data-screen="game"] .vein-row .end-turn-btn.my-phase {
+  background:url("../assets/ui/end-turn-seal.webp?v=20261020cy") center / 100% 100% no-repeat,linear-gradient(180deg,#a95443,#5b2821) !important;
+  border:0 !important; color:#fff1d8 !important;
+  opacity:1 !important; filter:none !important;
+}
+body[data-screen="game"] .vein-row .end-turn-btn.enemy-phase:hover { filter:brightness(1.08) !important; }
+
+
+/* Action slot: show the cells, not a redundant 3 / 3 */
+body[data-screen="game"] .mana-display {
+  display:grid !important; grid-template-columns:1fr !important; gap:6px !important;
+  width:clamp(220px,34vw,380px) !important; min-width:0 !important; max-width:380px !important;
+  padding:7px 10px !important; justify-content:stretch !important; align-content:center !important;
+}
+body[data-screen="game"] .mana-number { display:inline-flex !important; align-items:center !important; gap:5px !important; font-size:10px !important; }
+body[data-screen="game"] .mana-pips {
+  display:grid !important; grid-auto-flow:column !important; grid-auto-columns:1fr !important;
+  gap:4px !important; width:100% !important; min-height:0 !important; align-items:center !important;
+}
+body[data-screen="game"] .mana-pip {
+  width:auto !important; height:15px !important; min-width:0 !important;
+  border-radius:2px !important; border:1px solid rgba(142,190,183,.38) !important;
+  background:rgba(4,17,18,.72) !important; box-shadow:none !important;
+}
+body[data-screen="game"] .mana-pip.filled { background:rgba(143,216,204,.75) !important; border-color:rgba(174,239,226,.78) !important; }
+body[data-screen="game"] .mana-display .mana-crystal-art { display:none !important; }
+
+/* ===== compact game top deck counter ===== */
+body[data-screen="game"] .deck-left-badge {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid rgba(242,198,109,.46);
+  background: linear-gradient(180deg, rgba(58,43,19,.92), rgba(10,20,20,.94));
+  color: #d4e9df;
+  font-size: 9px;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  box-shadow: 0 0 12px rgba(217,164,65,.08), inset 0 0 0 1px rgba(0,0,0,.35);
+}
+body[data-screen="game"] .deck-left-badge span { color: #d9b36d; font-size: 8px; }
+body[data-screen="game"] .deck-left-badge b { color: #fff3d6; font-size: 15px; line-height: 1; font-family: var(--font-display); }
+body[data-screen="game"] .deck-left-badge.low { border-color: rgba(226,105,73,.7); background: linear-gradient(180deg, rgba(75,31,22,.94), rgba(16,17,18,.96)); }
+body[data-screen="game"] .deck-left-badge.low b { color: #ffb49e; }
+
+/* ===== slimmer hero panel ===== */
+body[data-screen="game"] .hero-panel { min-height: 168px !important; }
+body[data-screen="game"] .hero-panel .hero-passive,
+body[data-screen="game"] .hero-panel .hero-meta-line,
+body[data-screen="game"] .hero-panel .hero-deck,
+body[data-screen="game"] .hero-panel .hero-relic-gem { display: none !important; }
+body[data-screen="game"] .hero-panel .hero-vitals { margin: 8px 0 4px !important; }
+body[data-screen="game"] .hero-panel .hero-hp-track { margin-top: 4px !important; }
+body[data-screen="game"] .hero-panel .hero-skill-inline { margin-top: 7px !important; }
+body[data-screen="game"] .hero-panel .hero-info { padding: 12px 11px 10px !important; }
+
+/* deck builder: one concise rule line */
+body[data-screen="game"] .deck-relic-pick { display: none !important; }
+#screen-deck .deck-auto-help { font-size: 10px; }
+#screen-deck .deck-message { font-size: 10px; line-height: 1.45; }
+
+
+/* action slot v2: no redundant numeric readout, cells fill the bar */
+body[data-screen="game"] .mana-display {
+  display:grid !important; grid-template-columns:1fr !important; gap:7px !important;
+  width:clamp(230px,36vw,420px) !important; max-width:420px !important; padding:8px 10px !important;
+  border:1px solid rgba(142,190,183,.26) !important; background:rgba(5,20,22,.72) !important; box-shadow:none !important;
+}
+body[data-screen="game"] .mana-main { display:flex !important; align-items:center !important; gap:6px !important; }
+body[data-screen="game"] .mana-label { color:#c7dcd5 !important; font-size:10px !important; letter-spacing:.08em !important; }
+body[data-screen="game"] .mana-current,
+body[data-screen="game"] .mana-total,
+body[data-screen="game"] .mana-number { display:none !important; }
+body[data-screen="game"] .mana-pips { display:flex !important; width:100% !important; gap:4px !important; min-height:0 !important; }
+body[data-screen="game"] .mana-pip {
+  flex:1 1 0 !important; width:auto !important; min-width:0 !important; height:16px !important;
+  border-radius:2px !important; border:1px solid rgba(142,190,183,.34) !important;
+  background:rgba(3,14,16,.75) !important; box-shadow:none !important; clip-path:none !important;
+}
+body[data-screen="game"] .mana-pip.filled { background:#8fd8cc !important; border-color:#b6eee2 !important; }
+
+/* deck builder summary: total first, composition second */
+#screen-deck .deck-side-head { align-items: flex-start !important; gap: 8px; }
+#screen-deck .deck-count-stack { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+#screen-deck .deck-count-stack strong {
+  font-family: var(--font-display) !important;
+  font-size: 27px !important;
+  line-height: 1 !important;
+  letter-spacing: .03em;
+  color: #f3e7cf !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+}
+#screen-deck .deck-count-stack small {
+  font-size: 10px !important;
+  line-height: 1.4 !important;
+  color: #a9c9c1 !important;
+  white-space: normal;
+}
+
+#screen-deck .deck-message[hidden] { display: none !important; }
+#screen-deck .deck-valid { margin-top: 2px; flex: 0 0 auto; }
+
+#screen-deck .deck-loadout-bar { display: none !important; }
+
+
+/* Make the home save plate a first-class entry point */
+.home-account-dock {
+  right:0 !important; bottom:clamp(150px,17vh,188px) !important; width:min(430px,44vw) !important;
+  padding:13px 14px !important; gap:12px !important;
+  border:2px solid rgba(217,164,65,.62) !important;
+  background:linear-gradient(135deg,rgba(36,29,17,.97),rgba(6,18,20,.97)) !important;
+  box-shadow:0 0 0 1px rgba(0,0,0,.45), 0 0 30px rgba(217,164,65,.12), 0 18px 42px rgba(0,0,0,.5) !important;
+}
+.home-account-dock::before { content:"LOCAL SAVE"; position:absolute; left:14px; top:-8px; padding:1px 7px; color:#f2d392; background:#1b1710; border:1px solid rgba(217,164,65,.55); font-size:7px; letter-spacing:.18em; }
+.home-account-avatar { flex:0 0 46px !important; height:46px !important; border-width:2px !important; font-size:15px !important; box-shadow:0 0 18px rgba(217,164,65,.18), inset 0 0 14px rgba(217,164,65,.12) !important; }
+.home-account-copy > span { color:#d8b66f !important; font-size:8px !important; letter-spacing:.14em !important; }
+.home-account-copy strong { color:#fff1d4 !important; font-size:19px !important; }
+.home-account-copy small { color:#aebfb9 !important; font-size:10px !important; }
+.home-account-btn { padding:10px 13px !important; color:#171008 !important; background:linear-gradient(180deg,#f0ca7d,#c99546) !important; border-color:rgba(255,226,164,.8) !important; font-weight:700 !important; font-size:10px !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.5), 0 4px 12px rgba(0,0,0,.3); }
+.home-account-btn:hover { background:#ffe2a2 !important; color:#171008 !important; }
+.home-account-dock.unset { animation:savePlatePulse 2.4s ease-in-out infinite; }
+@keyframes savePlatePulse { 50% { box-shadow:0 0 0 1px rgba(0,0,0,.45), 0 0 42px rgba(242,198,109,.28), 0 18px 42px rgba(0,0,0,.5); } }
+.first-run-account h3 { margin-top:6px; }
+.first-run-account p { color:#aebfba; line-height:1.7; font-size:12px; }
+.first-run-name { margin:14px 0 6px; width:100%; font-size:15px; padding:12px 14px; }
+@media (max-width:1000px) { .home-account-dock { width:min(470px,100%) !important; bottom:auto !important; } }
+
+
+/* Opponent remaining cards replaces the unusable enemy skill button */
+.hero-opponent-resources {
+  display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto;
+  align-items:center; gap:2px 9px; width:100%; margin-top:7px; padding:6px 9px;
+  border:1px solid rgba(217,164,65,.42); border-radius:2px;
+  background:linear-gradient(100deg,rgba(45,32,18,.72),rgba(5,20,21,.82));
+  position:relative; z-index:4;
+}
+.op-resource-count { grid-row:1 / 3; display:flex; align-items:baseline; gap:4px; min-width:62px; }
+.op-resource-count strong { color:#f2d08b; font-family:var(--font-display); font-size:25px; line-height:1; }
+.op-resource-count span { color:#c8a96e; font-size:8px; }
+.op-resource-label { color:#e6d3af; font-size:9px; letter-spacing:.08em; }
+.op-resource-hand { color:#a9c4bd; font-size:9px; }
+
+
+/* Bottom HUD: leader skill + remaining deck on the left, action slot on the right */
+body[data-screen="game"] #deck-left-badge { display:none !important; }
+body[data-screen="game"] .hand-meta { display:flex !important; align-items:center !important; gap:12px !important; padding:2px 4px 4px !important; }
+body[data-screen="game"] .hand-meta-left { display:flex !important; align-items:center !important; gap:9px !important; flex:0 1 auto !important; min-width:0 !important; }
+body[data-screen="game"] .hand-meta-left #hero-power-dock { display:block !important; width:auto !important; min-width:0 !important; }
+body[data-screen="game"] .hand-meta-left .hero-power-btn { width:214px !important; min-height:58px !important; padding:8px 10px 8px 66px !important; }
+body[data-screen="game"] .hand-meta-left .hero-power-btn::before { width:54px !important; height:54px !important; }
+body[data-screen="game"] .hand-meta-left .hero-power-btn .hp-btn-icon { left:16px !important; width:32px !important; height:32px !important; }
+body[data-screen="game"] .hand-meta-left .hero-power-btn .hp-btn-copy strong { font-size:11px !important; }
+body[data-screen="game"] .hand-meta-left .hero-power-btn .hp-btn-copy small { font-size:8px !important; }
+.deck-dock { display:flex; align-items:baseline; gap:4px; padding:8px 10px; border:1px solid rgba(142,190,183,.28); background:rgba(5,20,22,.72); color:#cadcd6; white-space:nowrap; }
+.deck-dock span { font-size:8px; letter-spacing:.08em; color:#9dbab3; }
+.deck-dock strong { font-family:var(--font-display); font-size:22px; line-height:1; color:#f2d7a2; }
+.deck-dock small { color:#a9c2bb; font-size:8px; }
+body[data-screen="game"] .hand-meta .hint { flex:1 1 auto !important; min-width:0 !important; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+body[data-screen="game"] .mana-display { flex:0 0 auto !important; margin-left:auto !important; }
+body[data-screen="game"] .hero-skill-inline { display:none !important; }
+@media (max-width:900px) {
+  body[data-screen="game"] .hand-meta { gap:6px !important; }
+  body[data-screen="game"] .hand-meta-left .hero-power-btn { width:170px !important; min-height:50px !important; padding-left:54px !important; }
+  body[data-screen="game"] .hand-meta-left .hero-power-btn::before { width:46px !important; height:46px !important; }
+  body[data-screen="game"] .hand-meta-left .hero-power-btn .hp-btn-icon { left:10px !important; width:28px !important; height:28px !important; }
+  body[data-screen="game"] .deck-dock { padding:6px 7px; }
+  body[data-screen="game"] .deck-dock strong { font-size:18px; }
+  body[data-screen="game"] .hand-meta .hint { display:none !important; }
+}

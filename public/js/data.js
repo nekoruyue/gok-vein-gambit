@@ -1924,7 +1924,7 @@
   function validateDeck(faction, list) {
     const errors = [];
     const arr = Array.isArray(list) ? list : [];
-    if (arr.length !== 32) errors.push("牌组必须是 30 张带牌（阵型可选）+ 2 件遗物");
+    if (arr.length !== 31 && arr.length !== 32) errors.push("牌组必须是 30 张带牌 + 1 张遗物（共 31 张）");
     const counts = {};
     let main = 0, formations = 0, relics = 0;
     for (const id of arr) {
@@ -1939,7 +1939,7 @@
     }
     if (main + formations !== 30) errors.push("带牌必须是 30 张（含阵型），当前 " + (main + formations));
     if (formations > 2) errors.push("阵型最多 2 张，当前 " + formations);
-    if (relics !== 2) errors.push("遗物必须是 2 张，当前 " + relics);
+    if (relics < 1 || relics > 2) errors.push("遗物必须是 1 张（兼容旧牌组最多 2 张），当前 " + relics);
     return { ok: errors.length === 0, errors: Array.from(new Set(errors)), counts: counts, main: main, formations: formations, relics: relics };
   }
 
@@ -1995,7 +1995,7 @@
       if (!added) break;
     }
     const special = DECK_SPECIALS[faction];
-    return chosen.slice(0, 28).concat([special.formation, special.formation, special.relic, special.relic2]);
+    return chosen.slice(0, 28).concat([special.formation, special.formation, special.relic]);
   }
 
   const DECKS = {
@@ -2378,6 +2378,19 @@
   Object.assign(CARDS.arcane_surge, { cost: 4 });
   Object.assign(HEROES.lain.passive, { text: "流脉阈值触发时，恢复所有友方单位 1 点生命。" });
 
+  // 31-card decks: 30 playable cards + exactly one relic
+  for (const deckFaction of Object.keys(DECKS)) {
+    const relicIds = DECKS[deckFaction].filter(id => CARDS[id] && CARDS[id].type === "relic");
+    if (relicIds.length > 1) {
+      const keep = relicIds[0];
+      let removed = false;
+      DECKS[deckFaction] = DECKS[deckFaction].filter(id => {
+        if (!removed && CARDS[id] && CARDS[id].type === "relic" && id !== keep) { removed = true; return false; }
+        return true;
+      });
+    }
+  }
+
   // ===== 补齐 200 张：每阵营 30 张，中立扩展 =====
   Object.assign(CARDS.armor_recycle, { faction: "neutral" });
   Object.assign(CARDS, {
@@ -2562,7 +2575,7 @@
   });
   Object.assign(CARDS.losutai_imp, {
     text: "每回合开始时获得 +1/+1。 回响：对随机敌方单位造成等同于攻击力的伤害（最高 5 点）。",
-    noGeneratedArt: true,
+    noGeneratedArt: false,
     passive: { type: "turnGrowth", attack: 1, health: 1 },
     deathrattle: { type: "damageRandomEnemy", amountFromAttack: true, max: 5 },
     keywords: ["deathrattle"]
@@ -2661,7 +2674,7 @@
     text: "对所有敌方单位造成等同于本局已使用法术数量的伤害。"
   });
 
-  Object.assign(CARDS.losutai_beast, { noGeneratedArt: true, text: "" });
+  Object.assign(CARDS.losutai_beast, { noGeneratedArt: false, text: "" });
 
   // ===== 阵营纹章 AI 资产 =====
   {
@@ -2673,6 +2686,19 @@
       empire: "/assets/ui/emblem-empire.webp?v=20261020cc"
     };
     for (const f of Object.keys(emblemMap)) if (FACTIONS[f]) FACTIONS[f].emblem = emblemMap[f];
+  }
+
+  // final pass: every preset is 30 playable + exactly one relic
+  for (const deckFaction of Object.keys(DECKS)) {
+    const relicIds = DECKS[deckFaction].filter(id => CARDS[id] && CARDS[id].type === "relic");
+    if (relicIds.length > 1) {
+      const keep = relicIds[0];
+      let removed = false;
+      DECKS[deckFaction] = DECKS[deckFaction].filter(id => {
+        if (!removed && CARDS[id] && CARDS[id].type === "relic" && id !== keep) { removed = true; return false; }
+        return true;
+      });
+    }
   }
 
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
