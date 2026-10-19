@@ -3779,77 +3779,309 @@
   Object.assign(CARDS.gh_formation, { cost: 3 });
   Object.assign(CARDS.gh_assassinate_contract, { spell: { type: "damageOrDestroyBounty", amount: 4 }, text: "对一个敌方随从造成 4 点伤害；若它是悬赏目标，改为消灭。" });
 
-  // ===== 阵位 / 对位 扩充：六阵营各加少量定位效果，用于扶弱 =====
-  {
-    const addText = (c, extra) => { if (c && c.text && c.text.indexOf(extra) < 0) c.text = c.text + " " + extra; };
-    // 共和国（最弱，给实打实的定位收益）
-    Object.assign(CARDS.hans, { zoneBonus: { health: 1 } });
-    addText(CARDS.hans, "阵位：同阵位每有一个随从，生命值 +1。");
-    Object.assign(CARDS.cedric, { mirrorBonus: { armor: 2 } });
-    addText(CARDS.cedric, "对位：若敌方对位阵位有随从，获得 2 点护甲。");
-    Object.assign(CARDS.aegis_guard, { zoneAura: { health: 1 } });
-    addText(CARDS.aegis_guard, "阵位：同阵位其他友方随从获得 +0/+1。");
-    Object.assign(CARDS.erhardt, { mirrorBonus: { attack: 1 } });
-    addText(CARDS.erhardt, "对位：若敌方对位阵位有随从，攻击力 +1。");
-    // 灰港（默认预组偏弱，补节奏与续航）
-    Object.assign(CARDS.gh_rush_archer, { zoneBonus: { attack: 1 } });
-    addText(CARDS.gh_rush_archer, "阵位：同阵位每有一个随从，攻击力 +1。");
-    Object.assign(CARDS.gh_shield_mercenary, { mirrorBonus: { health: 1 } });
-    addText(CARDS.gh_shield_mercenary, "对位：若敌方对位阵位有随从，生命值 +1。");
-    Object.assign(CARDS.gh_bounty_collector, { mirrorBonus: { draw: 1 } });
-    addText(CARDS.gh_bounty_collector, "对位：若敌方对位阵位有随从，抽 1 张牌。");
-    Object.assign(CARDS.gh_company, { zoneAura: { health: 1 } });
-    addText(CARDS.gh_company, "阵位：同阵位其他友方随从获得 +0/+1。");
-    // 帝国（中位，小幅）
-    Object.assign(CARDS.ironclad, { zoneBonus: { health: 1 } });
-    addText(CARDS.ironclad, "阵位：同阵位每有一个随从，生命值 +1。");
-    Object.assign(CARDS.gunther, { mirrorBonus: { armor: 2 } });
-    addText(CARDS.gunther, "对位：若敌方对位阵位有随从，获得 2 点护甲。");
-    // 学院（中位，小幅）
-    Object.assign(CARDS.samuel, { zoneBonus: { health: 1 } });
-    addText(CARDS.samuel, "阵位：同阵位每有一个随从，生命值 +1。");
-    Object.assign(CARDS.frost_professor, { mirrorBonus: { draw: 1 } });
-    addText(CARDS.frost_professor, "对位：若敌方对位阵位有随从，抽 1 张牌。");
-    // 普卫岛（偏强，只给很小的定位收益）
-    Object.assign(CARDS.medic_apprentice, { mirrorBonus: { healHero: 1 } });
-    addText(CARDS.medic_apprentice, "对位：若敌方对位阵位有随从，恢复你的领袖 1 点生命。");
-    Object.assign(CARDS.aidric, { mirrorBonus: { armor: 1 } });
-    addText(CARDS.aidric, "对位：若敌方对位阵位有随从，获得 1 点护甲。");
-    // 西昭（偏强，只给很小的定位收益）
-    Object.assign(CARDS.blood_servant, { zoneBonus: { health: 1 } });
-    addText(CARDS.blood_servant, "阵位：同阵位每有一个随从，生命值 +1。");
-    Object.assign(CARDS.blood_imp, { mirrorBonus: { healHero: 1 } });
-    addText(CARDS.blood_imp, "对位：若敌方对位阵位有随从，恢复你的领袖 1 点生命。");
+  // ===== 2026-10-20 用户数值表导入 + 设计收敛 =====
+  // 数值：逐张来自用户《卡牌数值设计表1.xlsx》的 F/G/H 列。
+  Object.assign(CARDS.vein_scout, { attack: 2, health: 1 });
+  Object.assign(CARDS.vein_foreman, { health: 1 });
+  Object.assign(CARDS.guard, { health: 4 });
+  Object.assign(CARDS.orlicas, { attack: 2 });
+  Object.assign(CARDS.timon, { attack: 3, health: 2 });
+  Object.assign(CARDS.zone_keeper, { attack: 3, health: 2 });
+  Object.assign(CARDS.vein_siphon, { cost: 2 });
+  Object.assign(CARDS.spring_medic, { health: 3 });
+  Object.assign(CARDS.formation_weaver, { health: 3 });
+  Object.assign(CARDS.aidric, { attack: 2, health: 4 });
+  Object.assign(CARDS.verious, { health: 2 });
+  Object.assign(CARDS.shextena, { attack: 3, health: 3 });
+  Object.assign(CARDS.vein_engineer, { attack: 2, health: 3 });
+  Object.assign(CARDS.miyuki, { health: 7 });
+  Object.assign(CARDS.excavation_titan, { attack: 4, health: 5 });
+  Object.assign(CARDS.spell_novice, { health: 1 });
+  Object.assign(CARDS.nina, { cost: 3, attack: 2, health: 2 });
+  Object.assign(CARDS.reflux_apprentice, { health: 1 });
+  Object.assign(CARDS.samuel, { attack: 2, health: 2 });
+  Object.assign(CARDS.frost_scribe, { cost: 3 });
+  Object.assign(CARDS.spell_echo, { attack: 2, health: 1 });
+  Object.assign(CARDS.lecturer, { attack: 2, health: 1 });
+  Object.assign(CARDS.formation_script, { cost: 4 });
+  Object.assign(CARDS.justus, { attack: 2, health: 3 });
+  Object.assign(CARDS.arcane_conduit, { attack: 1, health: 4 });
+  Object.assign(CARDS.arcane_theorist, { attack: 2 });
+  Object.assign(CARDS.echo_adept, { attack: 2, health: 1 });
+  Object.assign(CARDS.karl_desmond, { attack: 2, health: 4 });
+  Object.assign(CARDS.cassian, { attack: 2, health: 5 });
+  Object.assign(CARDS.lize, { attack: 2, health: 2 });
+  Object.assign(CARDS.reflux, { cost: 3 });
+  Object.assign(CARDS.blood_duelist, { attack: 1 });
+  Object.assign(CARDS.blood_acolyte, { attack: 1 });
+  Object.assign(CARDS.formation_tide, { cost: 4 });
+  Object.assign(CARDS.venom_fang, { attack: 1, health: 1 });
+  Object.assign(CARDS.losutai_hunter, { health: 2 });
+  Object.assign(CARDS.molan, { attack: 1, health: 4 });
+  Object.assign(CARDS.blood_servant, { attack: 2, health: 2 });
+  Object.assign(CARDS.grayfeather, { health: 3 });
+  Object.assign(CARDS.devourer, { health: 2 });
+  Object.assign(CARDS.tiega, { attack: 3, health: 3 });
+  Object.assign(CARDS.blood_executor, { health: 3 });
+  Object.assign(CARDS.brood_matron, { attack: 2, health: 3 });
+  Object.assign(CARDS.lanxi, { attack: 4, health: 4 });
+  Object.assign(CARDS.blood_priestess, { attack: 3, health: 4 });
+  Object.assign(CARDS.losutai_matriarch, { health: 5 });
+  Object.assign(CARDS.tide_colossus, { attack: 3, health: 2 });
+  Object.assign(CARDS.shield_recruit, { health: 2 });
+  Object.assign(CARDS.bulwark_sentry, { health: 1 });
+  Object.assign(CARDS.drill_sergeant, { health: 2 });
+  Object.assign(CARDS.line_spearman, { attack: 1 });
+  Object.assign(CARDS.fortify, { cost: 1 });
+  Object.assign(CARDS.shield_bearer, { attack: 3, health: 2 });
+  Object.assign(CARDS.anti_rush, { cost: 2 });
+  Object.assign(CARDS.erhardt, { attack: 2, health: 2 });
+  Object.assign(CARDS.beatrix, { attack: 4 });
+  Object.assign(CARDS.shield_sergeant, { health: 4 });
+  Object.assign(CARDS.phalanx_warden, { health: 3 });
+  Object.assign(CARDS.phalanx_executor, { attack: 0, health: 3 });
+  Object.assign(CARDS.konrad, { health: 2 });
+  Object.assign(CARDS.iron_wall, { cost: 2 });
+  Object.assign(CARDS.zone_banner, { health: 4 });
+  Object.assign(CARDS.bastion_captain, { attack: 4, health: 4 });
+  Object.assign(CARDS.aegis_guard, { attack: 3, health: 3 });
+  Object.assign(CARDS.cedric, { attack: 4, health: 4 });
+  Object.assign(CARDS.iron_phalanx, { health: 3 });
+  Object.assign(CARDS.shield_marshal, { health: 4 });
+  Object.assign(CARDS.martial_law, { cost: 4 });
+  Object.assign(CARDS.empire_guard, { health: 3 });
+  Object.assign(CARDS.barrage, { cost: 1 });
+  Object.assign(CARDS.zone_reaper, { disabled: true, cost: 4, attack: 1, health: 1 });
+  const xiDeck = DECKS.xizhao.indexOf("zone_reaper");
+  if (xiDeck >= 0) DECKS.xizhao[xiDeck] = "blood_executor";
+
+  // 衍生物随从：必须有费用。
+  for (const id of ["losutai_imp", "losutai_beast", "obsidian_spawn", "grave_guard", "astral_guardian", "republic_recruit"]) {
+    if (CARDS[id]) CARDS[id].cost = 1;
   }
 
-  // ===== 阵位 / 对位 第二轮：把最弱的共和国再抬一档（保底数值型） =====
-  {
-    const addText = (c, extra) => { if (c && c.text && c.text.indexOf(extra) < 0) c.text = c.text + " " + extra; };
-    const repText = (c, from, to) => { if (c && c.text) c.text = c.text.replace(from, to); };
-    // 保底型：同阵位每有一个随从（至少含自己），数值型阵位稳定生效
-    Object.assign(CARDS.shield_recruit, { zoneBonus: { health: 1 } });
-    addText(CARDS.shield_recruit, "阵位：同阵位每有一个随从，生命值 +1。");
-    Object.assign(CARDS.elena, { zoneBonus: { attack: 1 } });
-    addText(CARDS.elena, "阵位：同阵位每有一个随从，攻击力 +1。");
-    Object.assign(CARDS.shield_bearer, { zoneBonus: { health: 1 } });
-    addText(CARDS.shield_bearer, "阵位：同阵位每有一个随从，生命值 +1。");
-    Object.assign(CARDS.konrad, { zoneBonus: { health: 1 } });
-    addText(CARDS.konrad, "阵位：同阵位每有一个随从，生命值 +1。");
-    // 已有对位/阵位效果加强
-    Object.assign(CARDS.hans, { zoneBonus: { health: 2 } });
-    repText(CARDS.hans, "生命值 +1。", "生命值 +2。");
-    Object.assign(CARDS.cedric, { mirrorBonus: { armor: 3 } });
-    repText(CARDS.cedric, "获得 2 点护甲。", "获得 3 点护甲。");
-    Object.assign(CARDS.aegis_guard, { zoneAura: { health: 2 } });
-    repText(CARDS.aegis_guard, "+0/+1。", "+0/+2。");
-    Object.assign(CARDS.erhardt, { mirrorBonus: { attack: 2 } });
-    repText(CARDS.erhardt, "攻击力 +1。", "攻击力 +2。");
-    // 新增对位/阵位
-    Object.assign(CARDS.shield_sergeant, { mirrorBonus: { armor: 1 } });
-    addText(CARDS.shield_sergeant, "对位：若敌方对位阵位有随从，获得 1 点护甲。");
-    Object.assign(CARDS.phalanx_warden, { zoneAura: { health: 1 } });
-    addText(CARDS.phalanx_warden, "阵位：同阵位其他友方随从获得 +0/+1。");
+  // 阵位 / 对位收敛：只保留身份明确的效果，删掉为了“加个效果”而挂上去的。
+  for (const id of ["timon", "orlicas", "konrad", "republic_guard", "empire_guard", "shield_recruit", "phalanx_warden", "phalanx_executor", "cedric", "erhardt", "gunther", "frost_professor", "aegis_guard", "gh_bounty_collector", "gh_shield_mercenary"]) {
+    const c = CARDS[id];
+    if (!c) continue;
+    c.zoneBonus = null;
+    c.mirrorBonus = null;
+    c.zoneAura = null;
   }
+  Object.assign(CARDS.hans, {
+    zoneBonus: { health: 1 },
+    text: "拦截。被动：你召唤的拦截随从获得 +0/+1。 阵位：同阵位每有一个随从，生命值 +1。"
+  });
+  Object.assign(CARDS.aidric, {
+    mirrorBonus: { armor: 3 },
+    text: "拦截。 引脉 4：获得 +1/+1。 引脉 8：获得 +2/+2。 对位：若敌方对位阵位有随从，获得 3 点护甲。"
+  });
+  Object.assign(CARDS.shield_sergeant, {
+    mirrorBonus: { armor: 3 },
+    text: "拦截。余响：所有友方拦截随从获得 +0/+1。 对位：若敌方对位阵位有随从，获得 3 点护甲。"
+  });
+
+  // 普卫岛 / 中立
+  Object.assign(CARDS.vein_scout, {
+    veinTiers: [{ vein: 3, health: 1 }],
+    text: "突进。 引脉 3：获得 +0/+1。"
+  });
+  Object.assign(CARDS.orlicas, {
+    zoneBonus: null,
+    text: "登场：抽 1 张牌；引脉 4：再抽 1 张牌。"
+  });
+  Object.assign(CARDS.timon, {
+    zoneBonus: null,
+    text: "登场：本回合你打出的下一张牌行动力消耗减少 1。"
+  });
+  Object.assign(CARDS.zone_keeper, {
+    zoneBonus: { attack: 1, health: 2 },
+    text: "阵位：同阵位每有一个随从，获得 +1/+2。"
+  });
+  Object.assign(CARDS.formation_weaver, {
+    text: "登场：若该卡被召唤到已经使用阵型卡的阵位，获得 +0/+1 并抽 1 张牌。"
+  });
+  Object.assign(CARDS.shextena, {
+    battlecry: { type: "healHeroSelfBuff", amount: 3 },
+    veinTiers: [{ vein: 10, healHero: 3 }],
+    text: "登场：恢复你的领袖 3 点生命；每实际恢复 1 点，希斯蒂娜获得 +1/+1。 引脉 10：恢复你的领袖 3 点生命。"
+  });
+  Object.assign(CARDS.excavation_titan, {
+    veinTiers: [{ vein: 10, attack: 2, health: 1 }],
+    text: "登场：流脉 +2。 引脉 10：获得 +2/+1。"
+  });
+  Object.assign(CARDS.formation_bastion, {
+    formation: { attack: 0, health: 0, taunt: true },
+    text: "阵型：该阵位随从固定获得拦截。"
+  });
+  Object.assign(CARDS.formation_standard, {
+    text: "遗物：你控制阵型时，该阵线友方随从额外获得 +0/+1。"
+  });
+  Object.assign(CARDS.emergency, {
+    spell: { type: "healDraw", amount: 2, draw: 1 },
+    text: "恢复一个友方随从 2 点生命；抽 1 张牌。"
+  });
+  Object.assign(CARDS.resonance, {
+    spell: { type: "drawGainVein", amount: 1, vein: 1 },
+    text: "抽 1 张牌，流脉 +1。"
+  });
+  Object.assign(CARDS.vein_attendant, {
+    veinTiers: [{ vein: 3, attack: 1, health: 1 }],
+    text: "登场：流脉 +1。 引脉 3：获得 +1/+1。"
+  });
+
+  // 学院：去掉“白嫖行动力 / 复制 / 免费冻结”等失控效果
+  Object.assign(CARDS.archive_search, {
+    spell: { type: "drawBoth", amount: 1 },
+    text: "双方各抽 1 张牌。"
+  });
+  Object.assign(CARDS.spell_novice, {
+    battlecry: { type: "discountSpellTurn", amount: 1 },
+    reflux: null,
+    text: "本回合你的下一张法术的行动力消耗 -1。"
+  });
+  Object.assign(CARDS.doorman, {
+    battlecry: null,
+    reflux: null,
+    keywords: [],
+    text: "—"
+  });
+  Object.assign(CARDS.debate, {
+    spell: { type: "damage", amount: 2 },
+    text: "对一个敌方随从造成 2 点伤害。"
+  });
+  Object.assign(CARDS.insight, {
+    spell: { type: "drawGainVein", amount: 1, vein: 1 },
+    text: "抽 1 张牌，流脉 +1。"
+  });
+  Object.assign(CARDS.reflux_apprentice, {
+    battlecry: { type: "spellDraw", draw: 1 },
+    text: "逆流 1：若本回合你施放过法术，抽 1 张牌。"
+  });
+  Object.assign(CARDS.armor_break, {
+    spell: { type: "stripArmorToMana", amount: 4, mana: 1 },
+    text: "移除敌方领袖至多 4 点护甲；若移除成功，获得 1 点行动力。"
+  });
+  Object.assign(CARDS.frost_prism, {
+    text: "遗物：每当你施放法术，恢复你的领袖 1 点生命。"
+  });
+  Object.assign(CARDS.justus, {
+    text: "登场：复制你手牌中费用最低的法术牌。"
+  });
+  Object.assign(CARDS.arcane_conduit, {
+    passive: { type: "spellDrawOne" },
+    text: "被动：每当你施放一张法术，抽 1 张牌。"
+  });
+  Object.assign(CARDS.spellstorm, {
+    rarity: "legendary",
+    text: "对所有敌方单位造成等同于本局已使用法术数量的伤害（最高 10 点）。"
+  });
+
+  // 西昭：血祭费用上调、删掉抽牌/对位/长小作文
+  Object.assign(CARDS.tribal_warrior, {
+    bloodCost: 3,
+    text: "血祭 3：获得 +1/+1。"
+  });
+  Object.assign(CARDS.lize, {
+    battlecry: null,
+    keywords: [],
+    text: "压脉 2：消耗 2 点流脉，对敌方领袖造成 2 点伤害。"
+  });
+  Object.assign(CARDS.blood_imp, {
+    mirrorBonus: null,
+    text: "汲取。"
+  });
+  Object.assign(CARDS.blood_duelist, {
+    bloodCost: 5,
+    text: "突进。血祭 5：获得 +2 攻击。"
+  });
+  Object.assign(CARDS.blood_altar, {
+    spell: { type: "summonTwoTokens", token: "losutai_imp", count: 2, label: "血祭祭坛" },
+    text: "召唤两个 1/1 的洛斯汰魔物。"
+  });
+  Object.assign(CARDS.formation_tide, {
+    formation: { lifesteal: true },
+    text: "阵型：该阵位所有随从固定获得汲取。"
+  });
+  Object.assign(CARDS.molan, {
+    bloodCost: 3,
+    text: "登场：检索一张随从牌；血祭 3：获得 +2 攻击。"
+  });
+  Object.assign(CARDS.blood_scythe, {
+    text: "遗物：友方随从死亡时，你的领袖恢复 1 点生命。"
+  });
+  Object.assign(CARDS.blood_servant, {
+    pressure: null,
+    zoneBonus: null,
+    text: "余响：使一个友方随从获得 +1 攻击。 汲取。"
+  });
+  Object.assign(CARDS.tiega, {
+    bloodCost: 5,
+    text: "突进。血祭 5：获得 +2 攻击。"
+  });
+  Object.assign(CARDS.blood_pool, {
+    target: "none",
+    spell: { type: "draw", amount: 2 },
+    text: "抽 2 张牌。"
+  });
+  Object.assign(CARDS.tide_colossus, {
+    keywords: ["lifesteal"],
+    pressure: null,
+    bloodCost: 5,
+    battlecry: { type: "devourBloodBuff", attack: 2, health: 2 },
+    text: "登场：吞噬一个攻击力最低的友方随从，获得其攻击力和生命值；血祭 5：获得 +2/+2。 汲取。"
+  });
+
+  // 共和国：删掉多余阵位/对位，保留拦截/余响骨架
+  Object.assign(CARDS.shield_recruit, {
+    keywords: ["taunt"],
+    zoneBonus: null,
+    mirrorBonus: null,
+    text: "拦截。"
+  });
+  Object.assign(CARDS.erhardt, {
+    mirrorBonus: null,
+    text: "突进。回潮。 顺势：本回合场上每死亡一个随从，获得 +1/+1。"
+  });
+  Object.assign(CARDS.phalanx_warden, {
+    mirrorBonus: null,
+    zoneAura: null,
+    text: "拦截。余响：所有友方随从获得 +0/+1。"
+  });
+  Object.assign(CARDS.phalanx_executor, {
+    mirrorBonus: null,
+    text: "被动：每当另一个友方拦截随从死亡，抽 1 张牌。"
+  });
+  Object.assign(CARDS.konrad, {
+    mirrorBonus: null,
+    zoneBonus: null,
+    target: "none",
+    battlecry: { type: "grantDeathrattleDamageAll", amount: 1 },
+    text: "登场：使所有友方随从获得余响：对随机一个敌方随从造成 1 点伤害。"
+  });
+  Object.assign(CARDS.cedric, {
+    mirrorBonus: null,
+    veinBonus: { vein: 6, healHero: 8 },
+    text: "拦截。 引脉 6：恢复你的领袖 8 点生命。"
+  });
+  Object.assign(CARDS.empire_guard, {
+    mirrorBonus: null,
+    text: "镇脉 1：消耗 1 点流脉，获得等量护甲。"
+  });
+  Object.assign(CARDS.aegis_guard, {
+    zoneAura: null,
+    text: "护幕。拦截。"
+  });
+  Object.assign(CARDS.republic_guard, {
+    mirrorBonus: null,
+    text: "拦截。余响：对随机一个敌方随从造成 2 点伤害。"
+  });
+  Object.assign(CARDS.formation_wall, {
+    formation: { deathrattleSummon: "republic_recruit", summonOnPlay: "republic_recruit", excludeDeathrattle: "republic_recruit" },
+    text: "阵型：该线所有非共和国新兵的友方随从获得余响：召唤一个 1/1 的共和国新兵。布置时在该阵位召唤一个 1/1 的共和国新兵。"
+  });
+
+  // 衍生物的随从费用已在上面统一为 1。
 
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
