@@ -332,7 +332,7 @@
     const opponents = D.FACTION_IDS.filter((id) => id !== app.faction);
     if (!app.aiOpponent || opponents.indexOf(app.aiOpponent) < 0) app.aiOpponent = opponents[Math.floor(Math.random() * opponents.length)];
     const other = app.aiOpponent;
-    $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30张带牌+2遗物 · 先手随机";
+    $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30张带牌+1上阵遗物 · 先手随机";
     const hero = D.HEROES[D.FACTIONS[app.faction].hero];
     const art = $("setup-hero-art");
     art.style.backgroundImage = "url('" + heroImage(hero.id) + "')";
@@ -1089,7 +1089,7 @@
     const ownTurn = ownerIndex === app.viewer && app.game.current === app.viewer && app.game.status === "playing";
     let attackStatus = null;
     let attackStatusClass = "";
-    if (m.frozenTurns > 0) { attackStatus = "凝滞"; attackStatusClass = "frozen-status"; }
+    if (m.frozenTurns > 0) { attackStatus = "冻结"; attackStatusClass = "frozen-status"; }
     else if (ownTurn) {
       if (canAttackNow) { attackStatus = "可攻击"; attackStatusClass = "ready"; card.classList.add("attackable"); }
       else if (m.attacksLeft <= 0) { attackStatus = m.justPlayed ? "沉睡" : "已行动"; attackStatusClass = "spent"; card.classList.add("spent"); }
@@ -1272,7 +1272,7 @@
         document.body.classList.add("freeze-flash");
         setTimeout(() => document.body.classList.remove("freeze-flash"), 380);
         const pt = eventPoint(ev.targetUid);
-        showKeywordPop("凝滞", pt.x, pt.y, "freeze");
+        showKeywordPop("冻结", pt.x, pt.y, "freeze");
       } else if (ev.kind === "shield") {
         const pt = eventPoint(ev.targetUid);
         showKeywordPop("护幕", pt.x, pt.y, "shield");
@@ -1321,7 +1321,7 @@
 
   function appendKeywordText(node, text) {
     if (!text) return;
-    const re = /(登场|余响|拦截|突进|凝滞|隐匿|采掘|引脉|血祭|封缄|检索|护幕|连动|蚀毒|汲取|袭扰|回潮|反噬|顺势|吞噬)/g;
+    const re = /(登场|余响|拦截|突进|冻结|隐匿|采掘|引脉|血祭|沉默|检索|护幕|连动|蚀毒|汲取|袭扰|回潮|反噬|顺势|吞噬)/g;
     let last = 0;
     let m;
     while ((m = re.exec(text)) !== null) {
@@ -1343,8 +1343,8 @@
     "拦截": "敌方必须先攻击具有拦截的随从。",
     "突进": "召唤当回合即可攻击。",
     "被动": "无需主动触发，满足条件时自动生效。",
-    "凝滞": "被凝滞的随从暂时不能攻击，持续到其下个回合。",
-    "封缄": "移除随从的技能、余响与增益效果。",
+    "冻结": "被冻结的随从暂时不能攻击，持续到其下个回合。",
+    "沉默": "移除随从的技能、余响与增益效果。",
     "隐匿": "无法被敌方选为目标，攻击后解除。",
     "引脉": "当共享流脉达到卡牌标注的数值时，额外触发效果。",
     "检索": "从三张牌中选择一张加入手牌。",
@@ -1372,7 +1372,7 @@
   const KEYWORD_ICONS = {
     "随从": "summon", "领袖": "passive",
     "登场": "battlecry", "余响": "deathrattle", "拦截": "taunt", "突进": "charge",
-    "被动": "passive", "凝滞": "freeze", "封缄": "silence", "隐匿": "stealth",
+    "被动": "passive", "冻结": "freeze", "沉默": "silence", "隐匿": "stealth",
     "引脉": "vein", "检索": "discover", "采掘": "excavate", "血祭": "blood",
     "吞噬": "damage", "阵位": "summon", "遗物": "passive", "对位": "summon", "借脉": "vein", "逆流": "vein", "镇脉": "armor", "压脉": "damage",
     "护幕": "armor", "连动": "charge", "蚀毒": "deathrattle", "汲取": "heal", "袭扰": "charge", "回潮": "passive", "反噬": "summon", "顺势": "damage"
@@ -1457,7 +1457,7 @@
       const bt = def.battlecry.type;
       if (bt === "copyFriendly") tags.push("复制");
       if (bt === "returnToHand") tags.push("回手");
-      if (bt === "freezeAllEnemies") tags.push("凝滞");
+      if (bt === "freezeAllEnemies") tags.push("冻结");
       if (bt === "veinBuff") tags.push("引脉");
       if (bt === "veinDraw") { tags.push("引脉"); tags.push("抽牌"); }
       if (bt === "damageAllEnemies") tags.push("伤害");
@@ -1465,7 +1465,7 @@
       if (bt === "summonTokenBuff") tags.push("召唤");
       if (bt === "buffAllTaunt") tags.push("拦截");
       if (bt === "spellDraw" || bt === "drawSpell" || bt === "drawHandCondition") tags.push("抽牌");
-      if (bt === "silenceVeinBuff") { tags.push("封缄"); tags.push("引脉"); }
+      if (bt === "silenceVeinBuff") { tags.push("沉默"); tags.push("引脉"); }
       if (bt === "buffTauntZone" || bt === "buffIfIronclad") tags.push("拦截");
       if (bt === "healHero" || bt === "healVein") tags.push("恢复");
       if (bt === "healVein") tags.push("引脉");
@@ -1477,7 +1477,7 @@
       if (bt === "devour") tags.push("吞噬");
       if (bt === "armorDamage") { tags.push("护甲"); tags.push("伤害"); }
       if (bt === "veinBuff") tags.push("引脉");
-      if (bt === "silenceDraw") { tags.push("封缄"); tags.push("抽牌"); }
+      if (bt === "silenceDraw") { tags.push("沉默"); tags.push("抽牌"); }
       if (bt === "summonSelfCopy") tags.push("复制");
       if (bt === "damageAllEnemiesDraw") { tags.push("伤害"); tags.push("抽牌"); }
     }
@@ -1486,15 +1486,15 @@
     if (def.deathrattle && def.deathrattle.type === "summon") tags.push("召唤");
     if (def.deathrattle && def.deathrattle.type === "damageAllEnemies") tags.push("伤害");
     if (m) {
-      if (m.silenced) tags.push("封缄");
-      if (m.frozenTurns > 0) tags.push("凝滞");
+      if (m.silenced) tags.push("沉默");
+      if (m.frozenTurns > 0) tags.push("冻结");
       if (m.stealth) tags.push("隐匿");
       if (m.taunt) tags.push("拦截");
       if (m.charge) tags.push("突进");
     } else if (def.spell) {
       const st = def.spell.type;
-      if (st === "silence") tags.push("封缄");
-      if (["freeze", "freezeAll", "freezeDraw"].indexOf(st) >= 0) tags.push("凝滞");
+      if (st === "silence") tags.push("沉默");
+      if (["freeze", "freezeAll", "freezeDraw"].indexOf(st) >= 0) tags.push("冻结");
       if (st === "damage") tags.push("伤害");
       if (["heal", "buffHeal"].indexOf(st) >= 0) tags.push("恢复");
       if (["draw", "drawVein", "bloodDraw", "healDraw", "freezeDraw"].indexOf(st) >= 0) tags.push("抽牌");
@@ -1503,7 +1503,7 @@
       if (["armor"].indexOf(st) >= 0) tags.push("护甲");
       if (["healDraw"].indexOf(st) >= 0) tags.push("恢复");
       if (["channelVein"].indexOf(st) >= 0) tags.push("引脉");
-      if (["freezeDraw"].indexOf(st) >= 0) tags.push("凝滞");
+      if (["freezeDraw"].indexOf(st) >= 0) tags.push("冻结");
       if (["buffTaunt"].indexOf(st) >= 0) tags.push("拦截");
       if (["buffCharge"].indexOf(st) >= 0) tags.push("突进");
       if (st === "gainMana") tags.push("行动槽");
@@ -2216,6 +2216,11 @@
     app.attacker = null;
     app.payBloodChoice = null;
     const r = E.endTurn(app.game, app.game.current);
+    if (app.game.pendingChoice) {
+      renderGame();
+      showDiscover();
+      return;
+    }
     AudioBox.play("end_turn");
     showTurnBanner("回合结束");
     renderGame();
@@ -2255,7 +2260,7 @@
     app.busy = true;
     app.currentHint = "对手正在推演…";
     renderGame();
-    setTimeout(aiStep, aiDelay(1050));
+    setTimeout(aiStep, aiDelay(1000));
   }
 
   function aiStep() {
@@ -2281,7 +2286,7 @@
     if (checkGameOverAfterAction()) { app.aiRunning = false; return; }
     if (app.game.status === "playing" && app.game.current === app.aiPlayer) {
       renderGame();
-      setTimeout(aiStep, aiDelay(950));
+      setTimeout(aiStep, aiDelay(1000));
     } else if (app.game.status === "playing") {
       app.aiRunning = false;
       app.busy = false;
@@ -2410,7 +2415,8 @@
           if (!r.ok) toast(r.reason || "选择失败。");
           else AudioBox.play("select");
           renderGame();
-          if (checkGameOverAfterAction()) return;
+          if (s.pendingChoice) showDiscover();
+          else if (checkGameOverAfterAction()) return;
         };
         grid.appendChild(card);
       }
@@ -2929,7 +2935,7 @@
     const custom = app.customDecks[app.faction];
     const valid = !!(custom && D.validateDeck(app.faction, custom).ok);
     if (!$("setup-deck-name")) return;
-    $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+2" : "预设牌组 · 30+2";
+    $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+1" : "预设牌组 · 30+1";
     const activeRelic = activeRelicFor(app.faction);
     const relicName = activeRelic && D.CARDS[activeRelic] ? D.CARDS[activeRelic].name : "未选择";
     $("setup-deck-detail").textContent = (valid ? "已保存在本机" : "官方预组") + " · 本局遗物：" + relicName;
@@ -2992,8 +2998,8 @@
     const relicCount = list.filter(id => D.CARDS[id].type === "relic").length;
     const headerCount = $("deck-head-count");
     const fieldCount = mainCount + formationCount;
-    if (headerCount) headerCount.textContent = list.length + " / 32";
-    $("deck-count").textContent = "带牌 " + fieldCount + "/30 · 阵型 " + formationCount + "/2（可选）· 遗物 " + relicCount + "/2";
+    if (headerCount) headerCount.textContent = fieldCount + " / 30";
+    $("deck-count").textContent = "带牌 " + fieldCount + "/30 · 阵型 " + formationCount + "/2（可选）· 上阵遗物 1/1 · 候选 " + relicCount + "/2";
     const heroDef = D.HEROES[D.FACTIONS[f].hero];
     const leaderName = $("deck-leader-name");
     if (leaderName) leaderName.textContent = heroDef.name;
@@ -3023,7 +3029,7 @@
     }
     const mainEl = $("deck-main-count"); if (mainEl) mainEl.textContent = fieldCount + " / 30";
     const formEl = $("deck-formation-count"); if (formEl) formEl.textContent = formationCount + " / 2";
-    const relicEl = $("deck-relic-count"); if (relicEl) relicEl.textContent = relicCount + " / 2";
+    const relicEl = $("deck-relic-count"); if (relicEl) relicEl.textContent = (app.activeRelics[f] ? "1" : "0") + " / 1";
     const validEl = $("deck-valid");
     validEl.textContent = validation.ok ? "合法牌组" : "未完成";
     validEl.className = "deck-valid " + (validation.ok ? "ok" : "bad");
@@ -3046,9 +3052,9 @@
     clear(msg);
     if (!validation.ok) {
       if (validation.errors.length) msg.textContent = validation.errors.slice(0, 2).join("；");
-      else msg.textContent = "需要 30 张带牌（阵型可选）+ 2 遗物。";
+      else msg.textContent = "需要 30 张带牌（阵型可选）+ 2 张遗物候选（上阵 1 张）。";
     } else {
-      msg.textContent = "30 张带牌（阵型可选）+ 2 遗物 · 牌组合法。保存后可在单人或局域网房主使用。";
+      msg.textContent = "30 张带牌（阵型可选）+ 2 张遗物候选（上阵 1 张）· 牌组合法。";
     }
 
     const curve = $("deck-curve");
@@ -3071,7 +3077,7 @@
     $("deck-type-stats").textContent = "随从 " + minions + " · 战术 " + tactics + " · 阵型 " + formations + " · 传说 " + list.filter(id => D.CARDS[id].rarity === "legendary").length + " · 过牌 " + drawTotal;
     msg.classList.toggle("warn", validation.ok && drawTotal > 10);
     if (validation.ok && drawTotal > 10) {
-      msg.textContent = "30 张带牌（阵型可选）+ 2 遗物 · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
+      msg.textContent = "30 张带牌（阵型可选）+ 1 上阵遗物（2 候选） · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
     }
 
     const selected = $("deck-selected");
@@ -3109,7 +3115,7 @@
       const count = counts[id] || 0;
       const max = D.maxCopies(def);
       const typeFull = def.type === "formation" ? (formationCount >= 2 || fieldCount >= 30) : def.type === "relic" ? relicCount >= 2 : fieldCount >= 30;
-      const card = el("div", "deck-mini rarity-" + (def.rarity || "common") + (count >= max || typeFull || list.length >= 31 ? " full" : ""));
+      const card = el("div", "deck-mini rarity-" + (def.rarity || "common") + (count >= max || typeFull ? " full" : ""));
       const art = el("div", "deck-mini-art");
       if (def.art) art.style.backgroundImage = "url('" + portraitImage(def.art) + "')";
       else {
@@ -3285,7 +3291,7 @@
     { id: "tide_10", name: "魔物潮", desc: "在一局中触发流脉 10。", icon: "X" },
     { id: "summoner_10", name: "六阵位", desc: "单局召唤 10 个随从。", icon: "VI" },
     { id: "lan_win", name: "隔桌", desc: "赢得一局局域网对战。", icon: "LAN" },
-    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 张带牌（阵型可选）+ 2 遗物牌组。", icon: "30" },
+    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 张带牌（阵型可选）+ 1 上阵遗物（2 候选）牌组。", icon: "30" },
     { id: "tutorial", name: "第一课", desc: "进入新手演练。", icon: "01" },
     { id: "play_10", name: "档案常客", desc: "累计完成 10 局推演。", icon: "10" },
     { id: "ranked_first", name: "记分员", desc: "完成第一场排位赛。", icon: "S1" },
@@ -3792,7 +3798,7 @@
     const fx = $("btn-settings-fx");
     if (fx) fx.textContent = "战斗特效：" + (app.fxOn ? "完整" : "简洁");
     const ai = $("btn-settings-ai");
-    if (ai) ai.textContent = "AI：" + (app.aiSpeed === "slow" ? "慢速" : app.aiSpeed === "fast" ? "快速" : "标准");
+    if (ai) ai.textContent = "AI：" + (app.aiSpeed === "slow" ? "慢速" : app.aiSpeed === "fast" ? "快速（0.65秒）" : "标准（1秒）");
     const shake = $("btn-settings-shake");
     if (shake) shake.textContent = "震动：" + (app.screenShake ? "开" : "关");
     const textsize = $("btn-settings-textsize");
@@ -3925,7 +3931,7 @@
   function updateGuestDeckLabel() {
     const valid = lanHasCustom(app.lanFaction);
     const label = $("lan-guest-deck-label");
-    if (label) label.textContent = (valid && app.lanGuestUseCustom ? "自定义牌组" : "预设牌组") + " · 30+2";
+    if (label) label.textContent = (valid && app.lanGuestUseCustom ? "自定义牌组" : "预设牌组") + " · 30+1";
     const select = $("lan-guest-deck-select");
     if (select) {
       select.value = app.lanGuestUseCustom && valid ? "custom" : "preset";
@@ -3937,7 +3943,7 @@
   function updateHostDeckLabel() {
     const valid = lanHasCustom(app.lanFaction);
     const label = $("lan-host-deck-label");
-    if (label) label.textContent = (valid && app.lanHostUseCustom ? "自定义牌组" : "预设牌组") + " · 30+2";
+    if (label) label.textContent = (valid && app.lanHostUseCustom ? "自定义牌组" : "预设牌组") + " · 30+1";
     const select = $("lan-host-deck-select");
     if (select) {
       select.value = app.lanHostUseCustom && valid ? "custom" : "preset";

@@ -111,7 +111,7 @@
         target: "friendly",
         text: "对一个友方随从造成 1 点伤害，抽 1 张牌。"
       },
-      passive: { name: "潮汐护体", text: "你的随从不能被凝滞；友方随从死亡时，你的领袖恢复 1 点生命。" }
+      passive: { name: "潮汐护体", text: "你的随从不能被冻结；友方随从死亡时，你的领袖恢复 1 点生命。" }
     }
   };
 
@@ -129,7 +129,7 @@
       id: "verious", name: "维里欧斯", faction: "pus", type: "minion",
       cost: 4, attack: 3, health: 5, rarity: "legendary", art: "verious",
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：封缄一个敌方随从。",
+      text: "登场：沉默一个敌方随从。",
       flavor: "他教人耐心，也教人怀疑。",
       battlecry: { type: "silence" }
     },
@@ -161,7 +161,7 @@
       id: "miyuki", name: "深雪", faction: "pus", type: "minion",
       cost: 5, attack: 4, health: 5, rarity: "legendary", art: "miyuki",
       keywords: ["battlecry"], target: "enemyDynamic",
-      text: "登场：凝滞一个敌方随从；引脉 6：改为凝滞所有敌方随从。",
+      text: "登场：冻结一个敌方随从；引脉 6：改为冻结所有敌方随从。",
       flavor: "吾见过雪落，也见过雪停。",
       battlecry: { type: "freeze", allAtVein: 6 }
     },
@@ -334,14 +334,14 @@
       cost: 2, attack: 2, health: 4, rarity: "legendary", art: "samuel",
       keywords: ["battlecry"], target: "none",
       text: "登场：抽 1 张牌。",
-      flavor: "他问了七个问题，第六个让对面封缄了。",
+      flavor: "他问了七个问题，第六个让对面沉默了。",
       battlecry: { type: "draw", amount: 1 }
     },
     nina: {
       id: "nina", name: "妮娜·索雷尔", faction: "academy", type: "minion",
       cost: 2, attack: 3, health: 4, rarity: "legendary", art: "nina",
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：凝滞一个敌方随从。",
+      text: "登场：冻结一个敌方随从。",
       flavor: "冷静是一种攻击方式。",
       battlecry: { type: "freeze" }
     },
@@ -370,7 +370,7 @@
     frost_seal: {
       id: "frost_seal", name: "寒霜封印", faction: "academy", type: "spell",
       cost: 2, rarity: "common", art: null, target: "enemy",
-      text: "凝滞一个敌方随从；抽 1 张牌。",
+      text: "冻结一个敌方随从；抽 1 张牌。",
       flavor: "把一页纸冻住，它就不会被改写。",
       spell: { type: "freezeDraw", draw: 1 }
     },
@@ -392,7 +392,7 @@
     prohibition: {
       id: "prohibition", name: "禁制令", faction: "academy", type: "spell",
       cost: 3, rarity: "common", art: null, target: "none",
-      text: "凝滞所有敌方随从。",
+      text: "冻结所有敌方随从。",
       flavor: "学院最严厉的处分，通常只是一张纸。",
       spell: { type: "freezeAll" }
     },
@@ -455,7 +455,7 @@
       cost: 3, attack: 2, health: 4, rarity: "common", art: null,
       keywords: ["taunt"], target: "none",
       text: "拦截。",
-      flavor: "盾比人先学会封缄。"
+      flavor: "盾比人先学会沉默。"
     },
     fortify: {
       id: "fortify", name: "筑防令", faction: "republic", type: "spell",
@@ -481,7 +481,7 @@
     martial_law: {
       id: "martial_law", name: "戒严令", faction: "republic", type: "spell",
       cost: 4, rarity: "common", art: null, target: "none",
-      text: "凝滞所有敌方随从。",
+      text: "冻结所有敌方随从。",
       flavor: "钟声停下之前，谁都不许动。",
       spell: { type: "freezeAll" }
     },
@@ -571,8 +571,8 @@
     martial_court: {
       id: "martial_court", name: "军事法庭", faction: "empire", type: "spell",
       cost: 4, rarity: "common", art: null, target: "none",
-      text: "凝滞所有敌方随从。",
-      flavor: "在帝国，封缄也是一种判决。",
+      text: "冻结所有敌方随从。",
+      flavor: "在帝国，沉默也是一种判决。",
       spell: { type: "freezeAll" }
     },
 
@@ -761,7 +761,7 @@
     smoke_screen: {
       id: "smoke_screen", name: "烟雾弹", faction: "neutral", type: "spell",
       cost: 2, rarity: "common", art: null, target: "enemy",
-      text: "凝滞一个敌方随从；抽 1 张牌。",
+      text: "冻结一个敌方随从；抽 1 张牌。",
       flavor: "等雾散的时候，位置已经换了。",
       spell: { type: "freezeDraw", draw: 1 }
     },
@@ -1174,7 +1174,7 @@
       id: "frost_professor", name: "霜系教授", faction: "academy", type: "minion",
       cost: 5, attack: 4, health: 5, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：凝滞一个敌方随从。",
+      text: "登场：冻结一个敌方随从。",
       flavor: "他的课堂很安静，因为没人敢动。",
       battlecry: { type: "freeze" }
     },
@@ -1366,7 +1366,7 @@
       id: "frost_leviathan", name: "霜潮利维坦", faction: "neutral", type: "minion",
       cost: 8, attack: 6, health: 7, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "none",
-      text: "登场：凝滞所有敌方随从。",
+      text: "登场：冻结所有敌方随从。",
       flavor: "港口的人说，那不是浪，是它在翻身。",
       battlecry: { type: "freezeAllEnemies" }
     },
@@ -1390,7 +1390,7 @@
       id: "archive_devourer", name: "档案吞噬者", faction: "neutral", type: "minion",
       cost: 7, attack: 5, health: 6, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：封缄一个敌方随从；抽 1 张牌。",
+      text: "登场：沉默一个敌方随从；抽 1 张牌。",
       flavor: "它吃掉的不是纸，是纸上写着的名字。",
       battlecry: { type: "silenceDraw", draw: 1 }
     },
@@ -1747,8 +1747,8 @@
   Object.assign(CARDS.guard, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：引脉 4：攻击力 +1。", battlecry: { type: "veinSelfBuff", vein: 4, attack: 1 } });
   Object.assign(CARDS.nina, { optionalTarget: true });
   Object.assign(CARDS.time_reflux, { disabled: true });
-  Object.assign(CARDS.verious, { text: "登场：封缄一个敌方随从；引脉 5：获得 +0/+2。", battlecry: { type: "silenceVeinBuff", vein: 5, health: 2 } });
-  Object.assign(CARDS.miyuki, { text: "登场：凝滞一个敌方随从；引脉 6：改为凝滞所有敌方随从；引脉 10：消灭所有敌方凝滞随从。", battlecry: { type: "freeze", allAtVein: 6, destroyFrozenAtVein: 10 } });
+  Object.assign(CARDS.verious, { text: "登场：沉默一个敌方随从；引脉 5：获得 +0/+2。", battlecry: { type: "silenceVeinBuff", vein: 5, health: 2 } });
+  Object.assign(CARDS.miyuki, { text: "登场：冻结一个敌方随从；引脉 6：改为冻结所有敌方随从；引脉 10：消灭所有敌方冻结随从。", battlecry: { type: "freeze", allAtVein: 6, destroyFrozenAtVein: 10 } });
   Object.assign(CARDS.hans, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：同阵位所有具有拦截的友方随从获得 +0/+1。", battlecry: { type: "buffTauntZone", health: 1 } });
   Object.assign(CARDS.klaus, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：场上每有一个铁甲步兵，获得 +2/+1。", battlecry: { type: "buffPerIronclad", attack: 2, health: 1 } });
   Object.assign(CARDS.ironclad, { keywords: ["taunt", "battlecry"], target: "none", text: "拦截。登场：若同阵位有另一个铁甲步兵，获得 +0/+1。", battlecry: { type: "buffIfIronclad", health: 1 } });
@@ -1824,7 +1824,7 @@
   Object.assign(CARDS.chrono_scholar, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.archive_devourer, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.lecturer, { keywords: ["deathrattle"], target: "none", battlecry: null, veinBonus: null, deathrattle: { type: "draw", amount: 1 }, text: "余响：抽 1 张牌。" });
-  Object.assign(CARDS.frost_leviathan, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "freezeAllEnemies" }, text: "余响：凝滞所有敌方随从。" });
+  Object.assign(CARDS.frost_leviathan, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "freezeAllEnemies" }, text: "余响：冻结所有敌方随从。" });
   Object.assign(CARDS.drill_sergeant, { keywords: ["deathrattle"], target: "none", battlecry: null, deathrattle: { type: "tauntRandomAlly" }, text: "余响：使一个随机友方随从获得拦截。" });
   Object.assign(CARDS.konrad, { keywords: ["taunt"], target: "none", battlecry: null, passive: { type: "turnArmor", amount: 1 }, text: "拦截。被动：你的回合开始时获得 1 点护甲。 引脉 4：获得 2 点护甲。" });
   Object.assign(CARDS.gunther, { keywords: ["taunt"], target: "none", battlecry: null, passive: null, attack: 4, health: 5, text: "拦截。 引脉 4：获得 2 点护甲。" });
@@ -1903,7 +1903,7 @@
   const DECK_STRATEGIES = {
     aggro: { name: "快攻", desc: "低费随从与直伤，抢在前中期结束。", curve: { 1: 7, 2: 8, 3: 7, 4: 5, 5: 2, 6: 1 } },
     midrange: { name: "中速", desc: "按费拍下高质量随从，靠阵位和登场取得优势。", curve: { 1: 5, 2: 7, 3: 6, 4: 6, 5: 4, 6: 2 } },
-    control: { name: "控制", desc: "解场、凝滞、恢复与抽牌，拖到流脉与高费回合。", curve: { 1: 4, 2: 6, 3: 6, 4: 6, 5: 5, 6: 3 } }
+    control: { name: "控制", desc: "解场、冻结、恢复与抽牌，拖到流脉与高费回合。", curve: { 1: 4, 2: 6, 3: 6, 4: 6, 5: 5, 6: 3 } }
   };
 
   function maxCopies(def) {
@@ -2062,7 +2062,7 @@
     charge: { name: "突进", icon: "⚔", color: "#e07a5f" },
     battlecry: { name: "登场", icon: "✦", color: "#7ec8e3" },
     deathrattle: { name: "余响", icon: "☠", color: "#b58bd8" },
-    freeze: { name: "凝滞", icon: "❄", color: "#7fd3ff" },
+    freeze: { name: "冻结", icon: "❄", color: "#7fd3ff" },
     stealth: { name: "隐匿", icon: "◐", color: "#9bb0c9" },
     counter: { name: "反击", icon: "↩", color: "#e0b36a" },
     divineShield: { name: "护幕", icon: "✧", color: "#f1df9d" },
@@ -2084,7 +2084,7 @@
   Object.assign(CARDS.excavation_titan, { keywords: ["battlecry"], target: "none", battlecry: { type: "veinOnly", amount: 2 }, text: "登场：流脉 +2。" });
   Object.assign(CARDS.blood_priestess, { keywords: ["battlecry"], target: "none", battlecry: { type: "healHero", amount: 3 }, text: "登场：恢复你的领袖 3 点生命。" });
   Object.assign(CARDS.siege_captain, { keywords: ["battlecry"], target: "none", battlecry: { type: "armor", amount: 1 }, text: "登场：获得 1 点护甲。" });
-  Object.assign(CARDS.frost_professor, { keywords: ["battlecry"], target: "enemy", battlecry: { type: "freeze" }, text: "登场：凝滞一个敌方随从。" });
+  Object.assign(CARDS.frost_professor, { keywords: ["battlecry"], target: "enemy", battlecry: { type: "freeze" }, text: "登场：冻结一个敌方随从。" });
   Object.assign(CARDS.powder_marshal, { keywords: ["battlecry"], target: "none", battlecry: { type: "armor", amount: 1 }, text: "登场：获得 1 点护甲。" });
   Object.assign(CARDS.vein_leviathan, { keywords: ["battlecry"], target: "none", battlecry: { type: "veinDraw", amount: 1, vein: 7, draw: 1 }, text: "登场：流脉 +1；若流脉≥7，抽 1 张牌。" });
   Object.assign(CARDS.world_serpent, { keywords: ["battlecry"], target: "none", battlecry: { type: "damageAllEnemies", amount: 2 }, text: "登场：对所有敌方随从造成 2 点伤害。" });
@@ -2116,7 +2116,7 @@
     vein_ward: {
       id: "vein_ward", name: "地脉护佑", faction: "pus", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "恢复你的领袖 2 点生命；本回合你的随从不能被凝滞。",
+      text: "恢复你的领袖 2 点生命；本回合你的随从不能被冻结。",
       flavor: "地脉在脚下翻身，把冬天挡在外面。",
       spell: { type: "antiFreezeHeal", heal: 2 }
     },
@@ -2168,8 +2168,8 @@
   Object.assign(CARDS.recon, { cost: 1, spell: { type: "draw", amount: 1 }, excavate: 1, text: "抽 1 张牌；采掘 1。" });
   Object.assign(CARDS.old_ledger, { cost: 3, spell: { type: "draw", amount: 2 }, excavate: null, text: "抽 2 张牌。" });
   Object.assign(CARDS.vein_prospect, { cost: 3, spell: { type: "draw", amount: 1 }, excavate: 2, text: "抽 1 张牌；采掘 2。" });
-  // 中立 2 费凝滞/余响不再完全同效果。
-  Object.assign(CARDS.smoke_screen, { cost: 3, text: "凝滞一个敌方随从；抽 1 张牌。" });
+  // 中立 2 费冻结/余响不再完全同效果。
+  Object.assign(CARDS.smoke_screen, { cost: 3, text: "冻结一个敌方随从；抽 1 张牌。" });
   Object.assign(CARDS.sim_assistant, { cost: 3, attack: 2, health: 2, text: "余响：抽 1 张牌。" });
   Object.assign(CARDS.vein_medic, { deathrattle: { type: "healHero", amount: 3 }, text: "余响：恢复你的领袖 3 点生命。" });
   // 共和国拦截光环按费用分级，不再三个费用完全同效果。
@@ -2190,7 +2190,7 @@
       id: "secret_police", name: "秘密警察", faction: "empire", type: "minion",
       cost: 4, attack: 3, health: 3, rarity: "epic", art: null,
       keywords: ["battlecry"], target: "enemy",
-      text: "登场：封缄一个敌方随从。",
+      text: "登场：沉默一个敌方随从。",
       flavor: "档案不会说话，但档案室会。",
       battlecry: { type: "silence" }
     },
@@ -2204,7 +2204,7 @@
     emergency_bill: {
       id: "emergency_bill", name: "紧急法案", faction: "republic", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "enemy",
-      text: "凝滞一个敌方随从；获得 1 点护甲。",
+      text: "冻结一个敌方随从；获得 1 点护甲。",
       flavor: "程序走得慢，但冻结得很快。",
       spell: { type: "freezeArmor", armor: 1 }
     },
@@ -2252,16 +2252,16 @@
 
   Object.assign(CARDS.shextena, { battlecry: { type: "healOverflowBuff", amount: 5 }, text: "登场：恢复一个友方随从 5 点生命；每恢复 1 点，它获得 +1/+1；溢出治疗恢复你的领袖。 对位：若敌方对位阵位有随从，恢复你的领袖 1 点生命。 引脉 6：恢复你的领袖 3 点生命。" });
 
-  Object.assign(CARDS.miyuki, { text: "登场：凝滞一个敌方随从；引脉 6：改为凝滞所有敌方随从；引脉 10：改为消灭所有敌方随从。" });
+  Object.assign(CARDS.miyuki, { text: "登场：冻结一个敌方随从；引脉 6：改为冻结所有敌方随从；引脉 10：改为消灭所有敌方随从。" });
 
-  // 深雪改为阵位/阵型协同；凝滞组合交给学院的霜系教授。
+  // 深雪改为阵位/阵型协同；冻结组合交给学院的霜系教授。
   Object.assign(CARDS.miyuki, {
     battlecry: { type: "freezeZoneFormation", draw: 1 },
-    text: "登场：凝滞目标所在阵位的所有敌方随从；若你的同阵位有阵型，抽 1 张牌。"
+    text: "登场：冻结目标所在阵位的所有敌方随从；若你的同阵位有阵型，抽 1 张牌。"
   });
   Object.assign(CARDS.frost_professor, {
     battlecry: { type: "freezeCombo", allAtVein: 6, destroyAtVein: 10 },
-    text: "登场：凝滞一个敌方随从；引脉 6：凝滞所有敌方随从；引脉 10：凝滞并消灭所有敌方随从。"
+    text: "登场：冻结一个敌方随从；引脉 6：冻结所有敌方随从；引脉 10：冻结并消灭所有敌方随从。"
   });
 
   // ===== 史诗流派支撑卡 =====
@@ -2351,7 +2351,7 @@
   Object.assign(CARDS.battle_calc, { disabled: true });
   Object.assign(CARDS.frost_professor, {
     battlecry: { type: "freezeCombo", allAtVein: 6, destroyAtVein: 10 },
-    text: "登场：凝滞一个敌方随从；引脉 6：凝滞所有敌方随从；引脉 10：消灭所有已被凝滞的敌方随从。"
+    text: "登场：冻结一个敌方随从；引脉 6：冻结所有敌方随从；引脉 10：消灭所有已被冻结的敌方随从。"
   });
   Object.assign(CARDS.arcane_conduit, {
     text: "被动：每当你施放一张法术，获得等同于其行动槽消耗的护甲。",
@@ -2465,7 +2465,7 @@
     frost_prism: {
       id: "frost_prism", name: "霜晶棱镜", faction: "academy", type: "relic",
       cost: 3, rarity: "epic", art: null, noGeneratedArt: true,
-      text: "遗物：每当你施放法术，随机凝滞一个敌方随从。",
+      text: "遗物：每当你施放法术，随机冻结一个敌方随从。",
       flavor: "光穿过它时，连时间都会慢半拍。"
     },
     blood_censer: {
@@ -2524,7 +2524,7 @@
   // ===== 学院/西昭指定改动（第三批） =====
   Object.assign(CARDS.nina, {
     battlecry: { type: "freezeZone" },
-    text: "登场：凝滞目标所在阵位的所有敌方单位。 阵位：若同阵位有另一个友方随从，生命值 +1。"
+    text: "登场：冻结目标所在阵位的所有敌方单位。 阵位：若同阵位有另一个友方随从，生命值 +1。"
   });
   Object.assign(CARDS.insight, {
     spell: { type: "drawCopyNextSpell", draw: 1 },
@@ -2642,6 +2642,16 @@
 
   // ===== 审计修复：保卫部卫兵的引脉 4 护甲 =====
   Object.assign(CARDS.guard, { veinBonus: { vein: 4, armor: 1 } });
+
+  // ===== 关键词与文本一致性收尾 =====
+  Object.assign(CARDS.klaus, { text: "拦截。登场：场上每有一个其他随从（不分敌我），获得 +1/+1。" });
+
+  // ===== “敌方单位”语义：领袖 + 所有随从 =====
+  Object.assign(CARDS.zone_barrage, { target: "none", text: "对所有敌方单位造成 2 点伤害。", spell: { type: "damageAllEnemyUnits", amount: 2 } });
+  Object.assign(CARDS.martial_court, { text: "每有一个敌方单位（包括领袖），获得 3 点护甲。", spell: { type: "armorPerEnemy", amount: 3 } });
+  Object.assign(CARDS.walter, { text: "登场：每有一点护甲，对一名随机敌方单位（包括领袖）造成 1 点伤害。" });
+  Object.assign(CARDS.nina, { text: "登场：冻结目标所在阵位的所有敌方随从。 阵位：若同阵位有另一个友方随从，生命值 +1。" });
+  Object.assign(CARDS.combo_spark, { text: "对目标所在阵位的所有敌方随从造成 3 点伤害。" });
 
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });

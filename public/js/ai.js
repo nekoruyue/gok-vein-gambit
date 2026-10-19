@@ -23,7 +23,8 @@
   function lethalAvailable(state, p) {
     if (enemyTaunts(state, p).length) return false;
     const e = enemyOf(state, p);
-    return totalAttack(p) >= e.hp + e.armor;
+    const facePower = (p.heroId === "otto" || p.heroId === "marta") && !p.heroPowerUsed && p.mana >= 2 ? 2 : 0;
+    return totalAttack(p) + facePower >= e.hp + e.armor;
   }
 
   function damagedAllies(p) {
@@ -314,7 +315,8 @@
       if (atk && atk.targetUid === "hero") return atk;
     }
     const play = choosePlay(state, p);
-    if (play && play.score >= 3) return play;
+    const playThreshold = state.aiDifficulty === "nightmare" ? 1.8 : state.aiDifficulty === "hard" ? 2.1 : 2.5;
+    if (play && play.score >= playThreshold) return play;
     const hp = chooseHeroPower(state, p);
     if (hp) return hp;
     const atk = chooseAttack(state, p);

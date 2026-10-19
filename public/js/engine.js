@@ -427,7 +427,7 @@
     m.attack = m.baseAttack;
     m.maxHealth = m.baseHealth;
     m.health = Math.min(m.health, m.maxHealth);
-    log(state, m.name + " 被封缄。", ownerOf(state, m), "silence");
+    log(state, m.name + " 被沉默。", ownerOf(state, m), "silence");
   }
 
   function retreatMinion(state, playerIndex, uid) {
@@ -515,7 +515,7 @@
       drawCard(state, player, d.amount || 1);
     } else if (d.type === "freezeAllEnemies") {
       for (const enemy of aliveMinions(opponentOf(state, player))) freezeMinion(state, enemy);
-      log(state, "余响：" + m.name + " 凝滞了所有敌方随从。", player, "freeze");
+      log(state, "余响：" + m.name + " 冻结了所有敌方随从。", player, "freeze");
     } else if (d.type === "tauntRandomAlly") {
       const allies = aliveMinions(player);
       if (allies.length) {
@@ -829,14 +829,14 @@
         }
       } else if (b.allAtVein != null && state.vein >= b.allAtVein) {
         for (const m of aliveMinions(opponentOf(state, player))) freezeMinion(state, m);
-        log(state, "引脉 6 触发：深雪凝滞所有敌方随从。", player, "freeze");
+        log(state, "引脉 6 触发：深雪冻结所有敌方随从。", player, "freeze");
       } else if (target && !target.dead) {
         freezeMinion(state, target);
       }
     } else if (b.type === "freezeZoneFormation") {
       if (target) {
         for (const m of aliveMinions(opponentOf(state, player)).filter(m => m.zone === target.zone)) freezeMinion(state, m);
-        log(state, "深雪凝滞了" + ZONE_NAMES[target.zone] + "的所有敌方随从。", player, "freeze");
+        log(state, "深雪冻结了" + ZONE_NAMES[target.zone] + "的所有敌方随从。", player, "freeze");
         if ((player.formations || []).some(f => f.zone === target.zone)) {
           drawCard(state, player, b.draw || 1);
           log(state, "同阵位阵型共鸣，抽 1 张牌。", player, "draw");
@@ -871,11 +871,11 @@
       if (state.vein >= (b.destroyAtVein || 10)) {
         const frozen = aliveMinions(opponentOf(state, player)).filter(m => m.frozenTurns > 0);
         for (const m of frozen) m.dead = true;
-        log(state, "引脉 10 触发：教授消灭所有已被凝滞的敌方随从。", player, "freeze");
+        log(state, "引脉 10 触发：教授消灭所有已被冻结的敌方随从。", player, "freeze");
         processDeaths(state);
       } else if (state.vein >= (b.allAtVein || 6)) {
         for (const m of aliveMinions(opponentOf(state, player))) freezeMinion(state, m);
-        log(state, "引脉 6 触发：教授凝滞所有敌方随从。", player, "freeze");
+        log(state, "引脉 6 触发：教授冻结所有敌方随从。", player, "freeze");
       } else if (target && !target.dead) {
         freezeMinion(state, target);
       }
@@ -884,14 +884,15 @@
       let done = 0;
       for (let i = 0; i < hits; i++) {
         const enemies = aliveMinions(opponentOf(state, player));
-        if (!enemies.length) break;
-        damageMinion(state, enemies[randomInt(state, enemies.length)], b.amount || 1, null, "瓦尔特");
+        const pick = randomInt(state, enemies.length + 1);
+        if (pick >= enemies.length) damageHero(state, opponentOf(state, player), b.amount || 1, null, "瓦尔特", true);
+        else damageMinion(state, enemies[pick], b.amount || 1, null, "瓦尔特");
         done++;
       }
       if (done) { log(state, "瓦尔特按护甲发动 " + done + " 次随机炮击。", player, "battlecry"); processDeaths(state); }
     } else if (b.type === "buffPerAllMinions") {
-      const count = state.players.reduce((n, p) => n + aliveMinions(p).length, 0);
-      buffMinion(state, minion, count * (b.attack || 1), count * (b.health || 1), "阅兵", true);
+      const count = state.players.reduce((n, p) => n + aliveMinions(p).length, 0) - 1;
+      buffMinion(state, minion, Math.max(0, count) * (b.attack || 1), Math.max(0, count) * (b.health || 1), "阅兵", true);
       log(state, "克劳斯清点全场 " + count + " 个随从，获得 +" + count + "/+" + count + "。", player, "battlecry");
     } else if (b.type === "formationPayoff") {
       if ((player.formations || []).length) {
@@ -1013,7 +1014,7 @@
       log(state, "登场：" + minion.name + " 对敌方随从造成 " + (b.amount || 4) + " 点伤害。", player, "battlecry");
     } else if (b.type === "freezeAllEnemies") {
       for (const m of aliveMinions(opponentOf(state, player))) freezeMinion(state, m);
-      log(state, "登场：霜潮利维坦凝滞了所有敌方随从。", player, "freeze");
+      log(state, "登场：霜潮利维坦冻结了所有敌方随从。", player, "freeze");
     } else if (b.type === "copyFriendly") {
       if (target && !target.dead) {
         const copy = summonMinion(state, player, target.cardId, openZones(player)[0], null);
@@ -1145,7 +1146,7 @@
     } else if (s.type === "antiFreezeHeal") {
       healHero(state, player, s.heal || 2);
       player.freezeImmuneTurn = true;
-      log(state, "你的随从本回合不能被凝滞。", player, "freeze");
+      log(state, "你的随从本回合不能被冻结。", player, "freeze");
     } else if (s.type === "damageHealBlock") {
       if (target && !target.dead) damageMinion(state, target, s.amount || 1, null, "战地检疫");
       opponentOf(state, player).healBlockTurn = true;
@@ -1176,13 +1177,17 @@
       for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, dmg, null, "法术风暴");
       log(state, "法术风暴：本局第 " + count + " 张法术，对敌方所有随从造成 " + dmg + " 点伤害。", player, "spell");
       processDeaths(state);
+    } else if (s.type === "damageAllEnemyUnits") {
+      for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, s.amount || 2, null, "阵位齐射");
+      damageHero(state, opponentOf(state, player), s.amount || 2, null, "阵位齐射");
+      processDeaths(state);
     } else if (s.type === "damageAllEnemies") {
       for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, s.amount || 2, null, "阵位齐射");
       processDeaths(state);
     } else if (s.type === "armorPerEnemy") {
-      const count = aliveMinions(opponentOf(state, player)).length;
+      const count = aliveMinions(opponentOf(state, player)).length + 1;
       player.armor += count * (s.amount || 3);
-      log(state, "每有一个敌方单位获得 " + (s.amount || 3) + " 点护甲，共 " + (count * (s.amount || 3)) + " 点。", player, "armor");
+      log(state, "每有一个敌方单位（含领袖）获得 " + (s.amount || 3) + " 点护甲，共 " + (count * (s.amount || 3)) + " 点。", player, "armor");
     } else if (s.type === "armorToDamage") {
       const used = Math.min(player.armor, s.max || 5);
       player.armor -= used;
@@ -1292,10 +1297,10 @@
 
   function freezeMinion(state, m) {
     if (!m || m.dead) return;
-    if (ownerOf(state, m).freezeImmuneTurn) { log(state, m.name + " 受到地脉护佑，抵消了凝滞。", ownerOf(state, m), "freeze"); return; }
+    if (ownerOf(state, m).freezeImmuneTurn) { log(state, m.name + " 受到地脉护佑，抵消了冻结。", ownerOf(state, m), "freeze"); return; }
     m.frozenTurns = Math.max(m.frozenTurns || 0, 1);
     state.events.push({ structured: true, kind: "freeze", targetUid: m.uid, player: ownerOf(state, m).index });
-    log(state, m.name + " 被凝滞。", ownerOf(state, m), "freeze");
+    log(state, m.name + " 被冻结。", ownerOf(state, m), "freeze");
   }
 
   function grantTaunt(state, m) {
@@ -1309,10 +1314,28 @@
   }
 
   function openDiscover(state, player, pool, sourceCardId) {
-    const all = discoverPool(player, pool);
-    const shuffled = shuffle(state, all);
-    const options = shuffled.slice(0, 3);
-    const choice = { type: "discover", player: player.index, options: options, source: sourceCardId };
+    let options = [];
+    let fromDeck = false;
+    if (pool === "spell") {
+      const seen = new Set();
+      const deckSpells = [];
+      for (const c of player.deck) {
+        const d = card(c.cardId);
+        if (!d || d.type !== "spell" || seen.has(c.cardId)) continue;
+        seen.add(c.cardId);
+        deckSpells.push(c.cardId);
+      }
+      options = shuffle(state, deckSpells).slice(0, 3);
+      fromDeck = true;
+      if (!options.length) {
+        log(state, player.name + " 的牌库中没有可检索的法术牌。", player, "discover");
+        return;
+      }
+    } else {
+      const all = discoverPool(player, pool);
+      options = shuffle(state, all).slice(0, 3);
+    }
+    const choice = { type: "discover", player: player.index, options: options, source: sourceCardId, fromDeck: fromDeck };
     if (state.pendingChoice) {
       state.discoverQueue = state.discoverQueue || [];
       state.discoverQueue.push(choice);
@@ -1327,7 +1350,35 @@
     if (!state.pendingChoice || state.pendingChoice.type !== "discover") return { ok: false, reason: "没有待处理的检索" };
     if (state.pendingChoice.player !== playerIndex) return { ok: false, reason: "不是你的选择" };
     if (state.pendingChoice.options.indexOf(cardId) < 0) return { ok: false, reason: "不在检索选项中" };
-    addCardToHand(state, state.players[playerIndex], cardId, {});
+    const player = state.players[playerIndex];
+    if (state.pendingChoice.fromDeck) {
+      let chosenId = cardId;
+      let idx = player.deck.findIndex(c => c.cardId === chosenId && card(c.cardId).type === "spell");
+      if (idx < 0) {
+        const fallback = state.pendingChoice.options.find(id => player.deck.some(c => c.cardId === id && card(c.cardId).type === "spell"));
+        if (fallback) {
+          chosenId = fallback;
+          idx = player.deck.findIndex(c => c.cardId === chosenId && card(c.cardId).type === "spell");
+        }
+      }
+      if (idx < 0) {
+        log(state, "检索选项已被其他效果取走，跳过本次选择。", player, "discover");
+        if (state.discoverQueue && state.discoverQueue.length) state.pendingChoice = state.discoverQueue.shift();
+        else state.pendingChoice = null;
+        return { ok: true, reason: "检索选项已失效" };
+      }
+      const [deckCard] = player.deck.splice(idx, 1);
+      const added = addCardToHand(state, player, chosenId, {});
+      if (!added) {
+        player.deck.splice(idx, 0, deckCard);
+        log(state, "手牌已满，检索牌留在牌库。", player, "discover");
+        if (state.discoverQueue && state.discoverQueue.length) state.pendingChoice = state.discoverQueue.shift();
+        else state.pendingChoice = null;
+        return { ok: true, reason: "手牌已满，检索牌留在牌库" };
+      }
+    } else {
+      addCardToHand(state, player, cardId, {});
+    }
     if (state.discoverQueue && state.discoverQueue.length) state.pendingChoice = state.discoverQueue.shift();
     else state.pendingChoice = null;
     return { ok: true };
@@ -1359,7 +1410,7 @@
     const attacker = allMinions(player).find(m => m.uid === attackerUid);
     if (!attacker) return { ok: false, reason: "找不到攻击者" };
     if (attacker.attacksLeft <= 0) return { ok: false, reason: "该随从本回合已经攻击过" };
-    if (attacker.frozenTurns > 0) return { ok: false, reason: "该随从被凝滞" };
+    if (attacker.frozenTurns > 0) return { ok: false, reason: "该随从被冻结" };
     const opts = getAttackOptions(state, playerIndex, attackerUid);
     const legalTarget = targetUid === "hero" ? opts.targets.indexOf("hero") >= 0 : opts.targets.indexOf(targetUid) >= 0;
     if (!opts.ok || !legalTarget) {
@@ -1513,7 +1564,6 @@
     if (!speaker || !last || state.status !== "playing") return;
     const def = card(last.cardId);
     if (!def || def.type !== "spell") return;
-    if (player.hand.length >= 8) { log(state, player.name + " 手牌已满，卡西安无法复诵。", player, "error"); return; }
     const temp = { uid: uid("c"), cardId: last.cardId, generated: true };
     player.hand.push(temp);
     log(state, speaker.name + " 复诵「" + def.name + "」。", player, "spell");
@@ -1529,7 +1579,7 @@
     if (state.pendingChoice) return { ok: false, reason: "请先完成当前选择" };
     const player = state.players[playerIndex];
     player.nextCostReduction = 0;
-    // 凝滞解冻：控制者的回合结束时递减
+    // 冻结解冻：控制者的回合结束时递减
     for (const m of allMinions(player)) {
       if (m.frozenTurns > 0) {
         m.frozenTurns -= 1;
@@ -1541,6 +1591,10 @@
     }
     processDeaths(state);
     repeatLastSpell(state, player);
+    if (state.pendingChoice) {
+      log(state, "复诵触发检索，先完成选择。", player, "discover");
+      return { ok: true, pending: true };
+    }
     if (player.veinDebt) {
       const debt = player.veinDebt;
       player.veinDebt = 0;
