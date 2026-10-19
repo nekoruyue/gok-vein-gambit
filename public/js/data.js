@@ -2653,6 +2653,14 @@
   Object.assign(CARDS.nina, { text: "登场：冻结目标所在阵位的所有敌方随从。 阵位：若同阵位有另一个友方随从，生命值 +1。" });
   Object.assign(CARDS.combo_spark, { text: "对目标所在阵位的所有敌方随从造成 3 点伤害。" });
 
+  // ===== 法术风暴最终调整 =====
+  Object.assign(CARDS.spellstorm, {
+    cost: 8,
+    target: "none",
+    spell: { type: "damageAllEnemyUnitsPerGameSpell", amount: 1 },
+    text: "对所有敌方单位造成等同于本局已使用法术数量的伤害。"
+  });
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 

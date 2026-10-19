@@ -1171,6 +1171,12 @@
     } else if (s.type === "doubleSpellDamage") {
       const amount = (player.spellsCastThisTurn || 0) > 1 ? (s.bonus || 4) : (s.amount || 2);
       if (target && !target.dead) damageMinion(state, target, amount, null, "连锁公式");
+    } else if (s.type === "damageAllEnemyUnitsPerGameSpell") {
+      const count = player.spellsCastThisGame || 0;
+      for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, count, null, "法术风暴");
+      damageHero(state, opponentOf(state, player), count, null, "法术风暴");
+      processDeaths(state);
+      log(state, "法术风暴：本局第 " + count + " 张法术，对敌方所有单位造成 " + count + " 点伤害。", player, "spell");
     } else if (s.type === "damageAllEnemiesPerGameSpell") {
       const count = player.spellsCastThisGame || 0;
       const dmg = count * (s.amount || 2);

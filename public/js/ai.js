@@ -167,6 +167,12 @@
         if (total < 3) s -= 12;
         break;
       }
+      case "damageAllEnemyUnitsPerGameSpell": {
+        const total = p.spellsCastThisGame || 0;
+        s += total * 1.2 + enemyMinions(state, p).length * 0.4;
+        if (total < 2) s -= 8;
+        break;
+      }
       case "damageZone": s += 3 + (target ? 2 : 0); break;
       case "freezeZone": s += 5 + (target ? 1 : 0); break;
       case "copyLowestSpell": {
