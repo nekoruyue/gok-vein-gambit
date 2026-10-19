@@ -2661,6 +2661,8 @@
     text: "对所有敌方单位造成等同于本局已使用法术数量的伤害。"
   });
 
+  Object.assign(CARDS.losutai_beast, { noGeneratedArt: true, text: "" });
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 

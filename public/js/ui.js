@@ -423,9 +423,7 @@
       aiDifficulty: config.aiDifficulty || app.aiDifficulty || "normal",
       mulligan: config.mulligan !== false && !app.tutorial,
       p1Deck: getPlayDeck(faction),
-      p1Relic: activeRelicFor(faction),
       p2Deck: getPlayDeck(other),
-      p2Relic: activeRelicFor(other),
       first: config.first,
       seed: config.seed == null ? ((Date.now() >>> 0) ^ Math.floor(Math.random() * 0x7fffffff)) : config.seed
     });
@@ -2928,7 +2926,11 @@
   function getPlayDeck(faction) {
     const custom = app.customDecks[faction];
     const list = (custom && D.validateDeck(faction, custom).ok ? custom : D.DECKS[faction]).slice();
-    return list.filter(id => !D.CARDS[id] || D.CARDS[id].type !== "relic");
+    const active = activeRelicFor(faction);
+    return list.filter(id => {
+      const def = D.CARDS[id];
+      return !def || def.type !== "relic" || id === active;
+    });
   }
 
   function updateSetupDeck() {
@@ -2938,7 +2940,7 @@
     $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+1" : "预设牌组 · 30+1";
     const activeRelic = activeRelicFor(app.faction);
     const relicName = activeRelic && D.CARDS[activeRelic] ? D.CARDS[activeRelic].name : "未选择";
-    $("setup-deck-detail").textContent = (valid ? "已保存在本机" : "官方预组") + " · 本局遗物：" + relicName;
+    $("setup-deck-detail").textContent = (valid ? "已保存在本机" : "官方预组") + " · 本局遗物：" + relicName + " · 需抽到后打出";
     $("btn-deck-preset").disabled = !valid;
   }
 
@@ -4141,12 +4143,12 @@
       mode: "lan",
       mulligan: true,
       p1Deck: getPlayDeck(faction),
-      p1Relic: activeRelicFor(faction),
       p2Deck: (() => {
+        const active = app.lanGuestRelic || activeRelicFor(other);
         const gd = app.lanGuestDecks && app.lanGuestDecks[other];
-        return gd && D.validateDeck(other, gd).ok ? gd.filter(id => !D.CARDS[id] || D.CARDS[id].type !== "relic") : null;
+        const source = gd && D.validateDeck(other, gd).ok ? gd : D.DECKS[other];
+        return source.filter(id => { const def = D.CARDS[id]; return !def || def.type !== "relic" || id === active; });
       })(),
-      p2Relic: app.lanGuestRelic || activeRelicFor(other),
       seed: seed
     });
     state.ranked = !!app.lanRanked;

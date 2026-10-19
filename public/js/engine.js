@@ -105,7 +105,8 @@
   function buildDeck(state, factionId, customList) {
     let ids = D.DECKS[factionId];
     const mainOnly = Array.isArray(customList) && customList.length === 30 && customList.every(id => D.CARDS[id] && D.CARDS[id].type !== "relic");
-    if (mainOnly) {
+    const withRelic = Array.isArray(customList) && customList.length === 31 && customList.filter(id => D.CARDS[id] && D.CARDS[id].type === "relic").length === 1;
+    if (mainOnly || withRelic) {
       ids = customList.slice();
     } else if (Array.isArray(customList) && D.validateDeck && D.validateDeck(factionId, customList).ok) {
       ids = customList.slice();
@@ -1730,12 +1731,14 @@
 
     state.players[0].name = config.p1Name || (config.p1AI ? D.FACTIONS[faction1].name + "推演体" : "玩家 1");
     state.players[1].name = config.p2Name || (config.p2AI ? D.FACTIONS[faction2].name + "推演体" : "玩家 2");
-    const mainDeck = (f) => (D.DECKS[f] || []).filter(id => D.CARDS[id] && D.CARDS[id].type !== "relic");
-    state.players[0].deck = buildDeck(state, faction1, config.p1Deck || mainDeck(faction1));
-    state.players[1].deck = buildDeck(state, faction2, config.p2Deck || mainDeck(faction2));
     const firstRelic = (f) => (D.DECKS[f] || []).find(id => D.CARDS[id] && D.CARDS[id].type === "relic");
-    state.players[0].relic = config.p1Relic || firstRelic(faction1) || null;
-    state.players[1].relic = config.p2Relic || firstRelic(faction2) || null;
+    const deckWithRelic = (f) => {
+      const list = (D.DECKS[f] || []).filter(id => D.CARDS[id] && D.CARDS[id].type !== "relic");
+      const relic = firstRelic(f);
+      return relic ? list.concat([relic]) : list;
+    };
+    state.players[0].deck = buildDeck(state, faction1, config.p1Deck || deckWithRelic(faction1));
+    state.players[1].deck = buildDeck(state, faction2, config.p2Deck || deckWithRelic(faction2));
     for (const p of state.players) {
       if (p.relic === "wanderer_charm") { p.maxHp += 2; p.hp += 2; }
     }

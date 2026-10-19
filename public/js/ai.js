@@ -190,6 +190,7 @@
       case "drawCopyNextSpell": s += 4; break;
     }
     if (def.type === "minion") s += def.attack * 0.7 + def.health * 0.5;
+    if (def.type === "relic") s += 10;
     if (def.excavate) s -= 1.5;
     if (def.bloodCost) s += 1;
     if (target && target.health <= 0) s -= 100;
