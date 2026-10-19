@@ -271,11 +271,20 @@
     log(state, player.name + " 的洞察复制了「" + def.name + "」。", player, "copy");
   }
 
-  function addRandomSpell(state, player, label) {
-    const pool = Object.keys(D.CARDS).filter(id => {
+  function discoverPool(player, pool) {
+    return Object.keys(D.CARDS).filter(id => {
       const d = card(id);
-      return d && !d.token && !d.disabled && d.type === "spell";
+      if (!d || d.token || d.disabled) return false;
+      if (d.faction !== "neutral" && d.faction !== player.faction) return false;
+      if (pool === "any") return true;
+      if (pool === "spell") return d.type === "spell";
+      if (pool === "minion") return d.type === "minion";
+      return d.faction === pool;
     });
+  }
+
+  function addRandomSpell(state, player, label) {
+    const pool = discoverPool(player, "spell");
     if (!pool.length) return null;
     const id = pool[randomInt(state, pool.length)];
     const added = addCardToHand(state, player, id, {});
@@ -379,6 +388,7 @@
       if (absorbed > 0) log(state, player.name + " 的护甲吸收了 " + absorbed + " 点伤害。", player, "armor");
     }
     player.hp -= left;
+    if (source && source.lifesteal && amount > 0) healHero(state, state.players[source.owner], amount);
     if (source && source.passive && source.passive.type === "damageToArmor" && !source.silenced && amount > 0) {
       const armorOwner = source.owner != null ? state.players[source.owner] : null;
       if (armorOwner) { armorOwner.armor += amount; log(state, source.name + " 造成伤害，获得 " + amount + " 点护甲。", armorOwner, "armor"); }
@@ -504,7 +514,7 @@
     } else if (d.type === "draw") {
       drawCard(state, player, d.amount || 1);
     } else if (d.type === "freezeAllEnemies") {
-      for (const enemy of aliveMinions(opponentOf(state, player)).filter(x => !x.stealth)) freezeMinion(state, enemy);
+      for (const enemy of aliveMinions(opponentOf(state, player))) freezeMinion(state, enemy);
       log(state, "余响：" + m.name + " 凝滞了所有敌方随从。", player, "freeze");
     } else if (d.type === "tauntRandomAlly") {
       const allies = aliveMinions(player);
@@ -690,7 +700,7 @@
         theoristDone = true;
       }
       if (player.relic === "frost_prism") {
-        const enemies = aliveMinions(opponentOf(state, player)).filter(m => !m.stealth);
+        const enemies = aliveMinions(opponentOf(state, player));
         if (enemies.length) freezeMinion(state, enemies[randomInt(state, enemies.length)]);
       }
       if (!freeCast) player.lastSpell = { cardId: def.id, targetUid: opts && opts.targetUid, zone: opts && opts.zone };
@@ -811,21 +821,21 @@
       if (state.vein >= b.vein) drawCard(state, player, b.bonus || 1);
     } else if (b.type === "freeze") {
       if (b.destroyFrozenAtVein != null && state.vein >= b.destroyFrozenAtVein) {
-        const enemies = aliveMinions(opponentOf(state, player)).filter(m => !m.stealth);
+        const enemies = aliveMinions(opponentOf(state, player));
         for (const m of enemies) m.dead = true;
         if (enemies.length) {
           log(state, "引脉 10 触发：深雪消灭所有敌方随从。", player, "vein");
           processDeaths(state);
         }
       } else if (b.allAtVein != null && state.vein >= b.allAtVein) {
-        for (const m of aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)) freezeMinion(state, m);
+        for (const m of aliveMinions(opponentOf(state, player))) freezeMinion(state, m);
         log(state, "引脉 6 触发：深雪凝滞所有敌方随从。", player, "freeze");
       } else if (target && !target.dead) {
         freezeMinion(state, target);
       }
     } else if (b.type === "freezeZoneFormation") {
       if (target) {
-        for (const m of aliveMinions(opponentOf(state, player)).filter(m => m.zone === target.zone && !m.stealth)) freezeMinion(state, m);
+        for (const m of aliveMinions(opponentOf(state, player)).filter(m => m.zone === target.zone)) freezeMinion(state, m);
         log(state, "深雪凝滞了" + ZONE_NAMES[target.zone] + "的所有敌方随从。", player, "freeze");
         if ((player.formations || []).some(f => f.zone === target.zone)) {
           drawCard(state, player, b.draw || 1);
@@ -835,7 +845,7 @@
     } else if (b.type === "freezeZone") {
       if (target && !target.dead) {
         const z = target.zone;
-        for (const m of aliveMinions(opponentOf(state, player)).filter(x => x.zone === z && !x.stealth)) freezeMinion(state, m);
+        for (const m of aliveMinions(opponentOf(state, player)).filter(x => x.zone === z)) freezeMinion(state, m);
         log(state, "索雷尔冻结了" + ZONE_NAMES[z] + "的所有敌方单位。", player, "freeze");
       }
     } else if (b.type === "recordIfEnemyZones") {
@@ -859,12 +869,12 @@
       }
     } else if (b.type === "freezeCombo") {
       if (state.vein >= (b.destroyAtVein || 10)) {
-        const frozen = aliveMinions(opponentOf(state, player)).filter(m => m.frozenTurns > 0 && !m.stealth);
+        const frozen = aliveMinions(opponentOf(state, player)).filter(m => m.frozenTurns > 0);
         for (const m of frozen) m.dead = true;
         log(state, "引脉 10 触发：教授消灭所有已被凝滞的敌方随从。", player, "freeze");
         processDeaths(state);
       } else if (state.vein >= (b.allAtVein || 6)) {
-        for (const m of aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)) freezeMinion(state, m);
+        for (const m of aliveMinions(opponentOf(state, player))) freezeMinion(state, m);
         log(state, "引脉 6 触发：教授凝滞所有敌方随从。", player, "freeze");
       } else if (target && !target.dead) {
         freezeMinion(state, target);
@@ -873,7 +883,7 @@
       const hits = Math.max(0, player.armor);
       let done = 0;
       for (let i = 0; i < hits; i++) {
-        const enemies = aliveMinions(opponentOf(state, player)).filter(m => !m.stealth);
+        const enemies = aliveMinions(opponentOf(state, player));
         if (!enemies.length) break;
         damageMinion(state, enemies[randomInt(state, enemies.length)], b.amount || 1, null, "瓦尔特");
         done++;
@@ -1002,7 +1012,7 @@
       if (b.vein == null || state.vein >= b.vein) drawCard(state, player, b.draw || 1);
       log(state, "登场：" + minion.name + " 对敌方随从造成 " + (b.amount || 4) + " 点伤害。", player, "battlecry");
     } else if (b.type === "freezeAllEnemies") {
-      for (const m of aliveMinions(opponentOf(state, player)).filter(x => !x.stealth)) freezeMinion(state, m);
+      for (const m of aliveMinions(opponentOf(state, player))) freezeMinion(state, m);
       log(state, "登场：霜潮利维坦凝滞了所有敌方随从。", player, "freeze");
     } else if (b.type === "copyFriendly") {
       if (target && !target.dead) {
@@ -1163,11 +1173,11 @@
     } else if (s.type === "damageAllEnemiesPerGameSpell") {
       const count = player.spellsCastThisGame || 0;
       const dmg = count * (s.amount || 2);
-      for (const m of aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)) damageMinion(state, m, dmg, null, "法术风暴");
+      for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, dmg, null, "法术风暴");
       log(state, "法术风暴：本局第 " + count + " 张法术，对敌方所有随从造成 " + dmg + " 点伤害。", player, "spell");
       processDeaths(state);
     } else if (s.type === "damageAllEnemies") {
-      for (const m of aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)) damageMinion(state, m, s.amount || 2, null, "阵位齐射");
+      for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, s.amount || 2, null, "阵位齐射");
       processDeaths(state);
     } else if (s.type === "armorPerEnemy") {
       const count = aliveMinions(opponentOf(state, player)).length;
@@ -1299,14 +1309,7 @@
   }
 
   function openDiscover(state, player, pool, sourceCardId) {
-    const all = Object.keys(D.CARDS).filter(id => {
-      const d = card(id);
-      if (d.token || d.disabled) return false;
-      if (pool === "any") return true;
-      if (pool === "spell") return d.type === "spell";
-      if (pool === "minion") return d.type === "minion";
-      return d.faction === pool;
-    });
+    const all = discoverPool(player, pool);
     const shuffled = shuffle(state, all);
     const options = shuffled.slice(0, 3);
     const choice = { type: "discover", player: player.index, options: options, source: sourceCardId };
@@ -1596,7 +1599,7 @@
     const targets = targetType === "enemy"
       ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : (targetType === "friendly" ? aliveMinions(player) : []);
-    const targetIds = handTarget ? player.hand.map(c => c.uid) : targets.map(m => m.uid);
+    let targetIds = handTarget ? player.hand.map(c => c.uid) : targets.map(m => m.uid);
     if (player.heroId === "otto") targetIds.unshift("hero");
     if (leaderOnly) targetIds = ["hero"];
     return {

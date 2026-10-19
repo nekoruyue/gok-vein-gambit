@@ -2640,6 +2640,9 @@
   Object.assign(HEROES.marta.power, { text: "对敌方领袖造成 2 点伤害。" });
   Object.assign(HEROES.otto.power, { text: "对一个敌方随从或敌方领袖造成 1 点伤害。" });
 
+  // ===== 审计修复：保卫部卫兵的引脉 4 护甲 =====
+  Object.assign(CARDS.guard, { veinBonus: { vein: 4, armor: 1 } });
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 
