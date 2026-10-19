@@ -6,7 +6,7 @@
   const D = global.GokData;
   const E = global.GokEngine;
   const AI = global.GokAI;
-  const ART_VERSION = "20261020dq";
+  const ART_VERSION = "20261020ds";
 
   // 经典模式：每个阵营首次开局播放一段对应 CG（可跳过）
   const CLASSIC_CG = {
@@ -154,6 +154,7 @@
     deckPoolScope: "faction",
     deckDrafts: {},
     lanHostPage: false,
+    hostKeepAliveTimer: null,
     logGameSeed: null,
     logCursor: null,
     eventSeed: null,
@@ -5248,6 +5249,15 @@
     urls.forEach((u) => { const img = new Image(); img.src = u; });
   }
 
+  function startHostKeepAlive() {
+    if (!isHostPage() || app.hostKeepAliveTimer) return;
+    const ping = () => {
+      fetch("/api/hello?player=0", { method: "POST" }).catch(() => {});
+    };
+    ping();
+    app.hostKeepAliveTimer = setInterval(ping, 20000);
+  }
+
   function autoReconnectOnLoad() {
     if (!lanServerAvailable()) return;
     if (isHostPage()) {
@@ -5633,6 +5643,7 @@
     }
     AudioBox.updateButton();
     autoReconnectOnLoad();
+    startHostKeepAlive();
     initOnlineFromQuery();
     // 便于自动截图/调试
     app.startGame = startGame;

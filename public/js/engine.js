@@ -464,7 +464,7 @@
     for (const { m, p } of all) {
       const def = card(m.cardId);
       if (!def) continue;
-      const zoneAllies = aliveMinions(p).filter(x => x.zone === m.zone);
+      const zoneAllies = aliveMinions(p).filter(x => x.uid !== m.uid && x.zone === m.zone);
       if (def.zoneBonus && !m.silenced && (def.zoneBonus.attack || def.zoneBonus.health)) {
         add(m, (def.zoneBonus.attack || 0) * zoneAllies.length, (def.zoneBonus.health || 0) * zoneAllies.length);
       }
