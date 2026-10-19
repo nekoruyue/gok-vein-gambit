@@ -3015,7 +3015,7 @@
     if (leaderSkill) {
       clear(leaderSkill);
       const main = el("div", "deck-skill-main");
-      main.appendChild(el("span", "deck-hero-stats", "领袖 " + heroDef.name + " · 生命 " + heroDef.hp + "（无上限）"));
+      main.appendChild(el("span", "deck-hero-stats", "领袖 " + heroDef.name + " · 生命 " + heroDef.hp + "（上限可成长）"));
       main.appendChild(el("strong", null, "领袖技能 · " + heroDef.power.name + " · " + heroDef.power.cost + " 行动槽"));
       main.appendChild(el("span", null, heroDef.power.text));
       if (heroDef.passive) main.appendChild(el("span", "deck-skill-passive", "被动 · " + heroDef.passive.name + "：" + heroDef.passive.text));
@@ -3612,7 +3612,7 @@
     openModal((content) => {
       content.appendChild(el("div", "eyebrow", "ARCHIVE / GAME GUIDE"));
       content.appendChild(el("h3", null, "游戏教程"));
-      content.appendChild(el("p", null, "经典模式：不同领袖拥有不同起始生命，血量无上限；法力成长、随从互殴、领袖技能不变。"));
+      content.appendChild(el("p", null, "经典模式：不同领袖拥有不同起始生命，生命上限可被加成提高；法力成长、随从互殴、领袖技能不变。"));
       const intro = el("div", "guide-sections");
       const sections = [
         ["胜利条件", "先把对方领袖生命降到 0。随从可以攻击敌方随从或领袖；拦截随从必须先被处理。"],

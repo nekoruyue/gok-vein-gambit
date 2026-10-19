@@ -2618,6 +2618,28 @@
   // ===== 领袖不再拥有开场护甲；血量无上限 =====
   for (const h of Object.values(HEROES)) h.armor = 0;
 
+  // ===== 平衡版数值（v0.2） =====
+  Object.assign(HEROES.lain, { hp: 28, armor: 0 });
+  Object.assign(HEROES.marta, { hp: 32, armor: 0 });
+  Object.assign(HEROES.karna, { hp: 36, armor: 0 });
+  Object.assign(HEROES.wolfram, { hp: 33, armor: 0 });
+  Object.assign(HEROES.otto, { hp: 31, armor: 0 });
+  Object.assign(HEROES.lain.passive, { text: "流脉阈值触发时，恢复所有友方单位 1 点生命。" });
+  Object.assign(HEROES.marta.power, { text: "对一个敌方随从或敌方领袖造成 2 点伤害。" });
+  Object.assign(HEROES.otto.power, { text: "对一个敌方随从或敌方领袖造成 2 点伤害。" });
+  Object.assign(HEROES.karna.passive, { name: "血债共鸣", text: "友方随从受到来自友方的伤害且未死亡时，获得 +1 攻击或 +1 生命。" });
+  Object.assign(CARDS.shextena, { health: 6 });
+
+
+  // ===== v0.3 微调：学院前期 + 帝国小幅降温 =====
+  Object.assign(HEROES.otto, { hp: 30 });
+  Object.assign(CARDS.formula_apprentice, { health: 3 });
+  Object.assign(CARDS.spell_novice, { health: 3 });
+
+  // ===== 英雄主动技能恢复最初版本 =====
+  Object.assign(HEROES.marta.power, { text: "对敌方领袖造成 2 点伤害。" });
+  Object.assign(HEROES.otto.power, { text: "对一个敌方随从或敌方领袖造成 1 点伤害。" });
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 

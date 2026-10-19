@@ -394,7 +394,7 @@
   function healHero(state, player, amount) {
     if (player.healBlockTurn) amount = 0;
     const before = player.hp;
-    player.hp += amount;
+    player.hp = Math.min(player.maxHp, player.hp + amount);
     if (player.hp > before) { state.events.push({ structured: true, kind: "heal", targetUid: "hero:" + player.index, amount: player.hp - before, player: player.index }); log(state, player.name + " 恢复 " + (player.hp - before) + " 点生命。", player, "heal"); }
   }
 
@@ -1406,7 +1406,7 @@
     if (player.heroPowerUsed) return { ok: false, reason: "领袖技能本回合已用过" };
     if (player.mana < 2) return { ok: false, reason: "行动槽不足" };
     const handTarget = player.heroId === "wolfram";
-    const leaderOnly = false;
+    const leaderOnly = player.heroId === "marta";
     let targets = [];
     let targetIds = [];
     if (handTarget) {
@@ -1419,9 +1419,11 @@
         ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
         : aliveMinions(player);
       targetIds = targets.map(m => m.uid);
-      if (player.heroId === "otto" || player.heroId === "marta") targetIds.unshift("hero");
+      if (player.heroId === "otto") targetIds.unshift("hero");
+      if (leaderOnly) targetIds = ["hero"];
       if (!targetIds.length) return { ok: false, reason: heroTargetType === "enemy" ? "没有敌方目标" : "没有友方随从可作为目标" };
     }
+    if (leaderOnly && targetUid !== "hero") return { ok: false, reason: "玛尔塔的技能只能指向敌方领袖" };
     let target = null;
     if (handTarget) target = player.hand.find(c => c.uid === targetUid);
     else if (targetUid === "hero" && (player.heroId === "otto" || player.heroId === "marta")) target = "hero";
@@ -1442,12 +1444,11 @@
       processDeaths(state);
       if (target.dead) drawCard(state, player, 1);
     } else if (player.heroId === "marta") {
-      if (target === "hero") damageHero(state, opponentOf(state, player), 2, null, "演算");
-      else damageMinion(state, target, 2, null, "演算");
+      damageHero(state, opponentOf(state, player), 2, null, "演算");
       processDeaths(state);
     } else if (player.heroId === "otto") {
-      if (target === "hero") damageHero(state, opponentOf(state, player), 2, null, "炮击");
-      else damageMinion(state, target, 2, null, "炮击");
+      if (target === "hero") damageHero(state, opponentOf(state, player), 1, null, "炮击");
+      else damageMinion(state, target, 1, null, "炮击");
       processDeaths(state);
     }
     checkGameOver(state);
@@ -1590,12 +1591,14 @@
     const player = state.players[playerIndex];
     if (!player) return { ok: false, targets: [] };
     const handTarget = player.heroId === "wolfram";
+    const leaderOnly = player.heroId === "marta";
     const targetType = handTarget ? "hand" : ((player.heroId === "otto" || player.heroId === "marta") ? "enemy" : "friendly");
     const targets = targetType === "enemy"
       ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : (targetType === "friendly" ? aliveMinions(player) : []);
     const targetIds = handTarget ? player.hand.map(c => c.uid) : targets.map(m => m.uid);
-    if (player.heroId === "otto" || player.heroId === "marta") targetIds.unshift("hero");
+    if (player.heroId === "otto") targetIds.unshift("hero");
+    if (leaderOnly) targetIds = ["hero"];
     return {
       ok: !player.heroPowerUsed && player.mana >= 2 && targetIds.length > 0,
       targets: targetIds,
@@ -1668,6 +1671,9 @@
     const firstRelic = (f) => (D.DECKS[f] || []).find(id => D.CARDS[id] && D.CARDS[id].type === "relic");
     state.players[0].relic = config.p1Relic || firstRelic(faction1) || null;
     state.players[1].relic = config.p2Relic || firstRelic(faction2) || null;
+    for (const p of state.players) {
+      if (p.relic === "wanderer_charm") { p.maxHp += 2; p.hp += 2; }
+    }
     // 随机先手：先手 3 张，后手 4 张 + 采掘许可
     const first = config.first == null ? (nextRandom(state) < 0.5 ? 0 : 1) : config.first;
     const second = 1 - first;
