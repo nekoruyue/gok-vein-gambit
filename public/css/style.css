@@ -2673,3 +2673,15 @@ body.large-text .card-type { letter-spacing: 0; }
 .log-card-btn { margin-left:6px; padding:1px 5px; border:1px solid rgba(217,164,65,.35); background:transparent; color:var(--gold-soft); font:inherit; font-size:8px; cursor:pointer; vertical-align:middle; }
 .log-card-btn:hover { border-color:var(--gold); }
 .card-play-banner .play-effect { margin-top:5px; color:#b9c5cc; font-family:var(--sans); font-size:10px; line-height:1.5; max-width:270px; }
+
+.deck-hero-stats { color:#b8c6cd; font-size:10px; letter-spacing:.02em; }
+
+.hand-card.targetable { outline:2px solid var(--gold-soft); outline-offset:2px; box-shadow:0 0 24px rgba(242,198,109,.28); }
+.hand-card.targetable:hover { transform:translateY(-10px); }
+
+.codex-card.rarity-rare, .deck-mini.rarity-rare { border-color: rgba(90,170,220,.35); }
+.codex-card.rarity-epic, .deck-mini.rarity-epic { border-color: rgba(165,120,235,.5); }
+.codex-card.rarity-legendary, .deck-mini.rarity-legendary { border-color: rgba(217,164,65,.55); }
+
+.deck-relic-pick { display:flex; align-items:center; gap:8px; margin:8px 0 0; padding:7px 12px; border:1px solid var(--line-soft); background:rgba(255,255,255,.02); }
+.deck-relic-pick span { color:var(--gold-soft); font-size:10px; letter-spacing:.06em; }

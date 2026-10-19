@@ -30,7 +30,7 @@ const MAX_MESSAGES = 600;
 const rooms = new Map();
 
 function newRoom() {
-  return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, guestDecks: null, guestFaction: null, guestReady: false, ranked: false, createdAt: Date.now() };
+  return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, guestDecks: null, guestFaction: null, guestRelic: null, guestReady: false, ranked: false, createdAt: Date.now() };
 }
 
 function getRoom(id, create) {
@@ -167,6 +167,7 @@ const server = http.createServer(async (req, res) => {
         guestDecksReady: !!room.guestDecks,
         guestDecks: room.guestDecks,
         guestFaction: room.guestFaction,
+        guestRelic: room.guestRelic,
         guestReady: room.guestReady,
         ranked: !!room.ranked,
         seq: room.seq
@@ -204,6 +205,7 @@ const server = http.createServer(async (req, res) => {
       try { payload = JSON.parse(raw); } catch (e) { payload = {}; }
       room.guestDecks = payload && payload.decks && typeof payload.decks === "object" ? payload.decks : {};
       room.guestFaction = payload && typeof payload.faction === "string" && /^[a-z_]+$/.test(payload.faction) ? payload.faction : null;
+      room.guestRelic = payload && typeof payload.relic === "string" && /^[a-z_]+$/.test(payload.relic) ? payload.relic : null;
       room.guestReady = true;
       room.messages.length = 0;
       room.seq = 0;
@@ -238,6 +240,7 @@ const server = http.createServer(async (req, res) => {
       room.messages.length = 0;
       room.guestDecks = null;
       room.guestFaction = null;
+      room.guestRelic = null;
       room.guestReady = false;
       room.seq = 0;
       json(res, 200, { ok: true });

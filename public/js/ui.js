@@ -56,7 +56,7 @@
     const img = el("img", "generated-art-img");
     img.alt = "";
     img.loading = "eager";
-    img.src = "assets/generated/" + encodeURIComponent(def.id) + ".webp";
+    img.src = "assets/generated/" + encodeURIComponent(def.id) + (def.noGeneratedArt ? ".svg" : ".webp");
     img.onload = () => { if (img.naturalWidth > 2 && img.naturalHeight > 2) art.classList.add("has-custom-art"); };
     img.onerror = () => {
       if (!img.dataset.retried) {
@@ -98,6 +98,7 @@
     animating: false,
     net: null,
     customDecks: {},
+    activeRelics: {},
     tutorial: false,
     tutorialStep: 1,
     codexFaction: "all",
@@ -331,7 +332,7 @@
     const opponents = D.FACTION_IDS.filter((id) => id !== app.faction);
     if (!app.aiOpponent || opponents.indexOf(app.aiOpponent) < 0) app.aiOpponent = opponents[Math.floor(Math.random() * opponents.length)];
     const other = app.aiOpponent;
-    $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30张带牌+1遗物 · 先手随机";
+    $("setup-summary").textContent = "单人 vs AI · " + factionName(app.faction) + " vs " + factionName(other) + " · 30张带牌+2遗物 · 先手随机";
     const hero = D.HEROES[D.FACTIONS[app.faction].hero];
     const art = $("setup-hero-art");
     art.style.backgroundImage = "url('" + heroImage(hero.id) + "')";
@@ -422,6 +423,9 @@
       aiDifficulty: config.aiDifficulty || app.aiDifficulty || "normal",
       mulligan: config.mulligan !== false && !app.tutorial,
       p1Deck: getPlayDeck(faction),
+      p1Relic: activeRelicFor(faction),
+      p2Deck: getPlayDeck(other),
+      p2Relic: activeRelicFor(other),
       first: config.first,
       seed: config.seed == null ? ((Date.now() >>> 0) ^ Math.floor(Math.random() * 0x7fffffff)) : config.seed
     });
@@ -1331,6 +1335,8 @@
     if (last < text.length) node.appendChild(document.createTextNode(text.slice(last)));
   }
 
+  const RARITY_NAMES = { common: "普通", rare: "稀有", epic: "史诗", legendary: "传说" };
+
   const KEYWORD_HELP = {
     "登场": "从手牌打出时触发一次效果。",
     "余响": "该随从死亡时触发一次效果。",
@@ -1602,6 +1608,8 @@
     card.dataset.cardId = def.id;
     card.dataset.type = def.type;
     if (app.selectedCard === instance.uid) card.classList.add("selected");
+    const powerTarget = !!(app.targetInfo && app.targetInfo.kind === "heroPower" && targetList().indexOf(instance.uid) >= 0);
+    if (powerTarget) card.classList.add("targetable");
     const playable = s.status === "playing" && !s.mulliganPhase && s.current === player.index && player.mana >= cost && !app.busy;
     if (!playable) card.classList.add("disabled");
     const art = el("div", "card-art");
@@ -1667,6 +1675,7 @@
     card.onclick = (ev) => {
       ev.stopPropagation();
       if (app.suppressClick && Date.now() - app.suppressClick < 300) return;
+      if (powerTarget) { onTargetClick(instance.uid); return; }
       if ((app.targetInfo && app.targetInfo.kind === "card" && app.targetInfo.cardUid === instance.uid) || (app.zoneSelect && app.zoneSelect.cardUid === instance.uid)) {
         cancelSelection();
         return;
@@ -1735,7 +1744,7 @@
     const icon = viewer.heroId === "lain" ? "协" : viewer.heroId === "karna" ? "血" : viewer.heroId === "marta" ? "演" : viewer.heroId === "wolfram" ? "律" : "炮";
     const current = s.current === app.viewer;
     const disabled = !current || s.status !== "playing" || s.mulliganPhase || !o.ok || app.busy || app.modalOpen;
-    const actionText = !current ? "等待你的回合" : o.used ? "本回合已用" : (o.targetType === "enemy" ? "点击选择敌方目标" : "点击选择友方目标");
+    const actionText = !current ? "等待你的回合" : o.used ? "本回合已用" : (o.targetType === "hand" ? "点击选择一张手牌" : o.targetType === "enemy" ? "点击选择敌方目标" : "点击选择友方目标");
     const stateText = o.used ? "已用" : !current ? "对方回合" : !o.ok ? "不可用" : "可用";
     power.innerHTML = "<span class=\"hp-btn-icon\">" + icon + "<img class=\"hp-skill-icon\" src=\"/assets/icons/hero_power.svg\" alt=\"\"></span><span class=\"hp-btn-copy\"><strong>领袖技能 · " + viewer.hero.power.name + "</strong><small>" + (viewer.hero.power.cost || 2) + " 行动槽 · " + actionText + "</small></span><span class=\"hp-btn-state\">" + stateText + "</span>";
     const iconEl = power.querySelector(".hp-btn-icon");
@@ -2671,7 +2680,7 @@
     box.hidden = false;
     clear(box);
     const title = el("h4", null, def.name);
-    const meta = el("div", "preview-meta", typeLine(def) + " · " + def.cost + " 费" + (def.type === "minion" ? " · " + (minion ? minion.attack + "/" + minion.health : def.attack + "/" + def.health) : "") + " · " + factionName(def.faction));
+    const meta = el("div", "preview-meta", typeLine(def) + " · " + (RARITY_NAMES[def.rarity] || "普通") + " · " + def.cost + " 费" + (def.type === "minion" ? " · " + (minion ? minion.attack + "/" + minion.health : def.attack + "/" + def.health) : "") + " · " + factionName(def.faction));
     box.appendChild(title);
     box.appendChild(meta);
     addKeywordChips(box, def, minion);
@@ -2847,16 +2856,25 @@
 
   /* ===== 档案编成 ===== */
   const DECK_STORAGE_KEY = "gok_custom_decks_v1";
+  const RELIC_STORAGE_KEY = "gok_active_relics_v1";
 
   function normalizeSavedDeck(faction, list) {
     if (!Array.isArray(list)) return null;
     if (D.validateDeck(faction, list).ok) return list.slice();
-    // 旧版 30 主牌 + 2 阵型 + 1 遗物（33 张）迁移到 30 带牌 + 1 遗物。
-    if (list.length === 33) {
-      const relics = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "relic");
-      const formations = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "formation");
-      const main = list.filter((id) => D.CARDS[id] && D.CARDS[id].type !== "relic" && D.CARDS[id].type !== "formation");
-      const migrated = main.slice(0, 28).concat(formations.slice(0, 2), relics.slice(0, 1));
+    const special = D.DECK_SPECIALS[faction] || {};
+    const relics = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "relic");
+    const formations = list.filter((id) => D.CARDS[id] && D.CARDS[id].type === "formation");
+    const main = list.filter((id) => D.CARDS[id] && D.CARDS[id].type !== "relic" && D.CARDS[id].type !== "formation");
+    const extraRelic = [special.relic, special.relic2].find((id) => id && relics.indexOf(id) < 0);
+    const base = (list.length === 31 || list.length === 33)
+      ? main.slice(0, 28).concat(formations.slice(0, 2), relics.slice(0, 1))
+      : null;
+    if (base && extraRelic) {
+      const migrated = base.concat([extraRelic]);
+      if (D.validateDeck(faction, migrated).ok) return migrated;
+    }
+    if (list.length === 31 && extraRelic) {
+      const migrated = main.slice(0, 30).concat(relics.slice(0, 1), [extraRelic]);
       if (D.validateDeck(faction, migrated).ok) return migrated;
     }
     return null;
@@ -2882,18 +2900,39 @@
     try { localStorage.setItem(DECK_STORAGE_KEY, JSON.stringify(app.customDecks)); } catch (e) {}
   }
 
+  function loadActiveRelics() {
+    try {
+      const raw = localStorage.getItem(RELIC_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      for (const f of D.FACTION_IDS) if (parsed && parsed[f]) app.activeRelics[f] = parsed[f];
+    } catch (e) { app.activeRelics = {}; }
+  }
+  function persistActiveRelics() {
+    try { localStorage.setItem(RELIC_STORAGE_KEY, JSON.stringify(app.activeRelics)); } catch (e) {}
+  }
+  function deckRelicIds(faction) {
+    const list = (app.customDecks[faction] && D.validateDeck(faction, app.customDecks[faction]).ok ? app.customDecks[faction] : D.DECKS[faction]) || [];
+    return list.filter(id => D.CARDS[id] && D.CARDS[id].type === "relic");
+  }
+  function activeRelicFor(faction) {
+    const relics = deckRelicIds(faction);
+    if (app.activeRelics[faction] && relics.indexOf(app.activeRelics[faction]) >= 0) return app.activeRelics[faction];
+    return relics[0] || null;
+  }
   function getPlayDeck(faction) {
     const custom = app.customDecks[faction];
-    if (custom && D.validateDeck(faction, custom).ok) return custom.slice();
-    return D.DECKS[faction].slice();
+    const list = (custom && D.validateDeck(faction, custom).ok ? custom : D.DECKS[faction]).slice();
+    return list.filter(id => !D.CARDS[id] || D.CARDS[id].type !== "relic");
   }
 
   function updateSetupDeck() {
     const custom = app.customDecks[app.faction];
     const valid = !!(custom && D.validateDeck(app.faction, custom).ok);
     if (!$("setup-deck-name")) return;
-    $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+1" : "预设牌组 · 30+1";
-    $("setup-deck-detail").textContent = valid ? "已保存在本机 · 可继续编成" : "官方预组 · 可编成或自动构筑";
+    $("setup-deck-name").textContent = valid ? "自定义牌组 · 30+2" : "预设牌组 · 30+2";
+    const activeRelic = activeRelicFor(app.faction);
+    const relicName = activeRelic && D.CARDS[activeRelic] ? D.CARDS[activeRelic].name : "未选择";
+    $("setup-deck-detail").textContent = (valid ? "已保存在本机" : "官方预组") + " · 本局遗物：" + relicName;
     $("btn-deck-preset").disabled = !valid;
   }
 
@@ -2953,15 +2992,30 @@
     const relicCount = list.filter(id => D.CARDS[id].type === "relic").length;
     const headerCount = $("deck-head-count");
     const fieldCount = mainCount + formationCount;
-    if (headerCount) headerCount.textContent = list.length + " / 31";
-    $("deck-count").textContent = "带牌 " + fieldCount + "/30 · 阵型 " + formationCount + "/2（可选）· 遗 " + relicCount + "/1";
+    if (headerCount) headerCount.textContent = list.length + " / 32";
+    $("deck-count").textContent = "带牌 " + fieldCount + "/30 · 阵型 " + formationCount + "/2（可选）· 遗物 " + relicCount + "/2";
     const heroDef = D.HEROES[D.FACTIONS[f].hero];
     const leaderName = $("deck-leader-name");
     if (leaderName) leaderName.textContent = heroDef.name;
+    const relicSelect = $("deck-relic-select");
+    if (relicSelect) {
+      const relicIds = list.filter(id => D.CARDS[id] && D.CARDS[id].type === "relic");
+      if (app.activeRelics[f] && relicIds.indexOf(app.activeRelics[f]) < 0) app.activeRelics[f] = relicIds[0] || null;
+      if (!app.activeRelics[f] && relicIds.length) app.activeRelics[f] = relicIds[0];
+      clear(relicSelect);
+      if (!relicIds.length) relicSelect.appendChild(el("option", null, "未装备遗物"));
+      for (const rid of relicIds) relicSelect.appendChild(el("option", null, D.CARDS[rid].name));
+      relicSelect.value = app.activeRelics[f] ? D.CARDS[app.activeRelics[f]].name : "未装备遗物";
+      relicSelect.onchange = () => {
+        const chosen = relicIds.find(id => D.CARDS[id] && D.CARDS[id].name === relicSelect.value);
+        if (chosen) { app.activeRelics[f] = chosen; persistActiveRelics(); }
+      };
+    }
     const leaderSkill = $("deck-leader-skill");
     if (leaderSkill) {
       clear(leaderSkill);
       const main = el("div", "deck-skill-main");
+      main.appendChild(el("span", "deck-hero-stats", "领袖 " + heroDef.name + " · 生命 " + heroDef.hp + "（无上限）"));
       main.appendChild(el("strong", null, "领袖技能 · " + heroDef.power.name + " · " + heroDef.power.cost + " 行动槽"));
       main.appendChild(el("span", null, heroDef.power.text));
       if (heroDef.passive) main.appendChild(el("span", "deck-skill-passive", "被动 · " + heroDef.passive.name + "：" + heroDef.passive.text));
@@ -2969,7 +3023,7 @@
     }
     const mainEl = $("deck-main-count"); if (mainEl) mainEl.textContent = fieldCount + " / 30";
     const formEl = $("deck-formation-count"); if (formEl) formEl.textContent = formationCount + " / 2";
-    const relicEl = $("deck-relic-count"); if (relicEl) relicEl.textContent = relicCount + " / 1";
+    const relicEl = $("deck-relic-count"); if (relicEl) relicEl.textContent = relicCount + " / 2";
     const validEl = $("deck-valid");
     validEl.textContent = validation.ok ? "合法牌组" : "未完成";
     validEl.className = "deck-valid " + (validation.ok ? "ok" : "bad");
@@ -2992,9 +3046,9 @@
     clear(msg);
     if (!validation.ok) {
       if (validation.errors.length) msg.textContent = validation.errors.slice(0, 2).join("；");
-      else msg.textContent = "需要 30 张带牌（阵型可选）+ 1 遗物。";
+      else msg.textContent = "需要 30 张带牌（阵型可选）+ 2 遗物。";
     } else {
-      msg.textContent = "30 张带牌（阵型可选）+ 1 遗物 · 牌组合法。保存后可在单人或局域网房主使用。";
+      msg.textContent = "30 张带牌（阵型可选）+ 2 遗物 · 牌组合法。保存后可在单人或局域网房主使用。";
     }
 
     const curve = $("deck-curve");
@@ -3017,7 +3071,7 @@
     $("deck-type-stats").textContent = "随从 " + minions + " · 战术 " + tactics + " · 阵型 " + formations + " · 传说 " + list.filter(id => D.CARDS[id].rarity === "legendary").length + " · 过牌 " + drawTotal;
     msg.classList.toggle("warn", validation.ok && drawTotal > 10);
     if (validation.ok && drawTotal > 10) {
-      msg.textContent = "30 张带牌（阵型可选）+ 1 遗物 · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
+      msg.textContent = "30 张带牌（阵型可选）+ 2 遗物 · 过牌偏多：" + drawTotal + " 张，建议控制在 6–10 张。";
     }
 
     const selected = $("deck-selected");
@@ -3054,8 +3108,8 @@
       const def = D.CARDS[id];
       const count = counts[id] || 0;
       const max = D.maxCopies(def);
-      const typeFull = def.type === "formation" ? (formationCount >= 2 || fieldCount >= 30) : def.type === "relic" ? relicCount >= 1 : fieldCount >= 30;
-      const card = el("div", "deck-mini" + (count >= max || typeFull || list.length >= 31 ? " full" : ""));
+      const typeFull = def.type === "formation" ? (formationCount >= 2 || fieldCount >= 30) : def.type === "relic" ? relicCount >= 2 : fieldCount >= 30;
+      const card = el("div", "deck-mini rarity-" + (def.rarity || "common") + (count >= max || typeFull || list.length >= 31 ? " full" : ""));
       const art = el("div", "deck-mini-art");
       if (def.art) art.style.backgroundImage = "url('" + portraitImage(def.art) + "')";
       else {
@@ -3070,7 +3124,7 @@
       card.appendChild(el("div", "deck-mini-count", count + "/" + max));
       const body = el("div", "deck-mini-body");
       body.appendChild(el("div", "deck-mini-name", def.name));
-      body.appendChild(el("div", "deck-mini-meta", typeLine(def) + " · " + def.cost + " 费"));
+      body.appendChild(el("div", "deck-mini-meta", typeLine(def) + " · " + (RARITY_NAMES[def.rarity] || "普通") + " · " + def.cost + " 费"));
       if (def.type === "minion") {
         const miniStats = el("div", "deck-mini-stats");
         miniStats.appendChild(el("span", "deck-mini-atk", "攻 " + def.attack));
@@ -3108,9 +3162,9 @@
     const relicCount = app.deckBuildList.filter(x => D.CARDS[x].type === "relic").length;
     const fieldCount = mainCount + formationCount;
     if (def.type === "formation" && formationCount >= 2) { toast("阵位牌最多带 2 张。"); return; }
-    if (def.type === "relic" && relicCount >= 1) { toast("遗物槽已满。"); return; }
+    if (def.type === "relic" && relicCount >= 2) { toast("遗物槽已满。"); return; }
     if (def.type !== "relic" && fieldCount >= 30) { toast("30 张带牌已满。"); return; }
-    if (app.deckBuildList.length >= 31) { toast("牌组已满。"); return; }
+    if (app.deckBuildList.length >= 32) { toast("牌组已满。"); return; }
     if (count >= D.maxCopies(def)) { toast(def.name + " 已达同名张数上限。"); return; }
     app.deckBuildList.push(id);
     AudioBox.play("click");
@@ -3231,7 +3285,7 @@
     { id: "tide_10", name: "魔物潮", desc: "在一局中触发流脉 10。", icon: "X" },
     { id: "summoner_10", name: "六阵位", desc: "单局召唤 10 个随从。", icon: "VI" },
     { id: "lan_win", name: "隔桌", desc: "赢得一局局域网对战。", icon: "LAN" },
-    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 张带牌（阵型可选）+ 1 遗物牌组。", icon: "30" },
+    { id: "deck_saved", name: "编成者", desc: "保存一套自定义 30 张带牌（阵型可选）+ 2 遗物牌组。", icon: "30" },
     { id: "tutorial", name: "第一课", desc: "进入新手演练。", icon: "01" },
     { id: "play_10", name: "档案常客", desc: "累计完成 10 局推演。", icon: "10" },
     { id: "ranked_first", name: "记分员", desc: "完成第一场排位赛。", icon: "S1" },
@@ -3513,7 +3567,7 @@
       card.appendChild(el("div", "codex-faction", factionName(d.faction)));
       const body = el("div", "codex-body");
       body.appendChild(el("strong", null, d.name));
-      body.appendChild(el("span", "codex-meta", typeLine(d) + " · " + (d.rarity === "legendary" ? "传说" : "普通")));
+      body.appendChild(el("span", "codex-meta", typeLine(d) + " · " + (RARITY_NAMES[d.rarity] || "普通")));
       if (d.type === "minion") {
         const codexStats = el("div", "codex-stats");
         codexStats.appendChild(el("span", "codex-atk", "攻 " + d.attack));
@@ -3532,7 +3586,7 @@
       content.classList.add("card-large-modal");
       content.appendChild(el("div", "eyebrow", "ARCHIVE / CARD"));
       content.appendChild(el("h3", null, d.name));
-      content.appendChild(el("div", "preview-meta", factionName(d.faction) + " · " + typeLine(d) + " · " + d.cost + " 费" + (d.type === "minion" ? " · 攻 " + d.attack + " / 血 " + d.health : "")));
+      content.appendChild(el("div", "preview-meta", factionName(d.faction) + " · " + typeLine(d) + " · " + (RARITY_NAMES[d.rarity] || "普通") + " · " + d.cost + " 费" + (d.type === "minion" ? " · 攻 " + d.attack + " / 血 " + d.health : "")));
       addKeywordChips(content, d, null);
       const art = el("div", "preview-art");
       if (d.art) art.style.backgroundImage = "url('" + portraitImage(d.art) + "')";
@@ -3558,7 +3612,7 @@
     openModal((content) => {
       content.appendChild(el("div", "eyebrow", "ARCHIVE / GAME GUIDE"));
       content.appendChild(el("h3", null, "游戏教程"));
-      content.appendChild(el("p", null, "经典模式：不同领袖拥有不同生命与护甲，法力成长、随从互殴、领袖技能不变。"));
+      content.appendChild(el("p", null, "经典模式：不同领袖拥有不同起始生命，血量无上限；法力成长、随从互殴、领袖技能不变。"));
       const intro = el("div", "guide-sections");
       const sections = [
         ["胜利条件", "先把对方领袖生命降到 0。随从可以攻击敌方随从或领袖；拦截随从必须先被处理。"],
@@ -3839,6 +3893,7 @@
       app.lanGuestFaction = st.guestFaction || null;
       app.lanGuestReady = !!st.guestReady;
       app.lanGuestDecks = st.guestDecks || null;
+      app.lanGuestRelic = st.guestRelic || null;
       app.lanGuestDecksReady = !!st.guestDecksReady;
       app.lanRanked = !!st.ranked;
       syncRankModeUI();
@@ -3870,7 +3925,7 @@
   function updateGuestDeckLabel() {
     const valid = lanHasCustom(app.lanFaction);
     const label = $("lan-guest-deck-label");
-    if (label) label.textContent = (valid && app.lanGuestUseCustom ? "自定义牌组" : "预设牌组") + " · 30+1";
+    if (label) label.textContent = (valid && app.lanGuestUseCustom ? "自定义牌组" : "预设牌组") + " · 30+2";
     const select = $("lan-guest-deck-select");
     if (select) {
       select.value = app.lanGuestUseCustom && valid ? "custom" : "preset";
@@ -3882,7 +3937,7 @@
   function updateHostDeckLabel() {
     const valid = lanHasCustom(app.lanFaction);
     const label = $("lan-host-deck-label");
-    if (label) label.textContent = (valid && app.lanHostUseCustom ? "自定义牌组" : "预设牌组") + " · 30+1";
+    if (label) label.textContent = (valid && app.lanHostUseCustom ? "自定义牌组" : "预设牌组") + " · 30+2";
     const select = $("lan-host-deck-select");
     if (select) {
       select.value = app.lanHostUseCustom && valid ? "custom" : "preset";
@@ -4079,11 +4134,13 @@
       p2AI: false,
       mode: "lan",
       mulligan: true,
-      p1Deck: app.lanHostUseCustom ? getPlayDeck(faction) : null,
+      p1Deck: getPlayDeck(faction),
+      p1Relic: activeRelicFor(faction),
       p2Deck: (() => {
         const gd = app.lanGuestDecks && app.lanGuestDecks[other];
-        return gd && D.validateDeck(other, gd).ok ? gd : null;
+        return gd && D.validateDeck(other, gd).ok ? gd.filter(id => !D.CARDS[id] || D.CARDS[id].type !== "relic") : null;
       })(),
+      p2Relic: app.lanGuestRelic || activeRelicFor(other),
       seed: seed
     });
     state.ranked = !!app.lanRanked;
@@ -4124,7 +4181,7 @@
       await lanApi("/api/join?player=1", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decks: (app.lanGuestUseCustom && lanHasCustom(app.lanFaction)) ? (() => { const d = {}; d[app.lanFaction || "pus"] = app.customDecks[app.lanFaction || "pus"].slice(); return d; })() : {}, faction: app.lanFaction || "pus" })
+        body: JSON.stringify({ decks: (app.lanGuestUseCustom && lanHasCustom(app.lanFaction)) ? (() => { const d = {}; d[app.lanFaction || "pus"] = app.customDecks[app.lanFaction || "pus"].slice(); return d; })() : {}, faction: app.lanFaction || "pus", relic: activeRelicFor(app.lanFaction || "pus") })
       });
       app.net = { role: "guest", player: 1, active: true, since: 0 };
       app.lanGuestFaction = app.lanFaction || "pus";
@@ -4446,6 +4503,7 @@
     applyVideoPrefs();
     preloadArt();
     loadCustomDecks();
+    loadActiveRelics();
     loadAchievements();
     app.profile = loadProfile();
     updateHomeProfile();

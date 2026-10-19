@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>戈克世界：流脉牌局</title>
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/style.css?v=20261020r">
+  <link rel="stylesheet" href="css/style.css?v=20261020aa">
 </head>
 <body data-screen="home">
   <div id="boot-loading" class="boot-loading">
@@ -52,7 +52,7 @@
             </button>
           </div>
           <button id="btn-game-guide" class="home-guide"><span class="home-guide-icon">?</span><span class="home-guide-copy"><strong>游戏教程</strong><small>规则 · 阵位 · 流脉 · 关键词</small></span><span class="home-guide-arrow">→</span></button>
-          <div class="home-version">非正史档案推演 · 五阵营 · 189 张可收集卡</div>
+          <div class="home-version">非正史档案推演 · 五阵营 · 200 张可收集卡</div>
         </div>
         <aside class="home-legendary" id="home-legendary">
           <div class="home-legendary-art" id="home-legendary-art">
@@ -67,7 +67,7 @@
         </aside>
         <nav class="home-nav" aria-label="档案功能">
           <button id="btn-deck-home" class="home-nav-item"><span class="home-nav-no">01</span><strong>构筑牌组</strong><small>手动 / 自动构筑</small></button>
-          <button id="btn-codex" class="home-nav-item"><span class="home-nav-no">02</span><strong>图鉴</strong><small>189 张卡牌档案</small></button>
+          <button id="btn-codex" class="home-nav-item"><span class="home-nav-no">02</span><strong>图鉴</strong><small>200 张卡牌档案</small></button>
           <button id="btn-achievements" class="home-nav-item"><span class="home-nav-no">03</span><strong>成就</strong><small>档案记录与解锁</small></button>
           <button id="btn-settings" class="home-nav-item"><span class="home-nav-no">04</span><strong>设置</strong><small>画面 · 音效 · 操作</small></button>
         </nav>
@@ -84,7 +84,7 @@
             <div id="start-menu-root" class="start-menu-step">
               <button id="btn-solo" class="start-choice">
                 <span class="start-choice-icon">SOLO</span>
-                <span class="start-choice-copy"><strong>单人推演</strong><small>对 AI · 30 张带牌（阵型可选）+ 1 遗物 · 随时开始</small></span>
+                <span class="start-choice-copy"><strong>单人推演</strong><small>对 AI · 30 张带牌（阵型可选）+ 2 遗物 · 随时开始</small></span>
                 <span class="start-choice-arrow">→</span>
               </button>
               <button id="btn-mode-multi" class="start-choice">
@@ -126,7 +126,7 @@
           <div class="panel sim-control-panel">
             <div class="panel-label">AUTOMATED MATCHES</div>
             <h3>让两台推演体互相对打</h3>
-            <p class="muted">双方使用 30 张带牌（阵型可选）+ 1 遗物测试牌组，随机先手；测试版规则：先手首回合正常抽牌并获得 1 点护甲，后手获得 2 点额外行动槽。所有对局可复现。</p>
+            <p class="muted">双方使用 30 张带牌（阵型可选）+ 2 遗物测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得 2 点额外行动槽。所有对局可复现。</p>
             <div class="sim-buttons">
               <button class="btn btn-primary sim-run" data-count="100">跑 100 局</button>
               <button class="btn btn-ghost sim-run" data-count="300">300 局</button>
@@ -183,7 +183,7 @@
           <article class="tutorial-card">
             <div class="tutorial-icon">01</div>
             <h4>目标</h4>
-            <p>把对方领袖的生命打到 0。不同领袖的生命与护甲不同；随从可以攻击领袖，但先要处理拦截。</p>
+            <p>把对方领袖的生命打到 0。不同领袖的起始生命不同，血量无上限；随从可以攻击领袖，但先要处理拦截。</p>
           </article>
           <article class="tutorial-card">
             <div class="tutorial-icon">02</div>
@@ -359,8 +359,8 @@
           </div>
           <div class="panel settings-panel settings-about-panel">
             <div class="panel-label">ABOUT</div>
-            <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。五阵营、189 张可收集卡，支持起手调度、编成、单人 AI 与局域网对战。</p>
-            <p class="settings-about">当前构建：20261020r</p>
+            <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。五阵营、200 张主卡 + 11 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
+            <p class="settings-about">当前构建：20261020aa</p>
             <button id="btn-settings-credits" class="btn btn-small btn-ghost">制作与素材说明</button>
           </div>
         </div>
@@ -380,15 +380,16 @@
             <span id="deck-source-label" class="deck-source-label">预设牌组 · 可编辑</span>
             <button id="btn-deck-clear" class="btn btn-small btn-ghost">清空重编</button>
             <button id="btn-deck-top-use" class="btn btn-small btn-primary">保存并使用</button>
-            <span class="deck-head-count" id="deck-head-count">0 / 31</span>
+            <span class="deck-head-count" id="deck-head-count">0 / 32</span>
           </div>
         </header>
         <div class="deck-leader-skill" id="deck-leader-skill"></div>
+        <div class="deck-relic-pick"><span>本局启用遗物</span><select id="deck-relic-select" class="lan-deck-select"></select></div>
         <div class="deck-loadout-bar">
           <span>领袖 <strong id="deck-leader-name">—</strong></span>
           <span>带牌 <b id="deck-main-count">0 / 30</b></span>
           <span>阵型 <b id="deck-formation-count">0 / 2</b></span>
-          <span>遗物 <b id="deck-relic-count">0 / 1</b></span>
+          <span>遗物 <b id="deck-relic-count">0 / 2</b></span>
         </div>
 
         <div class="deck-layout">
@@ -420,14 +421,14 @@
             <div id="deck-curve" class="deck-curve"></div>
             <div id="deck-type-stats" class="deck-type-stats"></div>
 
-            <div class="panel-label section-gap">策略自动构筑 <span class="deck-section-hint">一键替换为 30+1</span></div>
+            <div class="panel-label section-gap">策略自动构筑 <span class="deck-section-hint">一键替换为 30+2</span></div>
             <div class="auto-deck-help">选择策略会重新生成整套牌，之后仍可手动增减。</div>
             <div class="auto-deck-buttons">
               <button class="auto-deck-btn" data-deck-strategy="aggro"><strong>快攻</strong><span>低费抢血</span><small>铺场 · 抢节奏</small></button>
               <button class="auto-deck-btn" data-deck-strategy="midrange"><strong>中速</strong><span>按费拍怪</span><small>稳定 · 站场</small></button>
               <button class="auto-deck-btn" data-deck-strategy="control"><strong>控制</strong><span>解场续航</span><small>解牌 · 拖后期</small></button>
             </div>
-            <div id="deck-auto-status" class="deck-auto-status">选择一套策略，一键补满 30 张带牌（阵型可选）+ 1 遗物。</div>
+            <div id="deck-auto-status" class="deck-auto-status">选择一套策略，一键补满 30 张带牌（阵型可选）+ 2 遗物。</div>
 
             <div class="panel-label section-gap">已选牌</div>
             <div id="deck-selected" class="deck-selected"></div>
@@ -463,7 +464,7 @@
                   <span class="faction-tag">普卫岛</span>
                   <strong>莱恩·科斯特「序」</strong>
                   <small>协同 / 恢复 / 阵位 · 中速</small>
-                  <span class="faction-stats">30 生命 · 10 护甲</span>
+                  <span class="faction-stats">28 生命</span>
                 </div>
               </button>
               <button class="faction-card" data-faction="xizhao">
@@ -472,7 +473,7 @@
                   <span class="faction-tag">西昭</span>
                   <strong>卡尔纳「血爵」</strong>
                   <small>血祭 / 突进 / 魔物 · 快攻</small>
-                  <span class="faction-stats">34 生命 · 9 护甲</span>
+                  <span class="faction-stats">36 生命</span>
                 </div>
               </button>
               <button class="faction-card" data-faction="academy">
@@ -481,7 +482,7 @@
                   <span class="faction-tag">学院</span>
                   <strong>玛尔塔·冯·艾森「演」</strong>
                   <small>抽牌 / 凝滞 / 检索 · 控制</small>
-                  <span class="faction-stats">30 生命 · 8 护甲</span>
+                  <span class="faction-stats">32 生命</span>
                 </div>
               </button>
               <button class="faction-card" data-faction="republic">
@@ -490,7 +491,7 @@
                   <span class="faction-tag">共和国</span>
                   <strong>沃尔夫拉姆·冯·施泰因「律」</strong>
                   <small>护甲 / 拦截 / 秩序 · 中速</small>
-                  <span class="faction-stats">35 生命 · 10 护甲</span>
+                  <span class="faction-stats">33 生命</span>
                 </div>
               </button>
               <button class="faction-card" data-faction="empire">
@@ -499,7 +500,7 @@
                   <span class="faction-tag">帝国</span>
                   <strong>奥托·汉瑟尔「炮」</strong>
                   <small>炮击 / 护甲 / 重装 · 中速</small>
-                  <span class="faction-stats">31 生命 · 7 护甲</span>
+                  <span class="faction-stats">31 生命</span>
                 </div>
               </button>
             </div>
@@ -507,17 +508,17 @@
             <div class="panel-label section-gap">02 / 牌组</div>
             <div class="setup-deck-row">
               <div class="setup-deck-copy">
-                <strong id="setup-deck-name">预设牌组 · 30+1</strong>
+                <strong id="setup-deck-name">预设牌组 · 30+2</strong>
                 <span id="setup-deck-detail">官方预组</span>
               </div>
               <button id="btn-deck" class="btn btn-small btn-ghost">档案编成</button>
               <button id="btn-deck-preset" class="btn btn-small btn-ghost">用预设</button>
             </div>
             <div class="panel-label section-gap">03 / 推演参数</div>
-            <div class="setup-summary" id="setup-summary">普卫岛 vs 学院 · 30+1 · 先手随机</div>
+            <div class="setup-summary" id="setup-summary">普卫岛 vs 学院 · 30+2 · 先手随机</div>
             <div class="setup-ai-row"><span>AI 难度</span><button class="ai-diff-btn active" data-ai-diff="normal">标准</button><button class="ai-diff-btn" data-ai-diff="easy">简单</button><button class="ai-diff-btn" data-ai-diff="hard">困难</button></div>
             <button id="btn-start-game" class="btn btn-primary btn-wide">开始推演</button>
-            <div class="fine-print">开局先进行起手调度；先手首回合正常抽牌并获得 1 点护甲，后手获得 2 点额外行动槽。</div>
+            <div class="fine-print">开局先进行起手调度；双方开场无护甲；先手首回合正常抽牌，后手获得 2 点额外行动槽。</div>
           </div>
 
           <div class="panel setup-hero-panel" id="setup-hero-panel">
@@ -632,7 +633,7 @@
                 </div>
               </div>
               <div class="lan-guest-deck-row">
-                <div><span id="lan-host-deck-label">预设牌组 · 30+1</span><small>房主本局使用</small></div>
+                <div><span id="lan-host-deck-label">预设牌组 · 30+2</span><small>房主本局使用</small></div>
                 <select id="lan-host-deck-select" class="lan-deck-select"><option value="preset">预设牌组</option><option value="custom">自定义牌组</option></select>
                 <button id="btn-lan-host-deck" class="btn btn-small btn-ghost">编成牌组</button>
               </div>
@@ -655,7 +656,7 @@
                 <button class="faction-card" data-guest-faction="empire"><div class="faction-portrait" style="background-image:url('assets/heroes/otto_centered.webp')"></div><div class="faction-body"><span class="faction-tag">帝国</span><strong>奥托·汉瑟尔「炮」</strong><small>炮击 / 护甲 / 重装</small></div></button>
               </div>
               <div class="lan-guest-deck-row">
-                <div><span id="lan-guest-deck-label">预设牌组 · 30+1</span><small>加入后使用这套牌组</small></div>
+                <div><span id="lan-guest-deck-label">预设牌组 · 30+2</span><small>加入后使用这套牌组</small></div>
                 <select id="lan-guest-deck-select" class="lan-deck-select"><option value="preset">预设牌组</option><option value="custom">自定义牌组</option></select>
                 <button id="btn-lan-guest-deck" class="btn btn-small btn-ghost">编成牌组</button>
               </div>
@@ -771,7 +772,7 @@
   <script src="js/data.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/ui.js?v=20261020r"></script>
+  <script src="js/ui.js?v=20261020aa"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

@@ -70,6 +70,13 @@
       })[0];
     }
     // 冻结：高攻击优先
+    if (b.type === "freezeZone" || b.type === "damageZone") {
+      const zoneCount = (z) => enemyMinions(state, p).filter(m => m.zone === z && !m.stealth).length;
+      return enemies.slice().sort((a, b2) => {
+        const az = zoneCount(a.zone), bz = zoneCount(b2.zone);
+        return bz - az || minionValue(b2) - minionValue(a);
+      })[0];
+    }
     return enemies.slice().sort((a, b2) => minionValue(b2) - minionValue(a))[0];
   }
 
@@ -143,6 +150,37 @@
       case "armorConditionalRush": s += 2.5 + (b.armor || 4) * 0.35; break;
       case "antiFreezeHeal": s += 2.5 + (b.heal || 2) * 0.5; break;
       case "damageHealBlock": s += 2.5 + (b.amount || 1); break;
+      case "damageAllEnemies": {
+        const enemies = enemyMinions(state, p);
+        s += enemies.reduce((n, m) => n + Math.min(b.amount || 1, m.health), 0) * 0.9;
+        break;
+      }
+      case "damageAllEnemiesDraw": {
+        const enemies = enemyMinions(state, p);
+        s += enemies.reduce((n, m) => n + Math.min(b.amount || 1, m.health), 0) * 0.8;
+        break;
+      }
+      case "damageAllEnemiesPerGameSpell": {
+        const total = p.spellsCastThisGame || 0;
+        s += total * 2 + enemyMinions(state, p).length * 0.6;
+        if (total < 3) s -= 12;
+        break;
+      }
+      case "damageZone": s += 3 + (target ? 2 : 0); break;
+      case "freezeZone": s += 5 + (target ? 1 : 0); break;
+      case "copyLowestSpell": {
+        const spells = p.hand.filter(c => D.CARDS[c.cardId] && D.CARDS[c.cardId].type === "spell");
+        s += spells.length ? 4 + spells.length * 0.5 : 0;
+        break;
+      }
+      case "recordIfEnemyZones": {
+        let zones = 0;
+        const enemy = enemyOf(state, p);
+        for (const z of E.ZONES) if (enemy.board[z].length) zones++;
+        if (zones === 3) s += 3;
+        break;
+      }
+      case "drawCopyNextSpell": s += 4; break;
     }
     if (def.type === "minion") s += def.attack * 0.7 + def.health * 0.5;
     if (def.excavate) s -= 1.5;
@@ -231,13 +269,20 @@
     }
     if (p.heroId === "marta") {
       const enemies = enemyMinions(state, p).filter(m => !m.stealth);
-      if (!enemies.length) return null;
-      const target = enemies.slice().sort((a, b) => (a.health <= 2 ? 0 : 1) - (b.health <= 2 ? 0 : 1) || minionValue(b) - minionValue(a))[0];
-      return { type: "heroPower", targetUid: target.uid, score: 4.2 };
+      const canFace = o.targets.indexOf("hero") >= 0;
+      if (!enemies.length) return canFace ? { type: "heroPower", targetUid: "hero", score: 3.4 } : null;
+      const killable = enemies.filter(m => m.health <= 2);
+      if (killable.length) {
+        const target = killable.sort((a, b) => minionValue(b) - minionValue(a))[0];
+        return { type: "heroPower", targetUid: target.uid, score: 4.2 };
+      }
+      const target = enemies.slice().sort((a, b) => minionValue(b) - minionValue(a))[0];
+      if (canFace && target.health > 4) return { type: "heroPower", targetUid: "hero", score: 3.6 };
+      return { type: "heroPower", targetUid: target.uid, score: 3.6 };
     }
     if (p.heroId === "wolfram") {
-      const target = allies.slice().sort((a, b) => a.health - b.health)[0];
-      return { type: "heroPower", targetUid: target.uid, score: 3.6 };
+      const card = p.hand.slice().sort((a, b) => (D.CARDS[a.cardId].cost || 0) - (D.CARDS[b.cardId].cost || 0))[0];
+      return card ? { type: "heroPower", targetUid: card.uid, score: 2.4 } : null;
     }
     return null;
   }
@@ -327,3 +372,5 @@
     lethalAvailable: lethalAvailable
   };
 });
+
+
