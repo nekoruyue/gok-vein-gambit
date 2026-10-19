@@ -1427,6 +1427,7 @@
     attacker.hasAttacked = true;
     attacker.stealth = false;
     if (targetUid === "hero") {
+      state.lastAction = { type: "attack", player: playerIndex, attackerUid, targetUid, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
       log(state, attacker.name + " 攻击 " + enemy.name + " 的领袖。", player, "attack");
       damageHero(state, enemy, attacker.attack, attacker, "随从攻击");
       processDeaths(state);
@@ -1434,6 +1435,7 @@
     }
     const defender = findMinion(state, targetUid);
     if (!defender || defender.dead) return { ok: false, reason: "目标已不在场" };
+    state.lastAction = { type: "attack", player: playerIndex, attackerUid, targetUid, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
     log(state, attacker.name + " 攻击 " + defender.name + "。", player, "attack");
     const atk = attacker.attack;
     const def = defender.attack;

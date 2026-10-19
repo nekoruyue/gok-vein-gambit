@@ -2229,7 +2229,7 @@
       showHandoff(app.game.current, false);
     } else if (app.game.current === app.aiPlayer) {
       beginAiTurn();
-    } else {
+    } else if (app.game.current === app.viewer) {
       toast("你的回合。");
     }
   }
@@ -4278,6 +4278,7 @@
     if (!state || !app.net || app.net.role !== "guest") return;
     const firstState = app.screen !== "game";
     const prevCurrent = app.game ? app.game.current : null;
+    const prevActionSeq = app.game && app.game.lastAction ? app.game.lastAction.seq : 0;
     app.game = state;
     app.human = 1;
     app.viewer = 1;
@@ -4307,6 +4308,9 @@
     if (!firstState && prevCurrent !== state.current && state.status === "playing") {
       showTurnBanner(state.current === 1 ? "你的回合" : "对手回合");
     }
+    if (!firstState && state.lastAction && state.lastAction.seq !== prevActionSeq && state.lastAction.type === "attack" && state.lastAction.player === 0) {
+      setTimeout(() => animateRemoteAttack(state.lastAction.attackerUid, state.lastAction.targetUid, 0), 0);
+    }
   }
 
   function applyGuestAction(action) {
@@ -4330,6 +4334,7 @@
       return;
     }
     if (app.game.current !== 1 || app.game.status !== "playing") return;
+    const prevCurrent = app.game.current;
     let result = { ok: false };
     if (action.kind === "play") result = E.playCard(app.game, 1, action.cardUid, { targetUid: action.targetUid || null, zone: action.zone || null, payBlood: !!action.payBlood });
     else if (action.kind === "attack") result = E.attack(app.game, 1, action.attackerUid, action.targetUid);
@@ -4342,10 +4347,36 @@
       sendNet({ type: "state", state: redactStateForGuest(app.game) });
       return;
     }
+    const turnChanged = app.game.current !== prevCurrent;
     renderGame();
     if (checkGameOverAfterAction()) return;
-    if (app.game.current === 1) showTurnBanner("对手回合");
-    else showTurnBanner("你的回合");
+    if (action.kind === "attack" && result.ok) {
+      setTimeout(() => animateRemoteAttack(action.attackerUid, action.targetUid, 1), 0);
+    }
+    if (turnChanged) {
+      if (app.game.current === 0) showTurnBanner("你的回合");
+      else showTurnBanner("对手回合");
+    }
+  }
+
+  function animateRemoteAttack(attackerUid, targetUid, attackerOwner) {
+    if (!app.game) return;
+    const attackerEl = document.querySelector('.board-card[data-minion="' + attackerUid + '"]');
+    const targetHeroId = attackerOwner === app.viewer ? "opponent-hero" : "player-hero";
+    const targetEl = targetUid === "hero" ? document.getElementById(targetHeroId) : document.querySelector('.board-card[data-minion="' + targetUid + '"]');
+    if (!attackerEl || !targetEl) return;
+    const ar = attackerEl.getBoundingClientRect();
+    const tr = targetEl.getBoundingClientRect();
+    attackerEl.classList.add(attackerOwner === app.viewer ? "attack-up" : "attack-down");
+    setTimeout(() => targetEl.classList.add("hit"), 100);
+    setTimeout(() => showAttackLine(ar.left + ar.width / 2, ar.top + ar.height / 2, tr.left + tr.width / 2, tr.top + tr.height / 2), 80);
+    setTimeout(() => showImpact((ar.left + tr.left + tr.width) / 2, (ar.top + tr.top + tr.height) / 2), 160);
+    setTimeout(() => showImpact(tr.left + tr.width / 2, tr.top + tr.height / 2), 210);
+    AudioBox.play("battle");
+    setTimeout(() => {
+      attackerEl.classList.remove("attack-up", "attack-down");
+      targetEl.classList.remove("hit");
+    }, 560);
   }
 
   function guestAnimateAttack(attackerUid, targetUid) {
