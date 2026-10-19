@@ -1305,6 +1305,34 @@ body[data-screen="sim"] #bg, body[data-screen="setup"] #bg { filter: saturate(0.
 .tutorial-card p { color: #a9b7c0; font-size: 12px; line-height: 1.8; }
 .tutorial-actions { display: flex; gap: 10px; margin-top: 24px; }
 .tutorial-footnote { color: var(--dim); font-size: 11px; margin-top: 14px; }
+.manual-section { margin-top: 34px; }
+.manual-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.manual-index { flex: 0 0 40px; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid rgba(217,164,65,0.4); color: var(--gold-soft); font-family: var(--serif); font-size: 15px; }
+.manual-head h3 { margin: 0 0 4px; font-family: var(--serif); font-weight: 500; font-size: 24px; color: var(--ink); }
+.manual-head p { margin: 0; color: var(--dim); font-size: 12px; line-height: 1.7; }
+.manual-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.manual-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.manual-grid .tutorial-card { width: 100%; min-height: 0; }
+.manual-grid .tutorial-card h4 { margin-top: 0; }
+.manual-tag { display: inline-block; margin-bottom: 12px; padding: 3px 7px; border: 1px solid rgba(217,164,65,0.32); color: var(--gold-soft); font-size: 9px; letter-spacing: 0.12em; }
+.manual-callout { display: flex; gap: 18px; align-items: baseline; margin-top: 12px; padding: 16px 18px; border-left: 2px solid rgba(217,164,65,0.55); background: rgba(255,255,255,0.025); }
+.manual-callout strong { flex: 0 0 auto; color: var(--gold-soft); font-family: var(--serif); font-size: 15px; font-weight: 500; }
+.manual-callout p { margin: 0; color: #a9b7c0; font-size: 12px; line-height: 1.8; }
+.manual-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.manual-step { position: relative; padding: 20px 18px 18px; border: 1px solid var(--line); background: linear-gradient(165deg, rgba(18,31,43,0.78), rgba(5,10,15,0.92)); }
+.manual-step > span { display: block; margin-bottom: 10px; color: rgba(217,164,65,0.62); font-family: var(--serif); font-size: 13px; letter-spacing: 0.12em; }
+.manual-step h4 { margin: 0 0 8px; font-family: var(--serif); font-weight: 500; font-size: 19px; }
+.manual-step p { margin: 0; color: #a9b7c0; font-size: 12px; line-height: 1.8; }
+.manual-note { margin: 12px 0 0; padding-left: 12px; border-left: 1px solid rgba(217,164,65,0.3); color: var(--dim); font-size: 11px; line-height: 1.85; }
+.tutorial-keywords { margin-top: 2px; }
+@media (max-width: 1050px) {
+  .manual-grid, .manual-grid-4, .manual-flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .manual-grid, .manual-grid-4, .manual-flow { grid-template-columns: 1fr; }
+  .manual-callout { display: block; }
+  .manual-callout strong { display: block; margin-bottom: 6px; }
+}
 .tutorial-coach {
   position: fixed; z-index: 88; left: 50%; top: 70px; transform: translateX(-50%);
   width: min(560px, calc(100% - 40px));
@@ -4619,7 +4647,7 @@ body[data-screen="game"] .hand-card .card-type {
 }
 body[data-screen="game"] .hand-card .card-text {
   left: 9px; right: 9px; bottom: 8px;
-  height: 35px;
+  height: 44px;
   color: #bacdc8 !important;
   font-size: 9.5px;
   line-height: 1.5;
@@ -5629,7 +5657,7 @@ body[data-screen="game"] .hand-card .stat-art { opacity: .82 !important; }
 }
 .gok-library-card.library-hand::after { inset: 13px !important; border-color: rgba(217,164,65,.08) !important; }
 .gok-library-card.library-hand .gok-lib-name { font-size: 17px !important; }
-.gok-library-card.library-hand .gok-lib-text { font-size: 10.5px !important; }
+.gok-library-card.library-hand .gok-lib-text { font-size: 10.5px !important; display:-webkit-box !important; -webkit-box-orient:vertical !important; -webkit-line-clamp:3 !important; overflow:hidden !important; text-overflow:ellipsis !important; top:auto !important; bottom:38px !important; height:48px !important; }
 .gok-library-card.library-hand .gok-lib-cost { width: 34px !important; height: 34px !important; font-size: 17px !important; }
 .gok-library-card.library-hand.disabled { opacity: .56 !important; filter: saturate(.72); }
 .gok-library-card.library-hand.selected,
@@ -5684,18 +5712,18 @@ body[data-screen="game"] .hand-card.library-hand:last-child { margin-right: 8px 
 
 /* End-turn button changes color by side */
 body[data-screen="game"] .vein-row .end-turn-btn.enemy-phase {
-  background:linear-gradient(180deg,#e8c46a,#a87827 58%,#6b4b18) !important;
-  border:1px solid rgba(255,226,155,.72) !important;
-  color:#251806 !important; text-shadow:0 1px 0 rgba(255,255,255,.28) !important;
-  box-shadow:inset 0 1px 0 rgba(255,248,210,.6),0 0 20px rgba(242,198,109,.18),0 6px 16px rgba(0,0,0,.28) !important;
-  opacity:1 !important; filter:none !important;
+  background:linear-gradient(180deg,#574b39,#332b21 58%,#18140f) !important;
+  border:1px solid rgba(196,171,122,.36) !important;
+  color:#c7b795 !important; text-shadow:none !important;
+  box-shadow:inset 0 1px 0 rgba(255,245,214,.1),0 4px 12px rgba(0,0,0,.24) !important;
+  opacity:.9 !important; filter:saturate(.72) !important; cursor:default !important;
 }
 body[data-screen="game"] .vein-row .end-turn-btn.my-phase {
   background:url("../assets/ui/end-turn-seal.webp?v=20261020cy") center / 100% 100% no-repeat,linear-gradient(180deg,#a95443,#5b2821) !important;
   border:0 !important; color:#fff1d8 !important;
   opacity:1 !important; filter:none !important;
 }
-body[data-screen="game"] .vein-row .end-turn-btn.enemy-phase:hover { filter:brightness(1.08) !important; }
+body[data-screen="game"] .vein-row .end-turn-btn.enemy-phase:hover { filter:saturate(.72) !important; cursor:default !important; }
 
 
 /* Action slot: show the cells, not a redundant 3 / 3 */
@@ -5903,3 +5931,62 @@ body[data-screen="game"] .game-help-actions .btn:hover { color:#161006 !importan
   color: #161006; background: #d8a84e; border: 1px solid #f0d18a; border-radius: 2px;
   pointer-events: none; box-shadow: 0 0 8px rgba(216,168,78,0.45);
 }
+
+/* ===== 规则页 / 关键词可读性 ===== */
+#screen-rules {
+  background:
+    radial-gradient(circle at 78% 10%, rgba(74, 134, 128, 0.18), transparent 46%),
+    linear-gradient(180deg, rgba(2, 8, 12, 0.58), rgba(2, 8, 12, 0.84));
+}
+#screen-rules .rules-shell {
+  background: linear-gradient(155deg, rgba(7, 21, 27, 0.95), rgba(3, 9, 14, 0.98));
+  border: 1px solid rgba(217, 164, 65, 0.16);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.46);
+}
+#screen-rules .rules-keyword-panel {
+  background: linear-gradient(155deg, rgba(6, 18, 24, 0.97), rgba(3, 9, 14, 0.99));
+  border: 1px solid rgba(217, 164, 65, 0.22);
+}
+.keyword-glossary-item {
+  background: linear-gradient(160deg, rgba(9, 22, 29, 0.95), rgba(4, 11, 16, 0.98));
+  border: 1px solid rgba(217, 164, 65, 0.16);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  padding: 12px 13px;
+}
+.keyword-glossary-item:hover {
+  border-color: rgba(217, 164, 65, 0.42);
+  background: linear-gradient(160deg, rgba(13, 30, 38, 0.98), rgba(5, 13, 18, 0.99));
+}
+.keyword-glossary-copy strong { color: #f0cc84; }
+.keyword-glossary-copy span { color: #c8d6de; font-size: 11px; line-height: 1.7; }
+@media (max-width: 680px) {
+  #screen-rules { background: linear-gradient(180deg, rgba(2, 8, 12, 0.72), rgba(2, 8, 12, 0.9)); }
+  .keyword-glossary-item { padding: 11px 12px; }
+}
+
+/* ===== 阵位 / 同阵位 / 对位教学 ===== */
+.position-manual { display:grid; grid-template-columns:minmax(0,0.9fr) minmax(420px,1.1fr); gap:20px; align-items:start; }
+.position-copy p { margin:0 0 10px; color:#c3d2d9; font-size:12px; line-height:1.85; }
+.position-copy strong { color:var(--gold-soft); font-family:var(--serif); font-size:15px; font-weight:500; }
+.position-board { padding:14px; border:1px solid rgba(217,164,65,.18); background:linear-gradient(160deg, rgba(6,18,24,.92), rgba(3,9,14,.96)); box-shadow:0 10px 26px rgba(0,0,0,.22); }
+.position-row { display:grid; grid-template-columns:74px repeat(3,minmax(0,1fr)); gap:8px; align-items:stretch; padding:8px 0; }
+.position-row.own { margin-top:8px; padding-top:12px; border-top:1px solid rgba(217,164,65,.14); }
+.position-leader { display:flex; align-items:center; color:#e8c47c; font-size:10px; line-height:1.4; letter-spacing:.08em; }
+.position-zone { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; padding:7px; border:1px solid rgba(159,207,196,.16); background:rgba(255,255,255,.025); }
+.position-zone b { grid-column:1 / -1; color:#aac5c4; font-size:9px; font-weight:500; letter-spacing:.12em; }
+.position-zone i { display:grid; place-items:center; min-height:30px; border:1px solid rgba(217,164,65,.22); background:rgba(5,12,17,.72); color:#f1e2c2; font-family:var(--serif); font-size:13px; font-style:normal; }
+.position-caption { margin:12px 0 0; padding-top:10px; border-top:1px solid rgba(159,207,196,.12); color:#8fa8ad; font-size:10px; line-height:1.7; }
+.position-aura { margin-top:14px; padding:13px 15px; border-left:2px solid rgba(217,164,65,.48); background:rgba(255,255,255,.025); }
+.position-aura p { margin:0 0 6px; color:#b8c9d0; font-size:11px; line-height:1.8; }
+.position-aura p:last-child { margin-bottom:0; }
+.position-aura strong { color:#e8c47c; font-family:var(--serif); font-weight:500; }
+.position-aura em { color:#d8e6e4; font-style:normal; }
+@media (max-width:980px) { .position-manual { grid-template-columns:1fr; } .position-board { min-width:0; } }
+@media (max-width:620px) {
+  .position-row { grid-template-columns:58px repeat(3,minmax(0,1fr)); gap:5px; }
+  .position-zone { padding:5px; gap:3px; }
+  .position-zone i { min-height:26px; font-size:12px; }
+  .position-leader { font-size:9px; }
+}
+
+#game-hint { pointer-events:none; }

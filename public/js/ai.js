@@ -204,7 +204,7 @@
       const opt = E.getPlayOptions(state, p.index, c.uid);
       if (!opt.ok) continue;
       const target = chooseTarget(state, p, def, opt);
-      if (opt.targetType && !target) continue;
+      if (opt.targetType && !target && def.type !== "minion" && !def.optionalTarget) continue;
       const zone = chooseZone(state, p, def, opt);
       if ((def.type === "minion" || def.type === "formation") && !zone) continue;
       const payBlood = shouldPayBlood(state, p, def);
@@ -345,7 +345,7 @@
       const opt = E.getPlayOptions(state, p.index, c.uid);
       if (!opt.ok) continue;
       const target = chooseTarget(state, p, def, opt);
-      if (opt.targetType && !target) continue;
+      if (opt.targetType && !target && def.type !== "minion" && !def.optionalTarget) continue;
       const target2 = (def.target2 && (opt.target2Targets || []).length) ? E.findMinion(state, opt.target2Targets[0]) : null;
       if (def.target2 && (opt.target2Targets || []).length && !target2) continue;
       const zone = chooseZone(state, p, def, opt);

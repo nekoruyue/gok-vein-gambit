@@ -416,7 +416,7 @@
       if (!c) continue;
       const card = el("button", "reward-card");
       card.appendChild(el("strong", null, c.name));
-      card.appendChild(el("small", null, (c.type === "spell" ? "战术" : "随从") + " · " + c.cost + " 费" + (c.type === "minion" ? " · " + c.attack + "/" + c.health : "")));
+      card.appendChild(el("small", null, (c.type === "spell" ? "战术" : "随从") + " · " + c.cost + " 行动力" + (c.type === "minion" ? " · " + c.attack + "/" + c.health : "")));
       card.appendChild(el("p", null, c.text || "—"));
       card.onclick = () => {
         addRunCard(run, id);
@@ -466,12 +466,12 @@
     if (run.picks < 10) {
       const panel = el("div", "mode-panel");
       panel.appendChild(el("div", "panel-label", "DRAFT " + (run.picks + 1) + " / 10"));
-      panel.appendChild(el("p", null, "选择一张牌，加入三份。当前卡组 " + (run.picks * 3) + " / 30。"));
+      panel.appendChild(el("p", null, "选择一张牌，加入三份。当前牌组 " + (run.picks * 3) + " / 30。"));
       const grid = el("div", "draft-grid");
       for (const c of rand(poolFor(run.faction), 3)) {
         const card = el("button", "draft-card");
         card.appendChild(el("strong", null, c.name));
-        card.appendChild(el("small", null, (c.type === "spell" ? "战术" : "随从") + " · " + c.cost + " 费" + (c.type === "minion" ? " · " + c.attack + "/" + c.health : "")));
+        card.appendChild(el("small", null, (c.type === "spell" ? "战术" : "随从") + " · " + c.cost + " 行动力" + (c.type === "minion" ? " · " + c.attack + "/" + c.health : "")));
         card.appendChild(el("p", null, c.text || "—"));
         card.onclick = () => {
           for (let i = 0; i < 3; i++) run.deck.push(c.id);

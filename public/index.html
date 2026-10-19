@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>戈克世界：流脉牌局</title>
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/style.css?v=20261020dt">
+  <link rel="stylesheet" href="css/style.css?v=20261020dv">
+  <link rel="stylesheet" href="css/hs-layout.css?v=20261020hs">
 </head>
 <body data-screen="home">
   <div id="boot-loading" class="boot-loading">
@@ -137,7 +138,7 @@
           <div class="panel sim-control-panel">
             <div class="panel-label">AUTOMATED MATCHES</div>
             <h3>让两台推演体互相对打</h3>
-            <p class="muted">双方使用 30 张带牌 + 1 张遗物测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得 2 点额外行动力。所有对局可复现。</p>
+            <p class="muted">双方使用 30 张主牌 + 1 张遗物测试牌组，随机先手；测试版规则：双方开场无护甲，先手首回合正常抽牌，后手获得「采掘许可」（本回合临时 +2 点行动力）。所有对局可复现。</p>
             <div class="sim-buttons">
               <button class="btn btn-primary sim-run" data-count="100">跑 100 局</button>
               <button class="btn btn-ghost sim-run" data-count="300">300 局</button>
@@ -181,52 +182,197 @@
           <button id="btn-tutorial-back" class="btn btn-small btn-ghost">← 返回档案处</button>
           <div>
             <div class="eyebrow">FIRST STEPS / FIELD MANUAL</div>
-            <h2>新手教程</h2>
+            <h2>游戏教程</h2>
           </div>
           <div class="head-spacer"></div>
         </header>
         <div class="tutorial-intro">
-          <div class="eyebrow">WELCOME TO THE ARCHIVE · 7 STEPS</div>
-          <h3>七步之后，再谈输赢。</h3>
-          <p>先认识领袖与行动力，再学阵位、攻击、技能目标和流脉。读完这七步，直接进入实战演练。</p>
+          <div class="eyebrow">WELCOME TO THE ARCHIVE · FIELD MANUAL</div>
+          <h3>从规则到第一局。</h3>
+          <p>《戈克世界：流脉牌局》是一款双人对战卡牌游戏。在随从与领袖的基础玩法上，加入了阵位、流脉、遗物等新机制。下面按对局基础、卡牌类型、实战流程与关键词，把规则一次讲清。</p>
         </div>
-        <div class="tutorial-grid tutorial-grid-seven">
-          <article class="tutorial-card">
-            <div class="tutorial-icon">01</div>
-            <h4>目标</h4>
-            <p>把对方领袖的生命打到 0。不同领袖的起始生命不同，生命上限可被加成提高，治疗不能超过当前上限；随从可以攻击领袖，但先要处理拦截。</p>
-          </article>
-          <article class="tutorial-card">
-            <div class="tutorial-icon">02</div>
-            <h4>行动力</h4>
-            <p>每回合增加 1 格，最多 10 格；牌左上角的数字就是消耗。用光就只能结束回合。</p>
-          </article>
-          <article class="tutorial-card">
-            <div class="tutorial-icon">03</div>
-            <h4>手牌</h4>
-            <p>随从和战术的卡框不同。选择手牌后，可以点击高亮阵位，也可以直接拖到战场。</p>
-          </article>
-          <article class="tutorial-card">
-            <div class="tutorial-icon">04</div>
-            <h4>阵位</h4>
-            <p>左翼、中阵、右翼各最多站 3 个随从，但全场最多 6 个。阵位会限制随从的站位和部分登场的覆盖范围。</p>
-          </article>
-          <article class="tutorial-card">
-            <div class="tutorial-icon">05</div>
-            <h4>攻击</h4>
-            <p>点击或拖动攻击力大于 0 的我方随从，选择敌方随从或领袖。拦截会强制你优先攻击它。</p>
-          </article>
-          <article class="tutorial-card">
-            <div class="tutorial-icon">06</div>
-            <h4>战术与登场</h4>
-            <p>带 ✦ 登场图标的随从需要选择目标。合法随从会发光；战术可以点选目标，也可以拖过去。</p>
-          </article>
-          <article class="tutorial-card">
-            <div class="tutorial-icon">07</div>
-            <h4>流脉</h4>
-            <p>共享风险条。采掘会加速它；到达 4 / 7 / 10 时，全场会被扫一次。不是越高越好。</p>
-          </article>
+
+        <div class="tutorial-manual">
+          <section class="manual-section">
+            <div class="manual-head">
+              <span class="manual-index">01</span>
+              <div>
+                <h3>对局基础核心机制</h3>
+                <p>先记住这七件事，牌桌就不会乱。</p>
+              </div>
+            </div>
+            <div class="manual-grid">
+              <article class="tutorial-card">
+                <h4>目标</h4>
+                <p>双方领袖拥有不同数量的起始生命。率先将对方领袖的生命降至 0 的一方获胜。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>行动力</h4>
+                <p>第 1 回合 1 点，每回合 +1，上限 10 点；每回合开始回满，不能留到下一回合。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>先后手</h4>
+                <p>先手抽 3 张；后手抽 4 张，并额外获得「采掘许可」（本回合临时 +2 点行动力）。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>抽牌</h4>
+                <p>每回合开始自动抽 1 张；手牌超过上限时，超出的牌会被销毁。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>随从攻击</h4>
+                <p>当回合打出的随从不能立即攻击，需要等到下一回合；随从互殴时双方同时受到等于对方攻击力的伤害，生命归零离场。具有突进（突进）、袭扰（袭扰）等关键词的随从除外。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>阵位</h4>
+                <p>左翼 / 中枢 / 右翼三个阵位，每个阵位最多 3 个随从，但全场最多 6 个。阵位会影响部分卡牌的范围与固定效果。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>流脉</h4>
+                <p>双方共享 0 → 12，每次完整轮次（双方各行动一次）自然 +1。达到 4 震荡、7 裂隙、10 魔物潮时触发世界事件；达到 12 回流清空。</p>
+              </article>
+            </div>
+            <p class="manual-note">4 震荡：所有随从受到 1 点伤害；7 裂隙：双方领袖受到 2 点伤害；10 魔物潮：所有随从受到 3 点伤害，双方领袖受到 5 点伤害。</p>
+          </section>
+
+          <section class="manual-section">
+            <div class="manual-head">
+              <span class="manual-index">02</span>
+              <div>
+                <h3>阵位、同阵位与对位</h3>
+                <p>先把位置关系弄清楚：这里只有阵位，没有“阵线”这一独立机制。</p>
+              </div>
+            </div>
+            <div class="position-manual">
+              <div class="position-copy">
+                <p><strong>阵位</strong>：左翼、中枢、右翼三个位置。每个阵位最多 3 个随从，全场最多 6 个。</p>
+                <p><strong>同阵位</strong>：同一个阵位里的友方随从。下图我方 A 与 B、C 与 D、E 与 F 同阵位。</p>
+                <p><strong>对位</strong>：同一列、分属双方的阵位。我方左翼 A/B 的对位是敌方左翼 G/H；中枢 C/D 对 I/J；右翼 E/F 对 K/L。</p>
+                <p><strong>阵型</strong>：只是“阵型卡”这个卡牌类型，不是关键词，也不是一条额外的线。卡名里的“阵线”只是名字，不构成额外规则。</p>
+              </div>
+              <div class="position-board" aria-label="阵位与对位示例">
+                <div class="position-row">
+                  <span class="position-leader">敌方领袖</span>
+                  <div class="position-zone"><b>左翼</b><i>G</i><i>H</i></div>
+                  <div class="position-zone"><b>中枢</b><i>I</i><i>J</i></div>
+                  <div class="position-zone"><b>右翼</b><i>K</i><i>L</i></div>
+                </div>
+                <div class="position-row own">
+                  <span class="position-leader">我方领袖</span>
+                  <div class="position-zone"><b>左翼</b><i>A</i><i>B</i></div>
+                  <div class="position-zone"><b>中枢</b><i>C</i><i>D</i></div>
+                  <div class="position-zone"><b>右翼</b><i>E</i><i>F</i></div>
+                </div>
+                <p class="position-caption">同阵位：A+B、C+D、E+F　·　对位：A/B ↔ G/H，C/D ↔ I/J，E/F ↔ K/L</p>
+              </div>
+            </div>
+            <div class="position-aura">
+              <p><strong>阵位 / 对位效果按光环结算。</strong>条件满足时即时生效，条件消失就消失；敌方攻击结算后，如果对位随从死亡，加成立刻移除。</p>
+              <p>写法示例：<em>被动：该随从在场时，同阵位其他友方随从固定获得 +1/+1。</em></p>
+              <p>写法示例：<em>该随从对位有敌方随从时，本随从固定获得 +1/+1。</em></p>
+            </div>
+          </section>
+
+          <section class="manual-section">
+            <div class="manual-head">
+              <span class="manual-index">03</span>
+              <div>
+                <h3>四类卡牌</h3>
+                <p>看清卡框和定位，再决定这张牌什么时候出。</p>
+              </div>
+            </div>
+            <div class="manual-grid manual-grid-4">
+              <article class="tutorial-card">
+                <span class="manual-tag">随从卡</span>
+                <h4>核心输出与场面单位</h4>
+                <p>拥有攻击与生命，常驻战场；部分带有登场、余响等关键词效果。</p>
+              </article>
+              <article class="tutorial-card">
+                <span class="manual-tag">战术卡</span>
+                <h4>即时效果</h4>
+                <p>打出后立刻结算并进入弃牌堆；用于解场、治疗、抽牌等。</p>
+              </article>
+              <article class="tutorial-card">
+                <span class="manual-tag">阵型卡</span>
+                <h4>阵位效果</h4>
+                <p>部署在一个阵位后持续生效，使该阵位的随从固定获得效果。</p>
+              </article>
+              <article class="tutorial-card">
+                <span class="manual-tag">遗物卡</span>
+                <h4>永久效果</h4>
+                <p>给领袖一个永久的增益；需要从牌库抽到并打出，同一时间只能装备一件。</p>
+              </article>
+            </div>
+            <div class="manual-callout">
+              <strong>牌组结构</strong>
+              <p>30 张主牌（随从 + 战术 + 阵型）+ 1 张遗物牌。领袖在开局单独选择，不占牌组，也不进入牌库。新手前期不用自己组卡，系统提供预设基础牌组。</p>
+            </div>
+          </section>
+
+          <section class="manual-section">
+            <div class="manual-head">
+              <span class="manual-index">04</span>
+              <div>
+                <h3>标准对局流程</h3>
+                <p>从起手到结束回合，按这个顺序走。</p>
+              </div>
+            </div>
+            <div class="manual-flow">
+              <div class="manual-step">
+                <span>01</span>
+                <h4>开始推演</h4>
+                <p>选择领袖与牌组，进入对战。</p>
+              </div>
+              <div class="manual-step">
+                <span>02</span>
+                <h4>起手换牌</h4>
+                <p>建议换掉 4 行动力以上的高费卡，保留 1–3 行动力的随从或战术，保证前 3 回合有牌可出。</p>
+              </div>
+              <div class="manual-step">
+                <span>03</span>
+                <h4>己方回合</h4>
+                <p>优先低费随从铺场 → 用战术解场或增幅 → 随从攻击 → 使用领袖技能 → 结束回合。</p>
+              </div>
+            </div>
+            <p class="manual-note">双方交替行动，直到一方领袖生命归零。领袖本身不进行普通攻击，主要依靠技能、遗物与卡牌影响战局。</p>
+          </section>
+
+          <section class="manual-section">
+            <div class="manual-head">
+              <span class="manual-index">05</span>
+              <div>
+                <h3>实战基础细节</h3>
+                <p>先站住，再交换，最后找斩杀。</p>
+              </div>
+            </div>
+            <div class="manual-grid">
+              <article class="tutorial-card">
+                <h4>前期</h4>
+                <p>稳住场面，低费随从优先下场；不要随意空交战术，留牌应对对手铺场。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>中期</h4>
+                <p>优先用低价值随从交换敌方高威胁随从，保留核心输出。</p>
+              </article>
+              <article class="tutorial-card">
+                <h4>后期</h4>
+                <p>集中资源爆发斩杀；同时留意流脉阈值和对手的拦截随从。</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="manual-section">
+            <div class="manual-head">
+              <span class="manual-index">06</span>
+              <div>
+                <h3>关键词解析</h3>
+                <p>关键词的规则说明如下。</p>
+              </div>
+            </div>
+            <div id="tutorial-keywords" class="keyword-glossary tutorial-keywords"></div>
+            <p class="manual-note">卡牌只标注上面这些关键词；阵位、同阵位、对位只是场上位置关系，不再作为关键词标签。未列出的效果会直接写进卡牌描述。</p>
+          </section>
         </div>
+
         <div class="tutorial-actions">
           <button id="btn-tutorial-start" class="btn btn-primary">进入新手演练</button>
           <button id="btn-tutorial-skip" class="btn btn-ghost">暂时跳过</button>
@@ -249,16 +395,16 @@
         <div class="tutorial-intro">
           <div class="eyebrow">GOK WORLD · VEIN GAMBIT</div>
           <h3>先把规则看清，再谈输赢。</h3>
-          <p>30 张带牌 + 1 件遗物 + 1 位领袖。把对方领袖的生命打到 0 即获胜。流脉是双方共享的风险条：它既是资源，也是倒计时。</p>
+          <p>30 张主牌（随从 + 战术 + 阵型）+ 1 张遗物牌；领袖在开局单独选择，不占牌组。把对方领袖的生命打到 0 即获胜。流脉是双方共享的风险条：它既是资源，也是倒计时。</p>
         </div>
         <div class="tutorial-grid tutorial-grid-seven">
           <article class="tutorial-card"><div class="tutorial-icon">01</div><h4>对局目标</h4><p>把对方领袖生命打到 0。随从可以攻击敌方随从或领袖；敌方有拦截随从时，必须先处理拦截。</p></article>
-          <article class="tutorial-card"><div class="tutorial-icon">02</div><h4>回合流程</h4><p>回合开始：行动槽 +1（上限 10）、抽 1 张牌、阵型倒计时 -1。之后可以出牌、攻击、使用领袖技能，最后结束回合交给对手。</p></article>
-          <article class="tutorial-card"><div class="tutorial-icon">03</div><h4>行动力</h4><p>卡牌左上角数字是行动力消耗。先手 3 张起手，后手 4 张并额外获得「采掘许可」；反噬会减少下回合行动槽，借脉则先借后还。</p></article>
-          <article class="tutorial-card"><div class="tutorial-icon">04</div><h4>流脉</h4><p>共享流脉 0→12。达到 4 / 7 / 10 会触发全场世界事件，12 时回流清空。引脉是达到阈值后的额外效果；采掘会同时抽牌并加速流脉。</p></article>
-          <article class="tutorial-card"><div class="tutorial-icon">05</div><h4>阵位与对位</h4><p>左翼 / 中枢 / 右翼三线，每线最多 3 个随从，全场最多 6 个。同阵位会触发协同数值；双方同一列互为对位。</p></article>
-          <article class="tutorial-card"><div class="tutorial-icon">06</div><h4>卡牌与牌组</h4><p>随从站场，战术一次性结算，阵型挂在某一线持续生效，遗物装备在领袖身上。牌组为 30 张带牌（含 0–2 张阵型）+ 1 件启用遗物 + 1 位领袖。</p></article>
-          <article class="tutorial-card"><div class="tutorial-icon">07</div><h4>关键词</h4><p>登场、余响、拦截、突进、冻结、引脉、血祭、镇脉、压脉、顺势、对位、悬赏等关键词会在卡牌标签上标明；把鼠标移到标签上可查看说明。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">02</div><h4>回合流程</h4><p>回合开始：行动力 +1（上限 10）、抽 1 张牌。之后可以出牌、攻击、使用领袖技能，最后结束回合交给对手。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">03</div><h4>行动力</h4><p>第 1 回合 1 点，每回合 +1，上限 10 点，回合开始回满。先手抽 3 张；后手抽 4 张，并额外获得「采掘许可」（本回合 +2 点行动力）。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">04</div><h4>流脉</h4><p>双方共享 0→12，每次完整轮次（双方各行动一次）自然 +1。达到 4 震荡、7 裂隙、10 魔物潮时触发世界事件；12 回流清空。引脉是达到阈值后的额外效果；采掘会同时抽牌并加速流脉。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">05</div><h4>阵位与对位</h4><p>左翼 / 中枢 / 右翼三个阵位，每个阵位最多 3 个随从，全场最多 6 个。同阵位会触发协同数值；双方同一列互为对位。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">06</div><h4>卡牌与牌组</h4><p>随从站场，战术一次性结算，阵型挂在某个阵位持续生效，遗物装备在领袖身上。牌组为 30 张主牌（随从 + 战术 + 阵型）+ 1 张遗物牌；领袖开局单独选择，不占牌组。</p></article>
+          <article class="tutorial-card"><div class="tutorial-icon">07</div><h4>关键词</h4><p>登场、余响、拦截、突进、冻结、沉默、引脉、检索、采掘、血祭、镇脉、压脉、悬赏等关键词会在卡牌标签上标明；把鼠标移到标签上可查看说明。</p></article>
           <article class="tutorial-card"><div class="tutorial-icon">08</div><h4>胜负与模式</h4><p>支持单人 AI、局域网与在线房间。领袖生命归零即败；双方同时归零为平局。对局中可认输，起手阶段可调度手牌。</p></article>
         </div>
         <div class="panel rules-keyword-panel">
@@ -266,7 +412,7 @@
           <div id="rules-keywords" class="keyword-glossary"></div>
         </div>
         <div class="tutorial-actions">
-          <button id="btn-rules-tutorial" class="btn btn-primary">进入新手教程</button>
+          <button id="btn-rules-tutorial" class="btn btn-primary">打开游戏教程</button>
           <button id="btn-rules-back2" class="btn btn-ghost">返回</button>
         </div>
       </div>
@@ -409,7 +555,7 @@
           <div class="panel settings-panel settings-about-panel">
             <div class="panel-label">ABOUT</div>
             <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。六阵营、229 张主卡 + 13 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
-            <p class="settings-about">当前构建：20261020dt</p>
+            <p class="settings-about">当前构建：20261020dv</p>
             <button id="btn-settings-credits" class="btn btn-small btn-ghost">制作与素材说明</button>
           </div>
         </div>
@@ -586,7 +732,7 @@
             <div class="setup-summary" id="setup-summary">普卫岛 vs 学院 · 30+1 · 先手随机</div>
             <div class="setup-ai-row"><span>AI 难度</span><button class="ai-diff-btn active" data-ai-diff="normal">标准</button><button class="ai-diff-btn" data-ai-diff="easy">简单</button><button class="ai-diff-btn" data-ai-diff="hard">困难</button><button class="ai-diff-btn" data-ai-diff="nightmare">噩梦</button></div>
             <button id="btn-start-game" class="btn btn-primary btn-wide">开始推演</button>
-            <div class="fine-print">开局先进行起手调度；双方开场无护甲；先手首回合正常抽牌，后手获得 2 点额外行动力。</div>
+            <div class="fine-print">开局先进行起手调度；双方开场无护甲；先手首回合正常抽牌，后手获得「采掘许可」（本回合 +2 点行动力）。</div>
           </div>
 
           <div class="panel setup-hero-panel" id="setup-hero-panel">
@@ -771,11 +917,11 @@
           <div class="game-top-actions">
             <button id="btn-concede" class="btn btn-small btn-ghost">认输</button>
             <button id="btn-rank-game" class="btn btn-small btn-ghost">排位</button>
-            <button id="btn-keywords" class="btn btn-small btn-ghost">关键词</button>
             <button id="btn-toggle-log" class="btn btn-small btn-ghost">日志</button>
             <button id="btn-sound" class="btn btn-small btn-ghost">声音：开</button>
           </div>
           <div class="game-help-actions" aria-label="帮助">
+            <button id="btn-keywords" class="btn btn-small btn-ghost" title="查看全部关键词">关键词</button>
             <button id="btn-game-tutorial" class="btn btn-small btn-ghost">教程</button>
           </div>
           <button id="btn-game-settings" class="btn btn-small btn-ghost">设置</button>
@@ -790,11 +936,13 @@
         </aside>
 
         <div class="battlefield" id="battlefield">
-          <div class="side opponent-side">
-            <div class="side-emblem" id="opponent-emblem"></div>
-            <div class="hero-panel opponent-hero" id="opponent-hero"></div>
+          <div class="hs-half hs-opponent opponent-side" data-faction="">
+            <div class="side-emblem" id="opponent-emblem" aria-hidden="true"></div>
+            <div class="hero-rail">
+              <div class="hero-panel opponent-hero" id="opponent-hero"></div>
+            </div>
             <div class="board-wrap">
-              <div class="board-label" title="每个阵位最多 3 个随从；全场最多 6 个。">敌方阵位 · 3格上限 / 全场6</div>
+              <div class="board-label" title="每个阵位最多 3 个随从；全场最多 6 个。">敌方阵位</div>
               <div class="board enemy-board" id="enemy-board"></div>
             </div>
           </div>
@@ -809,12 +957,14 @@
             <button id="btn-end-turn" class="btn btn-primary end-turn-btn">结束回合</button>
           </div>
 
-          <div class="side player-side">
-            <div class="side-emblem" id="player-emblem"></div>
-            <div class="hero-panel player-hero" id="player-hero"></div>
+          <div class="hs-half hs-player player-side" data-faction="">
+            <div class="side-emblem" id="player-emblem" aria-hidden="true"></div>
             <div class="board-wrap">
-              <div class="board-label" title="每个阵位最多 3 个随从；全场最多 6 个。同阵位卡牌会参考这个位置。">我方阵位 · 3格上限 / 全场6</div>
+              <div class="board-label" title="每个阵位最多 3 个随从；全场最多 6 个。同阵位卡牌会参考这个位置。">我方阵位</div>
               <div class="board player-board" id="player-board"></div>
+            </div>
+            <div class="hero-rail">
+              <div class="hero-panel player-hero" id="player-hero"></div>
             </div>
           </div>
         </div>
@@ -853,10 +1003,9 @@
   <script src="js/data.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/cinematic.js?v=20261020dt"></script>
-  <script src="js/ui.js?v=20261020dt"></script>
-  <script src="js/content.js?v=20261020dt"></script>
-  <script src="js/final-ui.js?v=20261020dt"></script>
+  <script src="js/cinematic.js?v=20261020dv"></script>
+  <script src="js/ui.js?v=20261020dv"></script>
+  <script src="js/content.js?v=20261020dv"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
