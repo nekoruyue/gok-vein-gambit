@@ -47,7 +47,7 @@
     return h >>> 0;
   }
   function labelFor(mode) {
-    return { expedition: "远征", arena: "竞技场", daily: "每日挑战", puzzle: "残局", story: "故事" }[mode] || "模式";
+    return { expedition: "远征", arena: "竞技场", daily: "每日挑战", puzzle: "残局", story: "故事", mirror: "镜像对决" }[mode] || "模式";
   }
   function runMode(mode, label) {
     app.contentRun = { mode: mode, label: label || labelFor(mode) };
@@ -73,6 +73,7 @@
     else if (run.mode === "daily") dailyAfter(data, state);
     else if (run.mode === "puzzle") puzzleAfter(data, state, run.puzzle);
     else if (run.mode === "story") storyAfter(data, state, run.chapter);
+    else if (run.mode === "mirror") mirrorAfter(data, state);
     else renderHub();
   }
 
@@ -100,8 +101,24 @@
     const intro = el("div", "content-intro");
     intro.appendChild(el("div", "eyebrow", "BEYOND THE CLASSIC"));
     intro.appendChild(el("h2", null, "选择一条档案线"));
-    intro.appendChild(el("p", null, "经典对战之外，档案室还记录了远征、竞技场、残局与旧日故事。所有模式复用同一套流脉规则。档案印记：" + (data.marks || 0)));
+    intro.appendChild(el("p", null, "经典对战之外，档案室还记录了远征、竞技场、每日挑战、残局、旧日故事与镜像对决。所有模式复用同一套流脉规则。档案印记：" + (data.marks || 0)));
     box.appendChild(intro);
+    const stats = el("div", "content-stats");
+    stats.appendChild(el("span", null, "印记 " + (data.marks || 0)));
+    stats.appendChild(el("span", null, "残局 " + Object.keys(data.puzzles || {}).length + "/" + PUZZLES.length));
+    stats.appendChild(el("span", null, "故事 " + Object.keys(data.story && data.story.done || {}).length + "/5"));
+    stats.appendChild(el("span", null, "镜像 " + (data.mirror ? (data.mirror.wins || 0) + " 胜" : "未开始")));
+    box.appendChild(stats);
+    const activeExpedition = data.expedition && !data.expedition.finished && data.expedition.node < data.expedition.nodes.length;
+    const activeArena = data.arena && data.arena.active;
+    if (activeExpedition || activeArena) {
+      const resume = el("div", "content-resume");
+      resume.appendChild(el("span", null, activeExpedition ? "远征进行中 · 节点 " + (data.expedition.node + 1) + "/" + data.expedition.nodes.length : "竞技场轮抽进行中 · " + data.arena.picks + "/10"));
+      const btn = el("button", "btn btn-small btn-primary", "继续");
+      btn.onclick = () => activeExpedition ? renderExpedition() : renderArena();
+      resume.appendChild(btn);
+      box.appendChild(resume);
+    }
     const grid = el("div", "mode-grid");
     const modes = [
       {
@@ -133,6 +150,12 @@
         desc: "五段与阵营有关的短战，先看档案，再进入战斗。",
         status: "已完成 " + Object.keys(data.story && data.story.done || {}).length + " / 5",
         action: () => renderStory()
+      },
+      {
+        id: "mirror", title: "镜像对决", tag: "MIRROR",
+        desc: "双方使用同一阵营、同一套预设牌组。没有克制借口，只看谁更懂这套牌。",
+        status: data.mirror ? "战绩 " + (data.mirror.wins || 0) + " 胜 " + (data.mirror.losses || 0) + " 负" : "选择阵营",
+        action: () => renderMirror()
       }
     ];
     for (const mode of modes) {
@@ -431,6 +454,18 @@
     box.appendChild(panel);
   }
 
+  function renderContentFactionPicker(selected, onPick) {
+    const wrap = el("div", "content-faction-picker");
+    for (const id of D.FACTION_IDS) {
+      const b = el("button", "content-faction-btn" + (id === selected ? " active" : ""), factionName(id));
+      b.type = "button";
+      b.dataset.faction = id;
+      b.onclick = () => onPick(id);
+      wrap.appendChild(b);
+    }
+    return wrap;
+  }
+
   /* ===== arena ===== */
   function renderArena() {
     const box = root(); clear(box);
@@ -454,13 +489,22 @@
         return;
       }
       box.appendChild(el("p", "muted", "十轮三选一，每张牌加入三份。选满 30 张主卡后开始三场连续战斗，三败出局。"));
-      const btn = el("button", "btn btn-primary", "以" + factionName(app.faction || "pus") + "开始轮抽");
+      app.contentArenaFaction = D.FACTIONS[app.contentArenaFaction] ? app.contentArenaFaction : (D.FACTIONS[app.faction] ? app.faction : "pus");
+      const panel = el("div", "mode-panel");
+      panel.appendChild(el("h3", null, "选择轮抽阵营"));
+      panel.appendChild(el("p", null, "本轮的卡池、遗物和对手都会围绕这个阵营生成。"));
+      panel.appendChild(renderContentFactionPicker(app.contentArenaFaction, (id) => {
+        app.contentArenaFaction = id;
+        renderArena();
+      }));
+      const btn = el("button", "btn btn-primary", "以" + factionName(app.contentArenaFaction) + "开始轮抽");
       btn.onclick = () => {
-        data.arena = { faction: app.faction || "pus", deck: [], picks: 0, wins: 0, losses: 0, active: true };
+        data.arena = { faction: app.contentArenaFaction, deck: [], picks: 0, wins: 0, losses: 0, active: true };
         save(data);
         renderArena();
       };
-      box.appendChild(btn);
+      panel.appendChild(btn);
+      box.appendChild(panel);
       return;
     }
     if (run.picks < 10) {
@@ -748,10 +792,80 @@
     renderStory();
   }
 
+  /* ===== mirror ===== */
+  function renderMirror() {
+    const box = root(); clear(box);
+    const head = el("div", "content-subhead");
+    const back = el("button", "btn btn-small btn-ghost", "← 返回模式");
+    back.onclick = renderHub;
+    head.appendChild(back);
+    head.appendChild(el("div", "eyebrow", "MIRROR / SAME FACTION"));
+    head.appendChild(el("h2", null, "镜像对决"));
+    box.appendChild(head);
+    app.contentMirrorFaction = D.FACTIONS[app.contentMirrorFaction] ? app.contentMirrorFaction : (D.FACTIONS[app.faction] ? app.faction : "pus");
+    const panel = el("div", "mode-panel");
+    panel.appendChild(el("h3", null, "选择镜像阵营"));
+    panel.appendChild(el("p", null, "双方使用同一阵营、同一套预设牌组；没有克制借口，只看谁更懂这套牌。"));
+    panel.appendChild(renderContentFactionPicker(app.contentMirrorFaction, (id) => {
+      app.contentMirrorFaction = id;
+      renderMirror();
+    }));
+    const start = el("button", "btn btn-primary", "以" + factionName(app.contentMirrorFaction) + "开始镜像");
+    start.onclick = () => startMirror(app.contentMirrorFaction);
+    panel.appendChild(start);
+    box.appendChild(panel);
+  }
+
+  function startMirror(faction) {
+    faction = D.FACTIONS[faction] ? faction : (D.FACTIONS[app.faction] ? app.faction : "pus");
+    const deck = factionDeck(faction);
+    runMode("mirror", "镜像对决 · " + factionName(faction));
+    global.GokUI.startGame({
+      faction: faction,
+      opponent: faction,
+      p1Deck: deck.slice(),
+      p2Deck: deck.slice(),
+      aiDifficulty: "hard",
+      first: Math.floor(Math.random() * 2),
+      seed: seedFrom("mirror:" + faction + ":" + Date.now())
+    });
+  }
+  function mirrorAfter(data, state) {
+    data.mirror = data.mirror || { wins: 0, losses: 0 };
+    if (state.winner === 0) {
+      data.mirror.wins = (data.mirror.wins || 0) + 1;
+      data.marks = (data.marks || 0) + 1;
+    } else {
+      data.mirror.losses = (data.mirror.losses || 0) + 1;
+    }
+    data.mirror.last = { faction: app.contentMirrorFaction || app.faction, at: Date.now(), win: state.winner === 0 };
+    save(data);
+    renderHub();
+  }
+
+  function openDaily() {
+    if (global.GokUI) GokUI.showScreen("content");
+    renderDaily();
+  }
+  function resumeContent() {
+    if (global.GokUI) GokUI.showScreen("content");
+    const data = load();
+    const expedition = data.expedition;
+    if (expedition && !expedition.finished && expedition.nodes && expedition.node < expedition.nodes.length) {
+      renderExpedition();
+      return;
+    }
+    if (data.arena && data.arena.active) {
+      renderArena();
+      return;
+    }
+    renderHub();
+  }
+
   function init() {
     const back = document.getElementById("btn-content-back");
     if (back) back.onclick = () => { if (global.GokUI) GokUI.showScreen("home"); };
   }
   init();
-  global.GokContent = { open: open, afterGame: afterGame, renderHub: renderHub };
+  global.GokContent = { open: open, afterGame: afterGame, renderHub: renderHub, openDaily: openDaily, resume: resumeContent };
 })(typeof globalThis !== "undefined" ? globalThis : this);

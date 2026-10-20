@@ -63,7 +63,12 @@
   function createPlayer(index, factionId, isAI) {
     const faction = D.FACTIONS[factionId];
     const heroId = faction.hero;
-    const heroDef = hero(heroId);
+    const baseHero = hero(heroId);
+    // 每个玩家持有独立的英雄数据副本，遗物替换技能时不会污染其他对局。
+    const heroDef = Object.assign({}, baseHero, {
+      power: Object.assign({}, baseHero.power),
+      passive: baseHero.passive ? Object.assign({}, baseHero.passive) : baseHero.passive
+    });
     return {
       index: index,
       name: index === 0 ? "玩家 1" : "玩家 2",
@@ -94,7 +99,6 @@
       healBlockTurn: false,
       freeSpellTurn: false,
       nextSpellReduction: 0,
-      spellCodexReduction: 0,
       minionsPlayedThisTurn: 0,
       tauntMinionsPlayedThisTurn: 0,
       recruitsSummonedThisTurn: 0,
@@ -175,10 +179,6 @@
       if (!m.keywords.includes("taunt")) m.keywords.push("taunt");
     }
     const ownerPlayer = owner && owner.heroId ? owner : state.players[owner];
-    if (ownerPlayer && ownerPlayer.heroId === "wolfram" && m.taunt && !m.silenced) {
-      m.health += 1;
-      m.maxHealth += 1;
-    }
     if (ownerPlayer && ownerPlayer.relic === "iron_banner" && m.taunt && !m.silenced) {
       m.attack += 1;
       m.health += 1;
@@ -210,7 +210,7 @@
         out.excludeDeathrattle = out.excludeDeathrattle || d.formation.excludeDeathrattle || null;
       }
     }
-    if (hasFormation && player.relic === "formation_standard") { out.health += 1; }
+    if (hasFormation && player.relic === "formation_standard") { out.attack += 1; }
     return out;
   }
 
@@ -271,6 +271,7 @@
       if (!m.keywords.includes("deathrattle")) m.keywords.push("deathrattle");
     }
     log(state, player.name + " 召唤了 " + def.name + "（" + ZONE_NAMES[z] + "）。", player, "summon");
+    state.events.push({ structured: true, kind: "summon", player: player.index, zone: z });
     state.stats.minionsSummoned++;
     if (cardId === "republic_recruit") player.recruitsSummonedThisTurn = (player.recruitsSummonedThisTurn || 0) + 1;
     if (m.taunt) {
@@ -302,6 +303,7 @@
       } else {
         player.hand.push(c);
         log(state, player.name + " 抽到 " + card(c.cardId).name + "。", player, "draw");
+        state.events.push({ structured: true, kind: "draw", player: player.index });
         maybeCopyGainedSpell(state, player, c);
       }
     }
@@ -371,9 +373,18 @@
   function getCardCost(state, player, cardIdOrCard) {
     const id = typeof cardIdOrCard === "string" ? cardIdOrCard : cardIdOrCard.cardId;
     const def = card(id);
+    const handDiscount = cardIdOrCard && typeof cardIdOrCard === "object" ? Math.max(0, cardIdOrCard.discount || 0) : 0;
+    let firstCardDiscount = 0;
+    if (player && (player.cardsPlayedThisTurn || 0) === 0) {
+      for (const m of aliveMinions(player)) {
+        if (!m.silenced && m.passive && m.passive.type === "firstCardDiscount") {
+          firstCardDiscount = Math.max(firstCardDiscount, m.passive.amount || 1);
+        }
+      }
+    }
     if (def.type === "spell" && player.freeSpellTurn) return 0;
-    const spellReduction = def.type === "spell" ? (player.spellCostReduction || 0) + (player.spellCodexReduction || 0) + (player.nextSpellReduction || 0) : 0;
-    return Math.max(0, def.cost - (player.nextCostReduction || 0) - spellReduction);
+    const spellReduction = def.type === "spell" ? (player.spellCostReduction || 0) + (player.nextSpellReduction || 0) : 0;
+    return Math.max(0, def.cost - (player.nextCostReduction || 0) - spellReduction - handDiscount - firstCardDiscount);
   }
 
   // 逆流 N：消耗 N 点流脉触发。流脉不足 N 时消耗到 0 仍触发；流脉为 0 时效果无效。
@@ -525,12 +536,6 @@
       const armorOwner = ownerOf(state, source);
       armorOwner.armor += actual;
       log(state, source.name + " 造成伤害，获得 " + actual + " 点护甲。", armorOwner, "armor");
-    }
-    const dmgOwner = ownerOf(state, m);
-    if (m.health > 0 && !m.silenced && dmgOwner.heroId === "karna" && source && source.owner === dmgOwner.index) {
-      if (nextRandom(state) < 0.5) buffMinion(state, m, 1, 0, "血债", true);
-      else buffMinion(state, m, 0, 1, "血债", true);
-      log(state, m.name + " 承受友方伤害后获得血债强化。", dmgOwner, "buff");
     }
     return amount;
   }
@@ -715,7 +720,7 @@
               openDiscover(state, p, "spell", ally.cardId);
               log(state, ally.name + " 记录阵亡：检索一张战术牌。", p, "discover");
             } else {
-              addRandomSpellFromDeck(state, p, "阵亡检索");
+              addRandomSpell(state, p, "阵亡检索");
             }
           }
         }
@@ -728,7 +733,7 @@
   function triggerDeathrattle(state, player, m, d) {
     d = d || m.deathrattle;
     if (!d) return;
-    state.events.push({ structured: true, kind: "deathrattle", targetUid: m.uid, name: m.name, player: player.index });
+    state.events.push({ structured: true, kind: "deathrattle", targetUid: m.uid, name: m.name, player: player.index, zone: m.zone });
     if (d.type === "summon") {
       const count = d.count || 1;
       for (let i = 0; i < count; i++) {
@@ -861,12 +866,6 @@
       checkGameOver(state);
       log(state, "魔物潮退去，流脉将在 12 时回流清空。", null, "veinEvent");
     }
-    for (const p of state.players) {
-      if (p.heroId !== "lain") continue;
-      for (const z of ZONES) for (const m of p.board[z].slice()) healMinion(state, m, 1);
-      healHero(state, p, 1);
-      log(state, p.name + " 的地脉回响恢复所有友方单位 1 点生命。", p, "heal");
-    }
   }
 
   function applyVeinEffects(state, player, minion, def) {
@@ -904,9 +903,13 @@
     const handCard = player.hand.find(c => c.uid === cardUid);
     if (!handCard) return { ok: false, reason: "手牌中没有这张牌" };
     const def = card(handCard.cardId);
+    opts = Object.assign({}, opts || {});
+    if (def.bloodCost != null) opts.payBlood = true;
     const cost = getCardCost(state, player, handCard);
     const freeCast = !!(opts && opts.freeCast);
     if (!freeCast && player.mana < cost) return { ok: false, reason: "行动力不足", code: "mana" };
+    if (def.bloodCost != null && player.hp <= def.bloodCost) return { ok: false, reason: "生命不足，无法支付血祭", code: "bloodPay" };
+    if (def.id === "armor_mortar" && (player.armor || 0) < 3) return { ok: false, reason: "需要至少 3 点护甲", code: "armor" };
     if (def.type === "minion" && boardCount(player) >= 6) return { ok: false, reason: "随从已满", code: "boardFull" };
     const targetType = getTargetType(state, def);
     const target = opts && opts.targetUid ? findMinion(state, opts.targetUid) : null;
@@ -920,10 +923,7 @@
         return { ok: false, reason: "需要选择一个合法目标", code: "target", targetType: targetType, targets: valid.map(m => m.uid) };
       }
     }
-    if (def.bloodCost != null && (!opts || opts.payBlood == null)) {
-      return { ok: false, reason: "是否支付血祭代价？", code: "blood", amount: def.bloodCost };
-    }
-    if (def.bloodCost != null && opts.payBlood && player.hp <= def.bloodCost) {
+    if (def.bloodCost != null && player.hp <= def.bloodCost) {
       return { ok: false, reason: "生命不足，无法支付血祭", code: "bloodPay" };
     }
     const target2Type = def.target2 || null;
@@ -946,7 +946,7 @@
       if (def.type === "minion" && !zoneHasSpace(player, zone)) return { ok: false, reason: "该阵位已满", code: "zoneFull" };
       if (def.type === "formation" && (player.formations || []).length >= 2) return { ok: false, reason: "阵型槽已满", code: "formationFull" };
     }
-    if (def.bloodCost != null && opts.payBlood) {
+    if (def.bloodCost != null) {
       player.hp -= def.bloodCost;
       log(state, player.name + " 支付血祭：" + def.bloodCost + " 点生命。", player, "blood");
       checkGameOver(state);
@@ -973,7 +973,6 @@
       player.spellsCastThisGame = (player.spellsCastThisGame || 0) + 1;
       player.freeSpellTurn = false;
       player.nextSpellReduction = 0;
-      player.spellCodexReduction = 0;
       for (const m of aliveMinions(player)) {
         if (m.passive && m.passive.type === "spellGrowth" && !m.silenced) {
           buffMinion(state, m, m.passive.attack || 0, m.passive.health || 0, "法术回响", true);
@@ -991,14 +990,6 @@
           log(state, m.name + " 触发奥术导管：施放战术牌，抽 1 张牌。", player, "draw");
         }
       }
-      let theoristDone = false;
-      for (const m of aliveMinions(player)) {
-        if (theoristDone || !m.passive || m.passive.type !== "spellDiscoverOnce" || m.silenced) continue;
-        if (player.theoristTurn === state.turnNumber) continue;
-        player.theoristTurn = state.turnNumber;
-        openDiscover(state, player, "spell", m.cardId);
-        theoristDone = true;
-      }
       let freezeObserverDone = false;
       for (const m of aliveMinions(player)) {
         if (freezeObserverDone || !m.passive || m.passive.type !== "spellFreezeOnce" || m.silenced) continue;
@@ -1012,7 +1003,7 @@
         healHero(state, player, 1);
         log(state, "霜晶棱镜：恢复领袖 1 点生命。", player, "heal");
       }
-      if (!freeCast) player.lastSpell = { cardId: def.id, targetUid: opts && opts.targetUid, zone: opts && opts.zone };
+      if (!freeCast) player.lastSpell = { cardId: def.id, targetUid: opts && opts.targetUid, targetUid2: opts && opts.targetUid2, zone: opts && opts.zone, payBlood: !!(opts && opts.payBlood) };
     }
     if (def.type === "minion") {
       const m = summonMinion(state, player, def.id, zone, opts && opts.taunt ? { taunt: true } : null);
@@ -1048,7 +1039,19 @@
     } else if (def.type === "relic") {
       const hadRelic = player.relic;
       player.relic = def.id;
-      if (def.id === "wanderer_charm") { player.maxHp += 2; player.hp += 2; }
+      const basePower = D.HEROES[player.heroId] && D.HEROES[player.heroId].power;
+      if (def.id === "spell_codex") {
+        player.hero.power = {
+          id: "spell_codex",
+          name: "编目",
+          cost: 2,
+          target: "none",
+          text: "随机使一张手牌中的战术牌行动力消耗 -1。"
+        };
+      } else if (basePower) {
+        player.hero.power = Object.assign({}, basePower);
+      }
+      if (def.id === "wanderer_charm") { player.maxHp += 5; }
       if (def.id === "formation_standard") { for (const zone of new Set((player.formations || []).map(f => f.zone))) applyFormationToZone(state, player, zone); }
       if (def.id === "gh_venom_vial" && hadRelic !== "gh_venom_vial") {
         for (const m of aliveMinions(player)) if (m.poisonous && !m.silenced) m.attack += 1;
@@ -1074,6 +1077,7 @@
         resolveZhenmai(state, player, def);
         processDeaths(state);
         endDeferredDeaths(state);
+        if (state.status === "playing") triggerSpellDiscoverObservers(state, player);
       }
     }
     checkGameOver(state);
@@ -1379,8 +1383,9 @@
         log(state, "登场：" + minion.name + " 将 " + name + " 移回手牌。", player, "battlecry");
       }
     } else if (b.type === "veinDraw") {
-      addVein(state, b.amount || 1, "登场");
-      if (state.vein >= (b.vein == null ? 8 : b.vein)) drawCard(state, player, b.draw || 1);
+      addVein(state, b.amount || 1, "采掘");
+      if (b.draw) drawCard(state, player, b.draw);
+      if (state.vein >= (b.vein == null ? 8 : b.vein)) drawCard(state, player, b.thresholdDraw || 1);
     } else if (b.type === "damageAllEnemies") {
       for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, b.amount || 2, minion, "登场");
       log(state, "登场：" + minion.name + " 对所有敌方随从造成 " + (b.amount || 2) + " 点伤害。", player, "battlecry");
@@ -1389,17 +1394,25 @@
         target.dead = true;
         log(state, "登场：" + minion.name + " 消灭了 " + target.name + "。", player, "battlecry");
       }
+    } else if (b.type === "destroyAllEnemies") {
+      const targets = aliveMinions(opponentOf(state, player));
+      for (const targetMinion of targets) {
+        targetMinion.dead = true;
+        state.events.push({ structured: true, kind: "destroy", targetUid: targetMinion.uid, player: opponentOf(state, player).index });
+      }
+      log(state, "登场：" + minion.name + " 消灭了所有敌方随从。", player, "battlecry");
     } else if (b.type === "veinSelfBuff") {
       if (state.vein >= (b.vein == null ? 4 : b.vein)) {
         buffMinion(state, minion, b.attack || 0, 0, "引脉", true);
         log(state, "引脉触发：" + minion.name + " 获得 +" + (b.attack || 0) + " 攻击。", player, "vein");
       }
     } else if (b.type === "veinBuff") {
-      addVein(state, b.amount || 2, "流脉巨兽");
+      addVein(state, b.amount == null ? 2 : b.amount, b.draw ? "采掘" : "登场");
+      if (b.draw) drawCard(state, player, b.draw);
       if (state.vein >= (b.vein == null ? 7 : b.vein)) {
-        buffMinion(state, minion, b.attack || 2, b.health || 2, "登场", true);
+        buffMinion(state, minion, b.attack == null ? 2 : b.attack, b.health == null ? 2 : b.health, "登场", true);
         grantTaunt(state, minion);
-        log(state, "引脉触发：流脉巨兽获得 +" + (b.attack || 2) + "/+" + (b.health || 2) + " 和拦截。", player, "vein");
+        log(state, "引脉触发：" + minion.name + " 获得 +" + (b.attack == null ? 2 : b.attack) + "/+" + (b.health == null ? 2 : b.health) + " 和拦截。", player, "vein");
       }
     } else if (b.type === "summonSelfCopy") {
       const copy = summonMinion(state, player, def.id, openZones(player)[0], null);
@@ -1512,7 +1525,13 @@
       if (comboActive(player)) {
         const n = state.deathsThisTurn || 0;
         if (n > 0) buffMinion(state, minion, n * (b.attack || 1), n * (b.health || 1), "顺势", true);
-        log(state, "顺势：本回合场上已死亡 " + n + " 个随从，获得 +" + (n * (b.attack || 1)) + "/+" + (n * (b.health || 1)) + "。", player, "combo");
+        minion.passive = {
+          type: "deathGrowth",
+          attack: b.attack || 1,
+          health: b.health || 1,
+          expiresTurn: state.turnNumber
+        };
+        log(state, "本回合已死亡 " + n + " 个随从，获得 +" + (n * (b.attack || 1)) + "/+" + (n * (b.health || 1)) + "；本回合后续死亡继续成长。", player, "combo");
       }
     } else if (b.type === "grantReborn") {
       if (target && !target.dead) grantReborn(state, target);
@@ -1533,13 +1552,7 @@
       if (comboActive(player)) {
         const n = player.recruitsSummonedThisTurn || 0;
         if (n > 0) buffMinion(state, minion, n * (b.attack || 1), n * (b.health || 1), "顺势", true);
-        log(state, "顺势：本回合已召唤 " + n + " 个共和国新兵，获得 +" + (n * (b.attack || 1)) + "/+" + (n * (b.health || 1)) + "。", player, "combo");
-      }
-      const enemy = opponentOf(state, player);
-      if (!aliveMinions(enemy).some(x => x.zone === minion.zone)) {
-        const z = zoneHasSpace(player, minion.zone) ? minion.zone : openZones(player)[0];
-        if (z) summonMinion(state, player, "republic_recruit", z, null);
-        log(state, "对位没有敌方随从：召唤一个 1/1 的共和国新兵。", player, "battlecry");
+        log(state, "本回合已召唤 " + n + " 个共和国新兵，获得 +" + (n * (b.attack || 1)) + "/+" + (n * (b.health || 1)) + "。", player, "combo");
       }
     } else if (b.type === "markBounty") {
       if (target && !target.dead) markBounty(state, player, target);
@@ -1732,9 +1745,18 @@
       for (const m of aliveMinions(opponentOf(state, player))) damageMinion(state, m, s.amount || 2, null, "阵位齐射");
       processDeaths(state);
     } else if (s.type === "armorPerEnemy") {
-      const count = aliveMinions(opponentOf(state, player)).length + 1;
-      player.armor += count * (s.amount || 3);
-      log(state, "每有一个敌方单位（含领袖）获得 " + (s.amount || 3) + " 点护甲，共 " + (count * (s.amount || 3)) + " 点。", player, "armor");
+      const count = aliveMinions(opponentOf(state, player)).length;
+      player.armor += count * (s.amount || 2);
+      log(state, "每有一个敌方随从获得 " + (s.amount || 2) + " 点护甲，共 " + (count * (s.amount || 2)) + " 点。", player, "armor");
+    } else if (s.type === "armorToDamageFixed") {
+      const need = s.armor || 3;
+      if ((player.armor || 0) < need) {
+        log(state, "护甲不足，装甲炮击没有生效。", player, "damage");
+      } else {
+        player.armor -= need;
+        damageHero(state, opponentOf(state, player), s.damage || 5, null, "装甲炮击");
+        log(state, "消耗 " + need + " 点护甲，对敌方领袖造成 " + (s.damage || 5) + " 点伤害。", player, "damage");
+      }
     } else if (s.type === "armorToDamage") {
       const used = Math.min(player.armor, s.max || 5);
       player.armor -= used;
@@ -1842,6 +1864,9 @@
     } else if (s.type === "healHero") {
       healHero(state, player, s.amount || s.heal || 1);
       log(state, player.name + " 恢复 " + (s.amount || s.heal || 1) + " 点生命。", player, "heal");
+    } else if (s.type === "healHeroDraw") {
+      healHero(state, player, s.amount || s.heal || 1);
+      drawCard(state, player, s.draw || 1);
     } else if (s.type === "freezeGrantReborn") {
       if (target && !target.dead) freezeMinion(state, target);
       const t2 = opts && opts.targetUid2 ? findMinion(state, opts.targetUid2) : null;
@@ -1858,6 +1883,17 @@
     } else if (s.type === "tauntRebornAll") {
       for (const p of state.players) for (const m of aliveMinions(p)) { grantTaunt(state, m); grantReborn(state, m); }
       log(state, "戒严：场上所有随从获得拦截与回潮。", player, "buff");
+    } else if (s.type === "tauntRebornZone") {
+      if (!target || target.dead) return;
+      const zone = target.zone;
+      for (const p of state.players) {
+        for (const m of (p.board[zone] || []).slice()) {
+          if (m.dead) continue;
+          grantTaunt(state, m);
+          grantReborn(state, m);
+        }
+      }
+      log(state, "戒严：" + ZONE_NAMES[zone] + "的所有随从获得拦截与回潮。", player, "buff");
     } else if (s.type === "damageAllMinions") {
       for (const p of state.players) for (const z of ZONES) for (const m of p.board[z].slice()) damageMinion(state, m, s.amount || 5, null, "火药桶");
       log(state, "对所有随从造成 " + (s.amount || 5) + " 点伤害。", player, "damage");
@@ -1970,9 +2006,7 @@
       const enemy = opponentOf(state, player);
       const removed = Math.min(enemy.armor || 0, s.amount || 4);
       enemy.armor = Math.max(0, (enemy.armor || 0) - removed);
-      const gain = removed > 0 ? (s.mana || 1) : 0;
-      player.mana = Math.min(10, player.mana + gain);
-      log(state, "破甲演算：移除敌方 " + removed + " 点护甲" + (gain ? "，获得 " + gain + " 点行动力。" : "，没有获得行动力。"), player, "armor");
+      log(state, "破甲演算：移除敌方 " + removed + " 点护甲。", player, "armor");
     }
   }
 
@@ -1997,11 +2031,9 @@
 
   function grantTaunt(state, m) {
     if (!m || m.dead) return;
-    const wasTaunt = m.taunt;
     m.taunt = true;
     if (!m.keywords.includes("taunt")) m.keywords.push("taunt");
     const owner = ownerOf(state, m);
-    if (!wasTaunt && owner.heroId === "wolfram" && !m.silenced) buffMinion(state, m, 0, 1, "铁壁纪律", true);
     log(state, m.name + " 获得拦截。", owner, "taunt");
   }
 
@@ -2057,6 +2089,7 @@
     log(state, "悬赏完成：" + owner.name + " 抽 1 张牌。", owner, "bounty");
     if (owner.heroId === "monarch") {
       owner.armor += 1;
+      state.events.push({ structured: true, kind: "armor", player: owner.index, amount: 1 });
       log(state, "抽成：" + owner.name + " 获得 1 点护甲。", owner, "armor");
     }
     if (owner.relic === "gh_bounty_board") {
@@ -2092,25 +2125,12 @@
 
   function openDiscover(state, player, pool, sourceCardId) {
     let options = [];
-    let fromDeck = false;
-    if (pool === "spell") {
-      const seen = new Set();
-      const deckSpells = [];
-      for (const c of player.deck) {
-        const d = card(c.cardId);
-        if (!d || d.type !== "spell" || seen.has(c.cardId)) continue;
-        seen.add(c.cardId);
-        deckSpells.push(c.cardId);
-      }
-      options = shuffle(state, deckSpells).slice(0, 3);
-      fromDeck = true;
-      if (!options.length) {
-        log(state, player.name + " 的牌库中没有可检索的战术牌。", player, "discover");
-        return;
-      }
-    } else {
-      const all = discoverPool(player, pool);
-      options = shuffle(state, all).slice(0, 3);
+    const fromDeck = false;
+    const all = discoverPool(player, pool);
+    options = shuffle(state, all).slice(0, 3);
+    if (!options.length) {
+      log(state, player.name + " 没有可检索的卡牌。", player, "discover");
+      return;
     }
     const choice = { type: "discover", player: player.index, options: options, source: sourceCardId, fromDeck: fromDeck };
     if (state.pendingChoice) {
@@ -2121,6 +2141,15 @@
     }
     state.pendingChoice = choice;
     log(state, player.name + " 触发检索，等待选择。", player, "discover");
+  }
+
+  function advanceDiscover(state) {
+    if (state.discoverQueue && state.discoverQueue.length) {
+      state.pendingChoice = state.discoverQueue.shift();
+      return;
+    }
+    state.pendingChoice = null;
+    resumePendingEndTurn(state);
   }
 
   function resolveDiscover(state, playerIndex, cardId) {
@@ -2140,8 +2169,7 @@
       }
       if (idx < 0) {
         log(state, "检索选项已被其他效果取走，跳过本次选择。", player, "discover");
-        if (state.discoverQueue && state.discoverQueue.length) state.pendingChoice = state.discoverQueue.shift();
-        else state.pendingChoice = null;
+        advanceDiscover(state);
         return { ok: true, reason: "检索选项已失效" };
       }
       const [deckCard] = player.deck.splice(idx, 1);
@@ -2149,15 +2177,13 @@
       if (!added) {
         player.deck.splice(idx, 0, deckCard);
         log(state, "手牌已满，检索牌留在牌库。", player, "discover");
-        if (state.discoverQueue && state.discoverQueue.length) state.pendingChoice = state.discoverQueue.shift();
-        else state.pendingChoice = null;
+        advanceDiscover(state);
         return { ok: true, reason: "手牌已满，检索牌留在牌库" };
       }
     } else {
       addCardToHand(state, player, cardId, {});
     }
-    if (state.discoverQueue && state.discoverQueue.length) state.pendingChoice = state.discoverQueue.shift();
-    else state.pendingChoice = null;
+    advanceDiscover(state);
     return { ok: true };
   }
 
@@ -2231,12 +2257,19 @@
     return { ok: true };
   }
 
+  function transformCandidates(player, handCard) {
+    const oldDef = card(handCard.cardId);
+    if (!oldDef) return [];
+    return Object.keys(D.CARDS).filter(id => {
+      const d = D.CARDS[id];
+      if (!d || d.token || d.disabled || d.cost !== oldDef.cost || id === oldDef.id || d.type === "relic") return false;
+      return d.faction === player.faction;
+    });
+  }
+
   function transformHandCard(state, player, handCard) {
     const oldDef = card(handCard.cardId);
-    const candidates = Object.keys(D.CARDS).filter(id => {
-      const d = D.CARDS[id];
-      return d && !d.token && !d.disabled && d.cost === oldDef.cost && id !== oldDef.id && d.type !== "relic";
-    });
+    const candidates = transformCandidates(player, handCard);
     if (!candidates.length) return false;
     const nextId = candidates[Math.floor(Math.random() * candidates.length)];
     handCard.cardId = nextId;
@@ -2251,9 +2284,35 @@
     if (state.current !== playerIndex) return { ok: false, reason: "还没轮到你" };
     const player = state.players[playerIndex];
     if (player.heroPowerUsed) return { ok: false, reason: "领袖技能本回合已用过" };
+    if (player.hero.power && player.hero.power.id === "spell_codex") {
+      const cost = player.hero.power.cost || 2;
+      if (player.mana < cost) return { ok: false, reason: "行动力不足" };
+      const spells = player.hand.filter(c => card(c.cardId).type === "spell");
+      if (!spells.length) return { ok: false, reason: "手牌中没有战术牌可以编目" };
+      player.mana -= cost;
+      player.heroPowerUsed = true;
+      state.lastAction = { type: "heroPower", player: playerIndex, heroId: player.heroId, powerName: player.hero.power.name, targetUid: null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
+      log(state, player.name + " 使用领袖技能「编目」。", player, "heroPower");
+      const picked = spells[randomInt(state, spells.length)];
+      picked.discount = (picked.discount || 0) + 1;
+      log(state, "编目：手牌「" + card(picked.cardId).name + "」行动力消耗 -1。", player, "discount");
+      return { ok: true };
+    }
+    if (player.hero.power && (player.hero.power.passive || player.hero.power.target === "passive")) {
+      return { ok: false, reason: "这是被动技能，无需主动使用" };
+    }
     if (player.mana < 2) return { ok: false, reason: "行动力不足" };
+    if (player.heroId === "karna") {
+      player.mana -= 2;
+      player.heroPowerUsed = true;
+      state.lastAction = { type: "heroPower", player: playerIndex, heroId: player.heroId, powerName: player.hero.power.name, targetUid: null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
+      log(state, player.name + " 使用领袖技能「血祭」。", player, "heroPower");
+      damageHero(state, player, 1, null, "血祭");
+      drawCard(state, player, 1);
+      checkGameOver(state);
+      return { ok: true };
+    }
     const handTarget = player.heroId === "wolfram";
-    const leaderOnly = player.heroId === "marta";
     let targets = [];
     let targetIds = [];
     if (handTarget) {
@@ -2261,27 +2320,27 @@
       if (!targetIds.length) return { ok: false, reason: "没有可以改写的手牌" };
       if (!targetUid || targetIds.indexOf(targetUid) < 0) return { ok: false, reason: "请选择一张手牌", code: "target", targets: targetIds };
     } else {
-      const heroTargetType = (player.heroId === "otto" || player.heroId === "marta" || player.heroId === "monarch") ? "enemy" : "friendly";
+      const heroTargetType = player.heroId === "otto" ? "enemy" : "friendly";
       targets = heroTargetType === "enemy"
-        ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth && (player.heroId !== "monarch" || m.bounty == null))
+        ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
         : aliveMinions(player);
       targetIds = targets.map(m => m.uid);
       if (player.heroId === "otto") targetIds.unshift("hero");
-      if (leaderOnly) targetIds = ["hero"];
       if (!targetIds.length) return { ok: false, reason: heroTargetType === "enemy" ? "没有敌方目标" : "没有友方随从可作为目标" };
     }
-    if (leaderOnly && targetUid !== "hero") return { ok: false, reason: "玛尔塔的技能只能指向敌方领袖" };
     let target = null;
     if (handTarget) target = player.hand.find(c => c.uid === targetUid);
-    else if (targetUid === "hero" && (player.heroId === "otto" || player.heroId === "marta")) target = "hero";
+    else if (targetUid === "hero" && player.heroId === "otto") target = "hero";
     else if (targetUid) target = targets.find(m => m.uid === targetUid);
     if (!target) return {
       ok: false,
       reason: handTarget ? "请选择一张手牌"
-        : (player.heroId === "otto" || player.heroId === "marta" ? "请选择一个敌方随从或领袖"
-          : player.heroId === "monarch" ? "请选择一个敌方随从" : "请选择一个友方随从"),
+        : (player.heroId === "otto" ? "请选择一个敌方随从或领袖" : "请选择一个友方随从"),
       code: "target", targets: targetIds
     };
+    if (handTarget && !transformCandidates(player, target).length) {
+      return { ok: false, reason: "没有同阵营且行动力消耗相同的手牌可改写", code: "target", targets: targetIds };
+    }
     player.mana -= (player.hero.power.cost || 2);
     player.heroPowerUsed = true;
     state.lastAction = { type: "heroPower", player: playerIndex, heroId: player.heroId, powerName: player.hero.power.name, targetUid: targetUid || null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
@@ -2292,20 +2351,10 @@
       const zoneMates = player.board[target.zone].filter(m => m.uid !== target.uid && !m.dead);
       const hasMate = zoneMates.length > 0;
       buffMinion(state, target, hasMate ? 1 : 0, 1, "协调", true);
-    } else if (player.heroId === "karna") {
-      damageMinion(state, target, 1, { owner: player.index }, "血祭");
-      if (target.health <= 0) target.dead = true;
-      processDeaths(state);
-      if (target.dead) drawCard(state, player, 1);
-    } else if (player.heroId === "marta") {
-      damageHero(state, opponentOf(state, player), 2, null, "演算");
-      processDeaths(state);
     } else if (player.heroId === "otto") {
       if (target === "hero") damageHero(state, opponentOf(state, player), 1, null, "炮击");
       else damageMinion(state, target, 1, null, "炮击");
       processDeaths(state);
-    } else if (player.heroId === "monarch") {
-      markBounty(state, player, target);
     }
     checkGameOver(state);
     return { ok: true };
@@ -2315,6 +2364,11 @@
     if (state.status !== "playing") return;
     const player = state.players[state.current];
     state.turnNumber++;
+    for (const p of state.players) {
+      for (const m of allMinions(p)) {
+        if (m.passive && m.passive.expiresTurn && m.passive.expiresTurn < state.turnNumber) m.passive = null;
+      }
+    }
     player.maxMana = Math.min(10, player.maxMana + 1);
     player.heroPowerUsed = false;
     if (player.heroPowerBlocked) {
@@ -2324,12 +2378,10 @@
     }
     player.freezeImmuneTurn = false;
     player.healBlockTurn = false;
-    player.spellCodexReduction = 0;
     player.spellsCastThisTurn = 0;
     player.cardsPlayedThisTurn = 0;
     player.freeSpellTurn = false;
     player.nextSpellReduction = 0;
-    player.spellCodexReduction = 0;
     player.minionsPlayedThisTurn = 0;
     player.tauntMinionsPlayedThisTurn = 0;
     player.recruitsSummonedThisTurn = 0;
@@ -2340,10 +2392,8 @@
     player.mana = Math.max(0, player.maxMana - (player.overload || 0)) + (player.nextTurnManaBonus || 0);
     player.nextTurnManaBonus = 0;
     player.overload = 0;
-    if (player.heroId === "marta") player.spellCostReduction = 2;
+    if (player.heroId === "marta") player.spellCostReduction = 1;
             if (player.relic === "armor_forge") { player.armor += 1; log(state, player.name + " 的帝国锻炉提供 1 点护甲。", player, "armor"); }
-        if (player.heroId === "otto") { player.ottoTurnCounter = (player.ottoTurnCounter || 0) + 1; if (player.ottoTurnCounter % 2 === 0) { player.armor += 1; log(state, player.name + " 的军工产线提供 1 点护甲。", player, "armor"); } }
-            if (player.relic === "spell_codex" && !(player.heroId === "marta")) player.spellCodexReduction = 1;
     for (const f of player.formations || []) {
       if (f.turnsLeft != null) f.turnsLeft -= 1;
     }
@@ -2379,6 +2429,17 @@
     checkGameOver(state);
   }
 
+  function triggerSpellDiscoverObservers(state, player) {
+    let done = false;
+    for (const m of aliveMinions(player)) {
+      if (done || !m.passive || m.passive.type !== "spellDiscoverOnce" || m.silenced) continue;
+      if (player.theoristTurn === state.turnNumber) continue;
+      player.theoristTurn = state.turnNumber;
+      openDiscover(state, player, "spell", m.cardId);
+      done = true;
+    }
+  }
+
   function repeatLastSpell(state, player) {
     const speaker = aliveMinions(player).find(m => m.passive && m.passive.type === "repeatLastSpell" && !m.silenced);
     const last = player.lastSpell;
@@ -2388,9 +2449,38 @@
     const temp = { uid: uid("c"), cardId: last.cardId, generated: true };
     player.hand.push(temp);
     log(state, speaker.name + " 复诵「" + def.name + "」。", player, "spell");
-    const res = playCard(state, player.index, temp.uid, { targetUid: last.targetUid, zone: last.zone, freeCast: true });
+    const res = playCard(state, player.index, temp.uid, { targetUid: last.targetUid, targetUid2: last.targetUid2, zone: last.zone, payBlood: !!last.payBlood, freeCast: true });
     player.hand = player.hand.filter(c => c.uid !== temp.uid);
     if (!res.ok) log(state, "复诵失败：" + (res.reason || "目标已失效"), player, "error");
+  }
+
+  function resumePendingEndTurn(state) {
+    if (state.pendingEndTurn == null || state.pendingChoice || state.status !== "playing") return;
+    const ending = state.pendingEndTurn;
+    state.pendingEndTurn = null;
+    finishEndTurn(state, ending);
+  }
+
+  function finishEndTurn(state, playerIndex) {
+    if (state.status !== "playing") return;
+    const player = state.players[playerIndex];
+    if (!player) return;
+    if (player.veinDebt) {
+      const debt = player.veinDebt;
+      player.veinDebt = 0;
+      log(state, player.name + " 偿还借脉：流脉 +" + debt + "。", player, "vein");
+      addVein(state, debt, "借脉偿还");
+    }
+    log(state, player.name + " 结束回合。", player, "endTurn");
+    if (playerIndex === 0) {
+      state.current = 1;
+    } else {
+      state.current = 0;
+      state.round++;
+      addVein(state, 1, "自然回流");
+    }
+    checkGameOver(state);
+    if (state.status === "playing") startTurn(state);
   }
 
   function endTurn(state, playerIndex) {
@@ -2414,25 +2504,11 @@
     repeatLastSpell(state, player);
     if (state.status !== "playing") return { ok: true };
     if (state.pendingChoice) {
+      state.pendingEndTurn = playerIndex;
       log(state, "复诵触发检索，先完成选择。", player, "discover");
       return { ok: true, pending: true };
     }
-    if (player.veinDebt) {
-      const debt = player.veinDebt;
-      player.veinDebt = 0;
-      log(state, player.name + " 偿还借脉：流脉 +" + debt + "。", player, "vein");
-      addVein(state, debt, "借脉偿还");
-    }
-    log(state, player.name + " 结束回合。", player, "endTurn");
-    if (playerIndex === 0) {
-      state.current = 1;
-    } else {
-      state.current = 0;
-      state.round++;
-      addVein(state, 1, "自然回流");
-    }
-    checkGameOver(state);
-    if (state.status === "playing") startTurn(state);
+    finishEndTurn(state, playerIndex);
     return { ok: true };
   }
 
@@ -2449,13 +2525,15 @@
     const zones = def.type === "minion" ? openZones(player) : def.type === "formation" ? ZONES.slice() : [];
     const cost = getCardCost(state, player, c);
     const canMana = player.mana >= cost;
+    const canArmor = def.id !== "armor_mortar" || (player.armor || 0) >= 3;
+    const canBlood = def.bloodCost == null || player.hp > def.bloodCost;
     const canBoard = def.type === "minion" ? boardCount(player) < 6 : def.type === "formation" ? (player.formations || []).length < 2 : true;
     const canTarget = !targetType || targets.length > 0 || !!def.optionalTarget || def.type === "minion" || (def.id === "miyuki" && state.vein >= 6);
     const canTarget2 = !target2Type || target2Targets.length > 0 || !!def.optionalTarget2;
     const canZone = !zoneType || zones.length > 0;
     const formReason = def.type === "formation" && !canBoard ? "阵型槽已满" : "";
     return {
-      ok: canMana && canBoard && canTarget && canTarget2 && canZone,
+      ok: canMana && canArmor && canBlood && canBoard && canTarget && canTarget2 && canZone,
       card: def,
       cost: cost,
       targetType: targetType,
@@ -2464,31 +2542,60 @@
       target2Targets: target2Targets.map(m => m.uid),
       zones: zones,
       canMana: canMana,
+      canArmor: canArmor,
+      canBlood: canBlood,
       canBoard: canBoard,
       canTarget: canTarget,
       canTarget2: canTarget2,
       bloodCost: def.bloodCost || 0,
-      reason: !canMana ? "行动力不足" : !canBoard ? (formReason || "随从已满") : !canTarget ? "没有合法目标" : !canTarget2 ? "缺少第二个合法目标" : null
+      reason: !canMana ? "行动力不足" : !canArmor ? "需要至少 3 点护甲" : !canBlood ? "生命不足，无法支付血祭" : !canBoard ? (formReason || "随从已满") : !canTarget ? "没有合法目标" : !canTarget2 ? "缺少第二个合法目标" : null
     };
   }
 
   function getHeroPowerOptions(state, playerIndex) {
     const player = state.players[playerIndex];
     if (!player) return { ok: false, targets: [] };
+    if (player.hero.power && player.hero.power.id === "spell_codex") {
+      const hasSpell = player.hand.some(c => card(c.cardId).type === "spell");
+      return {
+        ok: !player.heroPowerUsed && player.mana >= (player.hero.power.cost || 2) && hasSpell,
+        targets: [],
+        targetType: "none",
+        cost: player.hero.power.cost || 2,
+        used: player.heroPowerUsed
+      };
+    }
+    if (player.hero.power && (player.hero.power.passive || player.hero.power.target === "passive")) {
+      return {
+        ok: false,
+        passive: true,
+        targets: [],
+        targetType: "passive",
+        cost: 0,
+        used: false
+      };
+    }
+    if (player.heroId === "karna") {
+      return {
+        ok: !player.heroPowerUsed && player.mana >= 2,
+        targets: [],
+        targetType: "none",
+        cost: 2,
+        used: player.heroPowerUsed
+      };
+    }
     const handTarget = player.heroId === "wolfram";
-    const leaderOnly = player.heroId === "marta";
-    const targetType = handTarget ? "hand" : ((player.heroId === "otto" || player.heroId === "marta" || player.heroId === "monarch") ? "enemy" : "friendly");
+    const targetType = handTarget ? "hand" : (player.heroId === "otto" ? "enemy" : "friendly");
     const targets = targetType === "enemy"
-      ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth && (player.heroId !== "monarch" || m.bounty == null))
+      ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : (targetType === "friendly" ? aliveMinions(player) : []);
-    let targetIds = handTarget ? player.hand.map(c => c.uid) : targets.map(m => m.uid);
+    let targetIds = handTarget ? player.hand.filter(c => transformCandidates(player, c).length > 0).map(c => c.uid) : targets.map(m => m.uid);
     if (player.heroId === "otto") targetIds.unshift("hero");
-    if (leaderOnly) targetIds = ["hero"];
     return {
-      ok: !player.heroPowerUsed && player.mana >= 2 && targetIds.length > 0,
+      ok: !player.heroPowerUsed && player.mana >= (player.hero.power.cost || 2) && targetIds.length > 0,
       targets: targetIds,
       targetType: targetType,
-      cost: 2,
+      cost: player.hero.power.cost || 2,
       used: player.heroPowerUsed
     };
   }
@@ -2572,7 +2679,7 @@
     state.players[0].deck = buildDeck(state, faction1, config.p1Deck || deckWithRelic(faction1));
     state.players[1].deck = buildDeck(state, faction2, config.p2Deck || deckWithRelic(faction2));
     for (const p of state.players) {
-      if (p.relic === "wanderer_charm") { p.maxHp += 2; p.hp += 2; }
+      if (p.relic === "wanderer_charm") { p.maxHp += 5; }
     }
     // 随机先手：先手 3 张，后手 4 张 + 采掘许可
     const first = config.first == null ? (nextRandom(state) < 0.5 ? 0 : 1) : config.first;

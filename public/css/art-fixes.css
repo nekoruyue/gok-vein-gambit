@@ -1,0 +1,1062 @@
+/* 2026-10-20 art/visual QA pass.
+   Loaded after hs-layout.css so card framing and compact battle layouts win. */
+
+/* 1) Card art framing: keep the upper body and face in frame instead of only sky. */
+html body .gok-lib-art > .generated-art-img {
+  object-position: 50% 32% !important;
+}
+
+/* A neutral archive plate while the real art decodes. Avoids showing the
+   battlefield fallback behind every card for half a second. */
+html body .gok-lib-art.placeholder {
+  background-image:
+    radial-gradient(circle at 50% 30%, rgba(95, 211, 196, 0.13), rgba(4, 13, 16, 0.96) 68%),
+    linear-gradient(160deg, rgba(14, 31, 33, 0.98), rgba(3, 9, 12, 0.99)) !important;
+  background-color: #071417;
+}
+
+/* Lift the art a little out of the black without weakening the text scrim. */
+html body .deck-mini .gok-lib-art,
+html body .library-hand .gok-lib-art,
+html body .library-board .gok-lib-art {
+  filter: brightness(0.96) saturate(1.02);
+}
+
+/* Cards at max copies are unavailable, not invisible. */
+html body .deck-mini.full {
+  opacity: 0.62 !important;
+}
+
+html body .deck-mini .gok-lib-name {
+  font-size: 11.5px !important;
+}
+html body .deck-mini .gok-lib-text {
+  font-size: 8.2px !important;
+  line-height: 1.34 !important;
+}
+html body .library-hand .gok-lib-text {
+  font-size: 10px !important;
+  line-height: 1.35 !important;
+}
+
+/* Setup / faction thumbnails were readable but unnecessarily murky. */
+html body .faction-card .faction-portrait {
+  filter: saturate(0.98) brightness(0.96);
+}
+html body .setup-hero-art {
+  filter: brightness(0.87) saturate(0.98);
+}
+
+/* 2) Compact game HUD/board for 900-high and 768-high windows.
+   The normal 1080 layout stays untouched. */
+@media (max-height: 1020px) {
+  body[data-screen="game"] .hero-rail {
+    flex-basis: 110px !important;
+    height: 110px !important;
+  }
+  body[data-screen="game"] .hero-panel {
+    height: 106px !important;
+    min-height: 106px !important;
+    padding: 8px 16px !important;
+  }
+  body[data-screen="game"] .hs-hero-portrait {
+    width: 88px !important;
+    height: 88px !important;
+    flex-basis: 88px !important;
+  }
+  body[data-screen="game"] .hs-hero-side {
+    width: 88px !important;
+    height: 96px !important;
+  }
+  body[data-screen="game"] .hs-skill {
+    width: 66px !important;
+    height: 66px !important;
+  }
+  body[data-screen="game"] .hs-skill-icon {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  body[data-screen="game"] .hs-hero-name { font-size: 15px !important; }
+  body[data-screen="game"] .hs-hero-sub { font-size: 8px !important; }
+  body[data-screen="game"] .hs-hero-vitals { height: 34px !important; gap: 6px !important; }
+  body[data-screen="game"] .hs-vital { height: 34px !important; padding: 2px 8px !important; }
+  body[data-screen="game"] .hs-vital b { font-size: 24px !important; }
+  body[data-screen="game"] .hs-vital.hs-armor b { font-size: 20px !important; }
+  body[data-screen="game"] .hs-vital small { font-size: 8px !important; }
+  body[data-screen="game"] .hs-hero-hpbar { height: 3px !important; }
+
+  body[data-screen="game"] .board-card.library-board {
+    width: 116px !important;
+    height: 138px !important;
+    border-radius: 58px 58px 9px 9px !important;
+  }
+  body[data-screen="game"] .board-card.library-board .gok-lib-art {
+    border-radius: 58px 58px 0 0 !important;
+  }
+  body[data-screen="game"] .board-card.library-board .gok-lib-stat {
+    width: 27px !important;
+    height: 27px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-height: 840px) {
+  body[data-screen="game"] .hero-rail {
+    flex-basis: 84px !important;
+    height: 84px !important;
+  }
+  body[data-screen="game"] .hero-panel {
+    height: 80px !important;
+    min-height: 80px !important;
+    padding: 5px 12px !important;
+  }
+  body[data-screen="game"] .hs-hero-portrait {
+    width: 68px !important;
+    height: 68px !important;
+    flex-basis: 68px !important;
+    border-width: 2px !important;
+  }
+  body[data-screen="game"] .hs-hero-side {
+    width: 70px !important;
+    height: 74px !important;
+  }
+  body[data-screen="game"] .hs-skill {
+    width: 52px !important;
+    height: 52px !important;
+  }
+  body[data-screen="game"] .hs-skill-icon {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  body[data-screen="game"] .hs-hero-name { font-size: 13px !important; }
+  body[data-screen="game"] .hs-hero-sub { font-size: 7px !important; }
+  body[data-screen="game"] .hs-hero-vitals { height: 26px !important; gap: 4px !important; }
+  body[data-screen="game"] .hs-vital { height: 26px !important; padding: 1px 5px !important; }
+  body[data-screen="game"] .hs-vital b { font-size: 17px !important; }
+  body[data-screen="game"] .hs-vital.hs-armor b { font-size: 14px !important; }
+  body[data-screen="game"] .hs-vital small { display: none !important; }
+  body[data-screen="game"] .hs-hero-hpbar { height: 2px !important; }
+
+  body[data-screen="game"] .board-card.library-board {
+    width: 86px !important;
+    height: 102px !important;
+    border-radius: 43px 43px 8px 8px !important;
+  }
+  body[data-screen="game"] .board-card.library-board .gok-lib-art {
+    border-radius: 43px 43px 0 0 !important;
+  }
+  body[data-screen="game"] .board-card.library-board .gok-lib-stat {
+    width: 23px !important;
+    height: 23px !important;
+    font-size: 10px !important;
+  }
+}
+
+/* ===== use the generated HUD textures instead of CSS-drawn glyphs ===== */
+body[data-screen="game"] .hs-vital {
+  position: relative !important;
+  align-items: center !important;
+  padding-left: 34px !important;
+  min-width: 92px !important;
+  border-color: rgba(214, 172, 92, 0.28) !important;
+  background: linear-gradient(180deg, rgba(7, 21, 23, 0.92), rgba(2, 8, 10, 0.96)) !important;
+}
+body[data-screen="game"] .hs-vital::before { display: none !important; content: none !important; }
+body[data-screen="game"] .hs-vital-art {
+  position: absolute;
+  z-index: 2;
+  left: 6px;
+  top: 50%;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+body[data-screen="game"] .hs-hp-art { filter: drop-shadow(0 0 7px rgba(235, 86, 77, 0.42)); }
+body[data-screen="game"] .hs-armor-art { filter: drop-shadow(0 0 7px rgba(120, 187, 241, 0.38)); }
+body[data-screen="game"] .hs-vital.hs-hp {
+  border-color: rgba(220, 104, 91, 0.4) !important;
+  background: linear-gradient(180deg, rgba(47, 15, 16, 0.9), rgba(14, 8, 11, 0.96)) !important;
+}
+body[data-screen="game"] .hs-vital.hs-armor {
+  border-color: rgba(142, 180, 208, 0.34) !important;
+  background: linear-gradient(180deg, rgba(15, 30, 40, 0.9), rgba(7, 13, 18, 0.96)) !important;
+}
+body[data-screen="game"] .hs-vital b { color: #ffd0c7 !important; text-shadow: 0 1px 5px rgba(0, 0, 0, 0.65); }
+body[data-screen="game"] .hs-vital.hs-armor b { color: #d7e8f4 !important; }
+
+/* power medallion: keep the generated ring, make the name glyph a small seal */
+body[data-screen="game"] .hs-skill {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(242, 198, 109, 0.08), transparent 54%),
+    linear-gradient(160deg, rgba(14, 35, 29, 0.96), rgba(4, 12, 14, 0.98)) !important;
+  border-color: rgba(214, 172, 92, 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(3, 11, 13, 0.86), 0 0 20px rgba(217, 164, 65, 0.14) !important;
+}
+body[data-screen="game"] .hs-skill-icon {
+  opacity: 1 !important;
+  background-size: 100% 100% !important;
+  filter: brightness(1.08) saturate(1.05) drop-shadow(0 0 6px rgba(242, 198, 109, 0.32)) !important;
+}
+body[data-screen="game"] .hs-skill-glyph {
+  font-size: 17px !important;
+  color: #f8e1ae !important;
+  text-shadow: 0 1px 4px #000, 0 0 12px rgba(242, 198, 109, 0.48) !important;
+}
+
+/* action readout gets the generated mana frame and crystal pips */
+body[data-screen="game"] #mana-display.mana-hud {
+  background:
+    linear-gradient(90deg, rgba(4, 12, 13, 0.48), rgba(4, 12, 13, 0.2) 50%, rgba(4, 12, 13, 0.48)),
+    url("../assets/ui/mana-frame.webp") center / 100% 100% no-repeat !important;
+  border: 0 !important;
+  box-shadow: 0 9px 26px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(242, 198, 109, 0.14) !important;
+  padding: 8px 14px 12px !important;
+}
+body[data-screen="game"] #mana-display .mana-icon {
+  width: 30px !important;
+  height: 32px !important;
+  object-fit: contain;
+  background: none !important;
+  filter: drop-shadow(0 0 8px rgba(104, 231, 214, 0.44));
+}
+body[data-screen="game"] #mana-display .mana-pip {
+  width: 17px !important;
+  height: 27px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  transform: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+body[data-screen="game"] #mana-display .mana-crystal-art {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
+  transform: translate(-50%, -50%);
+  opacity: 0.36;
+  filter: grayscale(0.7) brightness(0.45);
+}
+body[data-screen="game"] #mana-display .mana-pip.filled .mana-crystal-art {
+  opacity: 1;
+  filter: brightness(1.22) saturate(1.12) drop-shadow(0 0 7px rgba(95, 211, 196, 0.65));
+}
+body[data-screen="game"] #mana-display .mana-total { color: #fff0c9 !important; }
+
+/* flow rail: generated channel + core, instead of a flat gradient */
+body[data-screen="game"] #vein-row::after {
+  background: url("../assets/ui/vein-channel.webp") center / 100% 100% no-repeat !important;
+  opacity: 0.55 !important;
+  mix-blend-mode: normal !important;
+}
+body[data-screen="game"] .vein-sigil {
+  border-color: rgba(214, 172, 92, 0.55) !important;
+  background: radial-gradient(circle at 40% 35%, rgba(95, 211, 196, 0.16), rgba(3, 10, 12, 0.92)) !important;
+}
+body[data-screen="game"] .vein-sigil::before,
+body[data-screen="game"] .vein-sigil::after { display: none !important; content: none !important; }
+body[data-screen="game"] .vein-sigil {
+  background-image: url("../assets/ui/vein-core.webp") !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+body[data-screen="game"] .vein-sigil::first-letter { color: transparent !important; }
+
+/* end turn: use the generated seal, dark copper lettering for contrast */
+body[data-screen="game"] #btn-end-turn {
+  background: url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  border: 0 !important;
+  color: #3a1712 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.12em !important;
+  text-shadow: 0 1px 0 rgba(255, 234, 190, 0.55) !important;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.42) !important;
+}
+body[data-screen="game"] #btn-end-turn::before { display: none !important; content: none !important; }
+body[data-screen="game"] #btn-end-turn:hover { filter: brightness(1.08) !important; }
+body[data-screen="game"] #btn-end-turn:disabled {
+  color: rgba(255, 241, 216, 0.9) !important;
+  filter: grayscale(0.45) brightness(0.8) !important;
+  text-shadow: 0 2px 4px #000 !important;
+}
+
+/* final HUD polish: let the ornate medallion fill the skill circle */
+body[data-screen="game"] .hs-skill-icon {
+  width: 92% !important;
+  height: 92% !important;
+  flex-basis: auto !important;
+}
+body[data-screen="game"] .hs-skill-glyph {
+  font-size: 15px !important;
+  color: #fff0c4 !important;
+  text-shadow: 0 1px 4px #000, 0 0 9px rgba(242, 198, 109, 0.55) !important;
+}
+body[data-screen="game"] .hs-skill-cost {
+  background: radial-gradient(circle at 40% 30%, #e2faf1, #4bb9ad 55%, #173c3e);
+  color: #092323 !important;
+  border-color: #e8d39b !important;
+  font-weight: 800 !important;
+}
+
+/* generated button plate for the in-game help controls */
+body[data-screen="game"] #btn-keywords,
+body[data-screen="game"] #btn-game-tutorial,
+body[data-screen="game"] #btn-settings,
+body[data-screen="game"] #btn-exit {
+  background: url("../assets/ui/button-plate.webp") center / 100% 100% no-repeat !important;
+  border: 0 !important;
+  color: #ffe9b8 !important;
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(0, 0, 0, 0.75) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+body[data-screen="game"] #btn-keywords:hover,
+body[data-screen="game"] #btn-game-tutorial:hover,
+body[data-screen="game"] #btn-settings:hover,
+body[data-screen="game"] #btn-exit:hover {
+  filter: brightness(1.12);
+}
+
+/* active flow segments read as inset gems against the generated rail */
+body[data-screen="game"] .vein-pip.active { border-color: rgba(224, 248, 235, 0.62) !important; }
+body[data-screen="game"] .vein-pip.active.seg1 {
+  background: linear-gradient(180deg, #d8fff6, #5ed5c3 54%, #19877f) !important;
+  box-shadow: 0 0 12px rgba(95, 211, 196, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+}
+body[data-screen="game"] .vein-pip.active.seg2 {
+  background: linear-gradient(180deg, #fff1c1, #d5aa56 54%, #7e541e) !important;
+  box-shadow: 0 0 12px rgba(217, 164, 65, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.48) !important;
+}
+body[data-screen="game"] .vein-pip.active.seg3 {
+  background: linear-gradient(180deg, #ffd1b4, #ce7d4d 54%, #74361e) !important;
+  box-shadow: 0 0 12px rgba(220, 112, 68, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+}
+body[data-screen="game"] .vein-pip.active.seg4 {
+  background: linear-gradient(180deg, #ffc2bd, #c74f52 54%, #6c1f2b) !important;
+  box-shadow: 0 0 12px rgba(225, 72, 78, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
+}
+
+/* ===== opponent hand / action visibility + framed controls ===== */
+body[data-screen="game"] .hs-opp-hand { display: none !important; }
+
+body[data-screen="game"] .hs-enemy-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 20px;
+  margin-top: 2px;
+  padding-top: 3px;
+  border-top: 1px solid rgba(159, 207, 196, 0.16);
+  white-space: nowrap;
+}
+body[data-screen="game"] .hs-enemy-hand,
+body[data-screen="game"] .hs-enemy-mana {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(220, 235, 228, 0.76);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+body[data-screen="game"] .hs-enemy-hand b,
+body[data-screen="game"] .hs-enemy-mana b {
+  color: #ffe4a5;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+body[data-screen="game"] .hs-enemy-back {
+  width: 12px;
+  height: 17px;
+  object-fit: cover;
+  border: 1px solid rgba(242, 198, 109, 0.4);
+  border-radius: 1px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+body[data-screen="game"] .hs-enemy-crystal {
+  width: 12px;
+  height: 18px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px rgba(95, 211, 196, 0.4));
+}
+body[data-screen="game"] .hs-enemy-mana { color: rgba(211, 235, 230, 0.72); }
+
+/* action frame: keep the label and crystal row inside the hollow center */
+body[data-screen="game"] #mana-display.mana-hud {
+  box-sizing: border-box !important;
+  padding: 13px 27px 24px !important;
+  align-content: center !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-main {
+  justify-content: flex-start !important;
+  min-height: 25px !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pips {
+  justify-content: center !important;
+  align-items: center !important;
+  margin-top: 0 !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-total { margin-left: auto !important; }
+
+/* end-turn frame: content sits inside the seal, color communicates the phase */
+body[data-screen="game"] #btn-end-turn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  padding: 0 25px !important;
+  line-height: 1 !important;
+}
+body[data-screen="game"] #btn-end-turn.my-phase {
+  background:
+    linear-gradient(180deg, rgba(128, 28, 23, 0.5), rgba(78, 15, 15, 0.62)),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  color: #fff0d1 !important;
+  text-shadow: 0 1px 4px #3a0908, 0 0 8px rgba(255, 168, 118, 0.45) !important;
+  filter: saturate(1.28) brightness(1.06) !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background:
+    linear-gradient(180deg, rgba(203, 155, 42, 0.62), rgba(126, 86, 18, 0.72)),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  color: #fff2bd !important;
+  text-shadow: 0 1px 4px #4b3308, 0 0 8px rgba(255, 222, 120, 0.42) !important;
+  filter: saturate(1.22) brightness(1.04) !important;
+  cursor: default !important;
+}
+
+/* opponent hand/mana needs to read as a HUD badge, not board decoration */
+body[data-screen="game"] .opponent-hero .hs-enemy-status {
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  bottom: -31px;
+  transform: translateX(-50%);
+  min-height: 24px;
+  margin: 0;
+  padding: 4px 12px;
+  border: 1px solid rgba(214, 172, 92, 0.42);
+  background: linear-gradient(180deg, rgba(5, 17, 19, 0.97), rgba(2, 8, 10, 0.98));
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-top-color: rgba(214, 172, 92, 0.55);
+  gap: 14px;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-hand,
+body[data-screen="game"] .opponent-hero .hs-enemy-mana {
+  color: rgba(226, 239, 232, 0.9);
+  font-size: 10px;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-hand b,
+body[data-screen="game"] .opponent-hero .hs-enemy-mana b {
+  color: #ffe2a0;
+  font-size: 15px;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-back {
+  width: 14px;
+  height: 20px;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-crystal {
+  width: 14px;
+  height: 21px;
+}
+@media (max-height: 840px) {
+  body[data-screen="game"] .opponent-hero .hs-enemy-status {
+    bottom: -25px;
+    padding: 3px 9px;
+    gap: 9px;
+  }
+  body[data-screen="game"] .opponent-hero .hs-enemy-hand,
+  body[data-screen="game"] .opponent-hero .hs-enemy-mana { font-size: 9px; }
+  body[data-screen="game"] .opponent-hero .hs-enemy-hand b,
+  body[data-screen="game"] .opponent-hero .hs-enemy-mana b { font-size: 13px; }
+}
+
+/* make the opponent resource badge readable at a glance */
+body[data-screen="game"] .opponent-hero .hs-enemy-status {
+  bottom: -35px !important;
+  min-height: 29px !important;
+  padding: 5px 14px !important;
+  gap: 16px !important;
+  border-color: rgba(242, 198, 109, 0.62) !important;
+  box-shadow: 0 7px 20px rgba(0, 0, 0, 0.62), 0 0 16px rgba(217, 164, 65, 0.08) !important;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-hand,
+body[data-screen="game"] .opponent-hero .hs-enemy-mana {
+  font-size: 11px !important;
+  color: #e6f0ea !important;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-hand b,
+body[data-screen="game"] .opponent-hero .hs-enemy-mana b {
+  font-size: 17px !important;
+  color: #ffe2a0 !important;
+}
+body[data-screen="game"] .opponent-hero .hs-enemy-back { width: 15px !important; height: 22px !important; }
+body[data-screen="game"] .opponent-hero .hs-enemy-crystal { width: 15px !important; height: 23px !important; }
+@media (max-height: 840px) {
+  body[data-screen="game"] .opponent-hero .hs-enemy-status {
+    bottom: -28px !important;
+    min-height: 25px !important;
+    padding: 4px 10px !important;
+    gap: 10px !important;
+  }
+  body[data-screen="game"] .opponent-hero .hs-enemy-hand,
+  body[data-screen="game"] .opponent-hero .hs-enemy-mana { font-size: 9.5px !important; }
+  body[data-screen="game"] .opponent-hero .hs-enemy-hand b,
+  body[data-screen="game"] .opponent-hero .hs-enemy-mana b { font-size: 14px !important; }
+}
+
+/* mana slots: the generated crystal must beat the legacy pentagon/clip rules */
+body[data-screen="game"] #mana-display.mana-hud .mana-pip {
+  display: block !important;
+  width: 17px !important;
+  height: 27px !important;
+  flex: 0 0 17px !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  clip-path: none !important;
+  transform: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pip .mana-crystal-art {
+  display: block !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  transform: translate(-50%, -50%) !important;
+  opacity: 0.34 !important;
+  filter: grayscale(0.75) brightness(0.42) !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pip.filled .mana-crystal-art {
+  opacity: 1 !important;
+  filter: brightness(1.18) saturate(1.12) drop-shadow(0 0 7px rgba(95, 211, 196, 0.68)) !important;
+}
+
+/* phase colors must dominate the seal texture */
+body[data-screen="game"] #btn-end-turn.my-phase {
+  background:
+    linear-gradient(180deg, rgba(203, 54, 40, 0.82), rgba(112, 20, 18, 0.9)),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  color: #fff6dc !important;
+  text-shadow: 0 1px 3px #5a0907, 0 0 8px rgba(255, 164, 100, 0.5) !important;
+  filter: saturate(1.32) brightness(1.07) !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background:
+    linear-gradient(180deg, rgba(245, 197, 57, 0.82), rgba(171, 112, 15, 0.88)),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  color: #3b2606 !important;
+  text-shadow: 0 1px 0 rgba(255, 243, 174, 0.62) !important;
+  filter: saturate(1.28) brightness(1.1) !important;
+}
+
+/* remove the legacy slab fill so the crystal asset is the whole pip */
+body[data-screen="game"] #mana-display.mana-hud .mana-pip,
+body[data-screen="game"] #mana-display.mana-hud .mana-pip.filled {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pip .mana-crystal-art {
+  display: block !important;
+  opacity: 1 !important;
+  filter: brightness(1.15) saturate(1.08) drop-shadow(0 0 7px rgba(95, 211, 196, 0.55)) !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pip:not(.filled) .mana-crystal-art {
+  opacity: 0.42 !important;
+  filter: grayscale(0.8) brightness(0.5) !important;
+}
+
+/* keep the seal silhouette readable under the phase tint */
+body[data-screen="game"] #btn-end-turn.my-phase {
+  background:
+    linear-gradient(180deg, rgba(170, 35, 27, 0.54), rgba(96, 14, 14, 0.64)),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background:
+    linear-gradient(180deg, rgba(235, 185, 44, 0.52), rgba(150, 95, 10, 0.62)),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+}
+
+/* waiting-state text must stay crisp on the yellow seal */
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  color: #1c1202 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px 0 rgba(255, 243, 174, 0.9), 0 0 3px rgba(255, 239, 163, 0.55) !important;
+  filter: saturate(1.18) brightness(1.05) !important;
+}
+
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  color: #fff5c9 !important;
+  -webkit-text-fill-color: #fff5c9 !important;
+  text-shadow: 0 1px 2px #3b2605, 0 0 4px #3b2605, 0 0 8px rgba(255, 238, 160, 0.45) !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pips {
+  width: 100% !important;
+  justify-content: center !important;
+}
+body[data-screen="game"] #mana-display .mana-icon {
+  width: 34px !important;
+  height: 36px !important;
+  flex: 0 0 34px !important;
+}
+
+/* endpoint action: readable pentagon cells are better than tiny crystal pips */
+body[data-screen="game"] #mana-display.mana-hud .mana-pips {
+  width: 100% !important;
+  justify-content: center !important;
+  gap: 3px !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pip,
+body[data-screen="game"] #mana-display.mana-hud .mana-pip.filled {
+  display: block !important;
+  width: 14px !important;
+  height: 24px !important;
+  flex: 0 0 14px !important;
+  min-width: 0 !important;
+  border: 1px solid rgba(142, 190, 183, 0.5) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0, 100% 30%, 80% 100%, 20% 100%, 0 30%) !important;
+  background: rgba(3, 14, 16, 0.82) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pip.filled {
+  background: linear-gradient(180deg, #b5f4e7, #55c9ba 55%, #1b8278) !important;
+  border-color: #c6fff2 !important;
+  box-shadow: 0 0 10px rgba(75, 220, 200, 0.62), inset 0 1px 0 rgba(255, 255, 255, 0.55) !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-crystal-art { display: none !important; }
+
+/* end-turn seal is an outer frame: enlarge it and only tint the hollow center */
+body[data-screen="game"] #btn-end-turn {
+  width: 160px !important;
+  min-height: 56px !important;
+  padding: 0 26px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  font-size: 13px !important;
+  letter-spacing: 0.14em !important;
+}
+body[data-screen="game"] #btn-end-turn.my-phase {
+  background:
+    linear-gradient(180deg, transparent 0 14%, rgba(194, 42, 40, 0.78) 14% 86%, transparent 86%),
+    linear-gradient(90deg, transparent 0 9%, rgba(194, 42, 40, 0.78) 9% 91%, transparent 91%),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  color: #fff6dc !important;
+  text-shadow: 0 1px 3px #580b08, 0 0 7px rgba(255, 174, 105, 0.45) !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background:
+    linear-gradient(180deg, transparent 0 14%, rgba(240, 190, 53, 0.8) 14% 86%, transparent 86%),
+    linear-gradient(90deg, transparent 0 9%, rgba(240, 190, 53, 0.8) 9% 91%, transparent 91%),
+    url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  color: #fff8d2 !important;
+  -webkit-text-fill-color: #fff8d2 !important;
+  text-shadow: 0 1px 2px #4c3206, 0 0 5px #4c3206 !important;
+}
+
+/* end-turn: generated seal is the outer frame; phase color is only the hollow fill */
+body[data-screen="game"] #btn-end-turn {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 168px !important;
+  min-height: 62px !important;
+  padding: 0 22px !important;
+  overflow: visible !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+body[data-screen="game"] #btn-end-turn::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+  background: url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  opacity: 0.98 !important;
+}
+body[data-screen="game"] #btn-end-turn::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 15% 11% !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  border-radius: 2px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+body[data-screen="game"] #btn-end-turn.my-phase::after {
+  background: linear-gradient(180deg, #b9342d, #66151a) !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase::after {
+  background: linear-gradient(180deg, #e3b541, #8d5d13) !important;
+}
+body[data-screen="game"] #btn-end-turn .end-turn-label {
+  position: relative !important;
+  z-index: 3 !important;
+  display: block !important;
+  color: #fff4d0 !important;
+  -webkit-text-fill-color: #fff4d0 !important;
+  font-family: var(--serif) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.12em !important;
+  text-shadow: 0 1px 3px #3b0b08, 0 0 6px rgba(0, 0, 0, 0.55) !important;
+  white-space: nowrap !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase .end-turn-label {
+  color: #fff9d8 !important;
+  -webkit-text-fill-color: #fff9d8 !important;
+  text-shadow: 0 1px 2px #4b3106, 0 0 4px #4b3106 !important;
+}
+body[data-screen="game"] #btn-end-turn.my-phase,
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background: none !important;
+  filter: none !important;
+  color: inherit !important;
+}
+/* give the enlarged seal a full-width slot; do not let the parent clip it */
+body[data-screen="game"] #vein-row { grid-template-columns: 188px minmax(0, 1fr) 168px !important; }
+body[data-screen="game"] #vein-row .end-turn-stack { width: 168px !important; min-width: 168px !important; }
+@media (min-width: 1200px) {
+  body[data-screen="game"] #vein-row { grid-template-columns: 216px minmax(0, 1fr) 168px !important; }
+}
+@media (max-width: 820px) {
+  body[data-screen="game"] #vein-row { grid-template-columns: minmax(0, 1fr) 168px !important; }
+  body[data-screen="game"] #vein-row .end-turn-stack { width: 168px !important; min-width: 168px !important; }
+}
+/* use the complete generated seal as the button background; the hollow center
+   lets the phase color through, and the frame is not covered by a pseudo fill */
+body[data-screen="game"] #btn-end-turn::before,
+body[data-screen="game"] #btn-end-turn::after {
+  display: none !important;
+  content: none !important;
+}
+body[data-screen="game"] #btn-end-turn.my-phase {
+  background-color: #8f211f !important;
+  background-image: url("../assets/ui/end-turn-seal.webp") !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  color: #fff4d0 !important;
+  -webkit-text-fill-color: #fff4d0 !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background-color: #946412 !important;
+  background-image: url("../assets/ui/end-turn-seal.webp") !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  color: #fff7cf !important;
+  -webkit-text-fill-color: #fff7cf !important;
+}
+/* final end-turn layering: transparent outside, colored fill inside, seal frame on top */
+body[data-screen="game"] #btn-end-turn,
+body[data-screen="game"] #btn-end-turn.my-phase,
+body[data-screen="game"] #btn-end-turn.enemy-phase {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  overflow: visible !important;
+}
+body[data-screen="game"] #btn-end-turn::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  background: url("../assets/ui/end-turn-seal.webp") center / 100% 100% no-repeat !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+body[data-screen="game"] #btn-end-turn::after { display: none !important; content: none !important; }
+body[data-screen="game"] #btn-end-turn .end-turn-fill {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 15% 11% !important;
+  border-radius: 2px !important;
+  pointer-events: none !important;
+}
+body[data-screen="game"] #btn-end-turn.my-phase .end-turn-fill {
+  background: linear-gradient(180deg, rgba(175, 45, 37, 0.92), rgba(95, 16, 18, 0.96)) !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase .end-turn-fill {
+  background: linear-gradient(180deg, rgba(226, 178, 48, 0.94), rgba(139, 91, 15, 0.96)) !important;
+}
+body[data-screen="game"] #btn-end-turn .end-turn-label {
+  position: relative !important;
+  z-index: 3 !important;
+  color: #fff4d0 !important;
+  -webkit-text-fill-color: #fff4d0 !important;
+  font-family: var(--serif) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.12em !important;
+  text-shadow: 0 1px 3px #3b0b08, 0 0 6px rgba(0, 0, 0, 0.55) !important;
+  white-space: nowrap !important;
+}
+body[data-screen="game"] #btn-end-turn.enemy-phase .end-turn-label {
+  color: #fff9d8 !important;
+  -webkit-text-fill-color: #fff9d8 !important;
+  text-shadow: 0 1px 2px #4b3106, 0 0 4px #4b3106 !important;
+}
+body[data-screen="game"] #btn-end-turn .end-turn-fill {
+  inset: 21% 17% !important;
+  clip-path: polygon(4% 0, 96% 0, 100% 50%, 96% 100%, 4% 100%, 0 50%) !important;
+}
+/* final action slot: darker inset, crystals on top, text below */
+body[data-screen="game"] #mana-display.mana-hud {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  align-items: center !important;
+  align-content: center !important;
+  gap: 4px 8px !important;
+  padding: 11px 24px 19px !important;
+  background-image:
+    linear-gradient(180deg, rgba(0, 5, 7, 0.58), rgba(0, 5, 7, 0.8)),
+    url("../assets/ui/mana-frame.webp") !important;
+  background-size: 100% 100%, 100% 100% !important;
+  background-position: center, center !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-color: #02090b !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-pips {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  order: 0 !important;
+  width: 100% !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 3px !important;
+  margin: 0 !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-main {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  order: 0 !important;
+  justify-self: start !important;
+  align-self: center !important;
+  gap: 5px !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-total {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  order: 0 !important;
+  justify-self: end !important;
+  align-self: center !important;
+  margin: 0 !important;
+}
+
+/* bigger, clearer action crystals on top */
+body[data-screen="game"] #mana-display.mana-hud .mana-pip,
+body[data-screen="game"] #mana-display.mana-hud .mana-pip.filled {
+  width: 15px !important;
+  height: 27px !important;
+  flex: 0 0 15px !important;
+}
+body[data-screen="game"] #mana-display.mana-hud .mana-crystal-art { display: none !important; }
+
+/* seal frame: trimmed, centered, and large enough to surround the label */
+body[data-screen="game"] #btn-end-turn {
+  width: 200px !important;
+  min-height: 56px !important;
+  padding: 0 28px !important;
+}
+body[data-screen="game"] #btn-end-turn::before {
+  background-image: url("../assets/ui/end-turn-seal-center.webp") !important;
+  background-size: 100% 100% !important;
+  background-position: center !important;
+}
+body[data-screen="game"] #vein-row .end-turn-stack {
+  width: 200px !important;
+  min-width: 200px !important;
+}
+body[data-screen="game"] #vein-row { grid-template-columns: 188px minmax(0, 1fr) 200px !important; }
+@media (min-width: 1200px) {
+  body[data-screen="game"] #vein-row { grid-template-columns: 216px minmax(0, 1fr) 200px !important; }
+}
+@media (max-width: 820px) {
+  body[data-screen="game"] #vein-row { grid-template-columns: minmax(0, 1fr) 200px !important; }
+  body[data-screen="game"] #vein-row .end-turn-stack { width: 200px !important; min-width: 200px !important; }
+}
+
+/* account save: destructive action zone */
+.btn.btn-danger {
+  border-color: rgba(210, 88, 82, 0.55) !important;
+  background: linear-gradient(180deg, rgba(104, 28, 27, 0.82), rgba(55, 15, 18, 0.9)) !important;
+  color: #ffd0c9 !important;
+}
+.btn.btn-danger:hover {
+  border-color: rgba(255, 128, 116, 0.82) !important;
+  background: linear-gradient(180deg, rgba(139, 37, 33, 0.9), rgba(72, 18, 20, 0.95)) !important;
+  color: #fff1ed !important;
+}
+.account-danger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(192, 80, 77, 0.4);
+  background: linear-gradient(90deg, rgba(48, 15, 17, 0.55), rgba(12, 12, 14, 0.4));
+}
+.account-danger-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.account-danger-copy strong {
+  color: #ffc9c3;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 500;
+}
+.account-danger-copy small {
+  color: rgba(218, 190, 188, 0.68);
+  font-size: 9px;
+  line-height: 1.45;
+}
+.account-delete-btn { flex: 0 0 auto; }
+.delete-save-modal .account-warn { margin: 8px 0 6px; }
+@media (max-width: 620px) {
+  .account-danger { align-items: flex-start; flex-direction: column; }
+  .account-delete-btn { width: 100%; }
+}
+
+/* quick matchmaking */
+#btn-match .start-choice-icon {
+  color: #ffe1a0;
+  border-color: rgba(242, 198, 109, 0.55);
+}
+.matchmaking-modal { width: min(500px, calc(100vw - 36px)); text-align: center; }
+.matchmaking-modal h3 { margin-bottom: 18px; }
+.matchmaking-status {
+  margin: 18px auto 10px;
+  color: #eaf7ef;
+  font-family: var(--serif);
+  font-size: 18px;
+  letter-spacing: 0.06em;
+}
+.matchmaking-timer {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 4px 12px;
+  border: 1px solid rgba(242, 198, 109, 0.45);
+  color: #ffe0a0;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+}
+.matchmaking-hint { color: rgba(196, 216, 211, 0.67); font-size: 10px; line-height: 1.65; margin: 8px 0 0 !important; }
+.matchmaking-modal .modal-actions { justify-content: center; margin-top: 16px; }
+
+#screen-mode .mode-match .mode-choice-art {
+  background-image: url("../assets/backgrounds/menu.webp");
+  background-position: center 30%;
+}
+#screen-mode .mode-match { border-color: rgba(242, 198, 109, 0.5); }
+@media (min-width: 1100px) {
+  #screen-mode .mode-multi-page .mode-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* online match setup: leader + deck before queue */
+.match-setup-modal { width: min(760px, calc(100vw - 36px)); }
+.match-setup-label {
+  margin: 16px 0 8px;
+  color: #c7dbd5;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+.match-faction-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.match-faction-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 54px;
+  padding: 7px 9px;
+  border: 1px solid rgba(126, 164, 153, 0.25);
+  background: rgba(5, 15, 17, 0.72);
+  color: #d9e7df;
+  text-align: left;
+  cursor: pointer;
+}
+.match-faction-card:hover { border-color: rgba(242, 198, 109, 0.55); background: rgba(28, 42, 38, 0.78); }
+.match-faction-card.active {
+  border-color: #e1b861;
+  background: rgba(72, 59, 31, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(225, 184, 97, 0.22);
+}
+.match-faction-emblem { width: 28px; height: 28px; object-fit: contain; flex: 0 0 28px; }
+.match-faction-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.match-faction-copy strong { font-family: var(--serif); font-size: 13px; font-weight: 500; }
+.match-faction-copy small { color: rgba(190, 211, 203, 0.58); font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.match-deck-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(126, 164, 153, 0.24);
+  background: rgba(5, 15, 17, 0.55);
+}
+.match-deck-copy { display: flex; flex-direction: column; gap: 3px; }
+.match-deck-copy strong { font-family: var(--serif); font-size: 13px; font-weight: 500; color: #f0e5c5; }
+.match-deck-copy small { color: rgba(190, 211, 203, 0.55); font-size: 8px; }
+.match-deck-select {
+  min-width: 190px;
+  padding: 7px 9px;
+  border: 1px solid rgba(180, 154, 100, 0.4);
+  background: #0a1718;
+  color: #e9e0cb;
+  font-family: var(--sans);
+  font-size: 10px;
+}
+.match-setup-summary {
+  margin-top: 10px;
+  color: rgba(224, 208, 166, 0.8);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+@media (max-width: 620px) {
+  .match-faction-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .match-deck-row { align-items: flex-start; flex-direction: column; }
+  .match-deck-select { width: 100%; }
+}

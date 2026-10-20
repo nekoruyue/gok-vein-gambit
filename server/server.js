@@ -30,9 +30,39 @@ const MIME = {
 
 const MAX_MESSAGES = 600;
 const rooms = new Map();
+const matchQueue = new Map();
+const matchResults = new Map();
+const MATCH_WAIT_TTL = 30 * 1000;
+const MATCH_STALE_TTL = 4 * 1000;
+const MATCH_RESULT_TTL = 90 * 1000;
 
 function newRoom() {
   return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, guestDecks: null, guestFaction: null, guestRelic: null, guestReady: false, ranked: false, createdAt: Date.now() };
+}
+
+function newMatchTicket() {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+function createRoomCode() {
+  let code = "";
+  for (let i = 0; i < 30; i++) {
+    code = Math.random().toString(36).slice(2, 8).toLowerCase();
+    if (code.length === 6 && !rooms.has(code)) break;
+  }
+  if (!code || rooms.has(code)) return null;
+  rooms.set(code, newRoom());
+  return code;
+}
+
+function cleanupMatches(now) {
+  const stamp = now || Date.now();
+  for (const [ticket, entry] of matchQueue) {
+    if (stamp - entry.at > MATCH_WAIT_TTL || stamp - (entry.seen || entry.at) > MATCH_STALE_TTL) matchQueue.delete(ticket);
+  }
+  for (const [ticket, entry] of matchResults) {
+    if (stamp - entry.at > MATCH_RESULT_TTL) matchResults.delete(ticket);
+  }
 }
 
 function getRoom(id, create) {
@@ -126,13 +156,8 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     if (p === "/api/room/create" && req.method === "POST") {
-      let code = "";
-      for (let i = 0; i < 20; i++) {
-        code = Math.random().toString(36).slice(2, 8).toLowerCase();
-        if (code.length === 6 && !rooms.has(code)) break;
-      }
-      if (!code || rooms.has(code)) { json(res, 500, { ok: false, error: "无法创建房间" }); return; }
-      rooms.set(code, newRoom());
+      const code = createRoomCode();
+      if (!code) { json(res, 500, { ok: false, error: "无法创建房间" }); return; }
       json(res, 200, { ok: true, code });
       return;
     }
@@ -147,6 +172,54 @@ const server = http.createServer(async (req, res) => {
       rrMode.room.seq = 0;
       rrMode.room.messages.length = 0;
       json(res, 200, { ok: true, ranked: rrMode.room.ranked });
+      return;
+    }
+    if (p === "/api/match/join" && req.method === "POST") {
+      cleanupMatches();
+      const now = Date.now();
+      let waitingTicket = null;
+      for (const [ticket] of matchQueue) { waitingTicket = ticket; break; }
+      const ticket = newMatchTicket();
+      if (waitingTicket) {
+        const code = createRoomCode();
+        if (!code) { json(res, 500, { ok: false, error: "无法创建匹配房间" }); return; }
+        const room = rooms.get(code);
+        room.ranked = true;
+        room.createdAt = now;
+        matchQueue.delete(waitingTicket);
+        matchResults.set(waitingTicket, { room: code, role: "host", at: now });
+        matchResults.set(ticket, { room: code, role: "guest", at: now });
+        json(res, 200, { ok: true, matched: true, ticket, room: code, role: "guest", ranked: true });
+        return;
+      }
+      matchQueue.set(ticket, { at: now, seen: now });
+      json(res, 200, { ok: true, waiting: true, ticket, waitMs: 0 });
+      return;
+    }
+    if (p === "/api/match/status") {
+      cleanupMatches();
+      const ticket = String(u.searchParams.get("ticket") || "");
+      const result = matchResults.get(ticket);
+      if (result) {
+        json(res, 200, { ok: true, matched: true, ticket, room: result.room, role: result.role, ranked: true });
+        return;
+      }
+      const waiting = matchQueue.get(ticket);
+      if (waiting) {
+        waiting.seen = Date.now();
+        json(res, 200, { ok: true, waiting: true, ticket, waitMs: Math.max(0, Date.now() - waiting.at) });
+        return;
+      }
+      json(res, 200, { ok: true, waiting: false, expired: true, ticket });
+      return;
+    }
+    if (p === "/api/match/cancel" && req.method === "POST") {
+      const raw = await readBody(req);
+      let body = {};
+      try { body = JSON.parse(raw); } catch (e) { body = {}; }
+      const ticket = String(body.ticket || "");
+      matchQueue.delete(ticket);
+      json(res, 200, { ok: true });
       return;
     }
     const requestedRoom = u.searchParams.get("room") || "lan";

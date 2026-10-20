@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>戈克世界：流脉牌局</title>
   <link rel="icon" href="favicon.ico">
-  <link rel="stylesheet" href="css/style.css?v=20261020dv">
-  <link rel="stylesheet" href="css/hs-layout.css?v=20261020hs">
+  <link rel="stylesheet" href="css/style.css?v=20261020e19">
+  <link rel="stylesheet" href="css/hs-layout.css?v=20261020e19">
+  <link rel="stylesheet" href="css/art-fixes.css?v=20261020e19">
+  <link rel="stylesheet" href="css/mobile.css?v=20261020e19">
 </head>
 <body data-screen="home">
   <div id="boot-loading" class="boot-loading">
@@ -28,6 +30,9 @@
         <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
       </div>
       <div class="home-table-bg" aria-hidden="true"></div>
+      <video id="home-bg-video" class="home-bg-video" muted loop playsinline preload="metadata" poster="assets/cinematics/opening.jpg" aria-hidden="true">
+        <source src="assets/cinematics/opening.mp4" type="video/mp4">
+      </video>
       <div class="home-stage">
         <div class="home-hero">
           <div class="home-kicker-row">
@@ -46,19 +51,30 @@
             <span data-faction-chip="empire"><i></i>帝国</span>
             <span data-faction-chip="greyharbor"><i></i>灰港同盟</span>
           </div>
-          <div class="home-play-modes" role="tablist" aria-label="玩法模式">
-            <button class="home-play-mode active" data-home-mode="classic" role="tab"><span class="home-play-icon">I</span><span><strong>经典模式</strong><small>标准规则 · 单人 / 多人</small></span></button>
-            <button class="home-play-mode" data-home-mode="arcade" role="tab"><span class="home-play-icon">II</span><span><strong>街机模式</strong><small>远征 · 竞技场 · 每日 · 残局 · 故事</small></span></button>
-          </div>
-          <div class="home-start-row">
-            <button id="btn-start-adventure" class="home-start">
-              <span class="home-start-eyebrow">CLASSIC / ENTER ARCHIVE</span>
-              <strong id="home-start-title">开始推演</strong>
-              <span class="home-start-sub" id="home-start-sub">单人 AI · 局域网 · 在线房间</span>
-              <span class="home-start-arrow">→</span>
+          <div class="home-mode-stage" role="group" aria-label="选择玩法">
+            <button id="home-mode-classic" class="home-mode-panel mode-classic" type="button">
+              <span class="home-mode-art" aria-hidden="true"></span>
+              <span class="home-mode-shade" aria-hidden="true"></span>
+              <span class="home-mode-copy">
+                <span class="home-mode-kicker">01 / CLASSIC</span>
+                <strong>经典推演</strong>
+                <small>标准规则 · 单人 AI · 局域网 · 在线房间</small>
+                <span class="home-mode-cta">进入档案 <i>→</i></span>
+              </span>
+            </button>
+            <button id="home-mode-arcade" class="home-mode-panel mode-arcade" type="button">
+              <span class="home-mode-art" aria-hidden="true"></span>
+              <span class="home-mode-shade" aria-hidden="true"></span>
+              <span class="home-mode-copy">
+                <span class="home-mode-kicker">02 / ARCADE</span>
+                <strong>街机档案</strong>
+                <small>远征 · 竞技场 · 每日 · 残局 · 故事 · 镜像</small>
+                <span id="home-arcade-status" class="home-mode-status">今日挑战读取中…</span>
+                <span id="home-arcade-cta" class="home-mode-cta">进入街机 <i>→</i></span>
+              </span>
             </button>
           </div>
-          <button id="btn-game-guide" class="home-guide"><span class="home-guide-icon">?</span><span class="home-guide-copy"><strong>游戏教程</strong><small>规则 · 阵位 · 流脉 · 关键词</small></span><span class="home-guide-arrow">→</span></button>
+          <button id="btn-game-guide" class="home-guide"><span class="home-guide-icon">?</span><span class="home-guide-copy"><strong>规则与教程</strong><small>阵位 · 流脉 · 关键词 · 六步训练</small></span><span class="home-guide-arrow">→</span></button>
           <div class="home-version">非正史档案推演 · 六阵营 · 229 张主卡 + 13 件遗物</div>
         </div>
         <aside class="home-legendary" id="home-legendary">
@@ -101,13 +117,18 @@
               </button>
               <button id="btn-mode-multi" class="start-choice">
                 <span class="start-choice-icon">2P</span>
-                <span class="start-choice-copy"><strong>多人对战</strong><small>局域网直连 / 在线房间</small></span>
+                <span class="start-choice-copy"><strong>多人对战</strong><small>在线匹配 / 组队码房间</small></span>
                 <span class="start-choice-arrow">→</span>
               </button>
             </div>
             <div id="start-menu-multi" class="start-menu-step" hidden>
               <button id="btn-mode-back" class="start-menu-back">← 返回</button>
-              <button id="btn-lan" class="start-choice">
+              <button id="btn-match" class="start-choice">
+                <span class="start-choice-icon">RANK</span>
+                <span class="start-choice-copy"><strong>在线匹配</strong><small>寻找旗鼓相当的对手 · 计入排位</small></span>
+                <span class="start-choice-arrow">→</span>
+              </button>
+              <button id="btn-lan" class="start-choice" hidden>
                 <span class="start-choice-icon">LAN</span>
                 <span class="start-choice-copy"><strong>局域网对战</strong><small>同一网络 · 两台设备</small></span>
                 <span class="start-choice-arrow">→</span>
@@ -118,9 +139,98 @@
                 <span class="start-choice-arrow">→</span>
               </button>
             </div>
-            <div class="start-menu-foot">单人推演不会写入排位。排位与好友对局在多人房间中结算。</div>
+            <div class="start-menu-foot">经典模式 · 单人推演 / 联机推演；联机对局会计入排位。</div>
           </div>
         </div>
+    </section>
+
+    <section id="screen-mode" class="screen mode-screen">
+      <div class="mode-page">
+        <header class="mode-head">
+          <button id="btn-mode-home" class="btn btn-small btn-ghost">← 返回</button>
+          <div class="mode-head-copy">
+            <div class="eyebrow">CLASSIC / SELECT YOUR PATH</div>
+            <h2>经典模式</h2>
+            <p>单人推演深入流脉，或进入联机推演与另一位档案持有者交锋。</p>
+          </div>
+          <div class="head-spacer"></div>
+        </header>
+
+        <div id="mode-main" class="mode-choice-grid">
+          <button id="mode-solo" class="mode-choice mode-solo" type="button">
+            <span class="mode-choice-art" aria-hidden="true"></span>
+            <span class="mode-choice-copy">
+              <span class="mode-kicker">SOLO EXPEDITION</span>
+              <strong>单人推演</strong>
+              <span>· AI 对战<br>对抗 AI，选择阵营与难度；<br>或者直接开始一场随机推演。</span>
+              <em>进入档案 →</em>
+            </span>
+          </button>
+          <button id="mode-multi" class="mode-choice mode-multi" type="button">
+            <span class="mode-choice-art" aria-hidden="true"></span>
+            <span class="mode-choice-copy">
+              <span class="mode-kicker">LINK EXPEDITION</span>
+              <strong>联机推演</strong>
+              <span>· 在线匹配<br>· 组队码房间<br>与另一位档案持有者共享同一条流脉。</span>
+              <em>选择联机方式 →</em>
+            </span>
+          </button>
+        </div>
+
+        <div id="mode-multi-panel" class="mode-multi-page" hidden>
+          <div class="mode-subhead">
+            <button id="mode-multi-back" class="mode-back">← 返回选择</button>
+            <span>联机推演 · 选择联机方式</span>
+          </div>
+          <div class="mode-choice-grid">
+            <button id="mode-match" class="mode-choice mode-match" type="button">
+              <span class="mode-choice-art" aria-hidden="true"></span>
+              <span class="mode-choice-copy">
+                <span class="mode-kicker">ONLINE MATCH / RANKED</span>
+                <strong>在线匹配</strong>
+                <span>寻找旗鼓相当的对手，<br>匹配成功后直接进入排位对局。</span>
+                <em>开始匹配 →</em>
+              </span>
+            </button>
+            <button id="mode-group" class="mode-choice mode-online" type="button">
+              <span class="mode-choice-art" aria-hidden="true"></span>
+              <span class="mode-choice-copy">
+                <span class="mode-kicker">GROUP CODE / ONLINE ROOM</span>
+                <strong>组队码房间</strong>
+                <span>创建新房间，或输入房主发来的<br>6 位组队码加入。</span>
+                <em>创建 / 加入 →</em>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div id="mode-lan-panel" class="mode-multi-page" hidden>
+          <div class="mode-subhead">
+            <button id="mode-lan-back" class="mode-back">← 返回联机推演</button>
+            <span>局域网对战 · 选择连接方式</span>
+          </div>
+          <div class="mode-choice-grid">
+            <button id="mode-online" class="mode-choice mode-online" type="button">
+              <span class="mode-choice-art" aria-hidden="true"></span>
+              <span class="mode-choice-copy">
+                <span class="mode-kicker">GROUP CODE</span>
+                <strong>创建 / 加入组队码</strong>
+                <span>创建新房间，或输入房主发来的<br>6 位组队码加入。</span>
+                <em>创建或加入 →</em>
+              </span>
+            </button>
+            <button id="mode-lan-direct" class="mode-choice mode-lan" type="button">
+              <span class="mode-choice-art" aria-hidden="true"></span>
+              <span class="mode-choice-copy">
+                <span class="mode-kicker">LOCAL NETWORK</span>
+                <strong>局域网联机</strong>
+                <span>同一网络下创建或加入对局，<br>适合面对面试演。</span>
+                <em>进入局域网 →</em>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="screen-sim" class="screen">
@@ -191,9 +301,20 @@
           <h3>从规则到第一局。</h3>
           <p>《戈克世界：流脉牌局》是一款双人对战卡牌游戏。在随从与领袖的基础玩法上，加入了阵位、流脉、遗物等新机制。下面按对局基础、卡牌类型、实战流程与关键词，把规则一次讲清。</p>
         </div>
+        <div class="tutorial-route">
+          <div class="tutorial-route-head"><span class="panel-label">TRAINING ROUTE / 六步训练</span><small>先选一课，再进入实战演练。</small></div>
+          <div class="tutorial-route-grid">
+            <button class="tutorial-route-step" data-tutorial-jump="tutorial-core"><b>01</b><strong>基础规则</strong><small>目标 · 行动力 · 抽牌</small></button>
+            <button class="tutorial-route-step" data-tutorial-jump="tutorial-zones"><b>02</b><strong>阵位与攻击</strong><small>站位 · 互殴 · 拦截</small></button>
+            <button class="tutorial-route-step" data-tutorial-jump="tutorial-cards"><b>03</b><strong>卡牌与牌组</strong><small>四类卡 · 30+1</small></button>
+            <button class="tutorial-route-step" data-tutorial-jump="tutorial-flow"><b>04</b><strong>实战流程</strong><small>铺场 · 交换 · 斩杀</small></button>
+            <button class="tutorial-route-step" data-tutorial-jump="tutorial-glossary"><b>05</b><strong>关键词</strong><small>26 个核心词条</small></button>
+            <button class="tutorial-route-step tutorial-route-drill" data-tutorial-drill="1"><b>06</b><strong>进入演练</strong><small>带着目标打一局</small></button>
+          </div>
+        </div>
 
         <div class="tutorial-manual">
-          <section class="manual-section">
+          <section class="manual-section" id="tutorial-core">
             <div class="manual-head">
               <span class="manual-index">01</span>
               <div>
@@ -234,7 +355,7 @@
             <p class="manual-note">4 震荡：所有随从受到 1 点伤害；7 裂隙：双方领袖受到 2 点伤害；10 魔物潮：所有随从受到 3 点伤害，双方领袖受到 5 点伤害。</p>
           </section>
 
-          <section class="manual-section">
+          <section class="manual-section" id="tutorial-zones">
             <div class="manual-head">
               <span class="manual-index">02</span>
               <div>
@@ -272,7 +393,7 @@
             </div>
           </section>
 
-          <section class="manual-section">
+          <section class="manual-section" id="tutorial-cards">
             <div class="manual-head">
               <span class="manual-index">03</span>
               <div>
@@ -308,7 +429,7 @@
             </div>
           </section>
 
-          <section class="manual-section">
+          <section class="manual-section" id="tutorial-flow">
             <div class="manual-head">
               <span class="manual-index">04</span>
               <div>
@@ -336,7 +457,7 @@
             <p class="manual-note">双方交替行动，直到一方领袖生命归零。领袖本身不进行普通攻击，主要依靠技能、遗物与卡牌影响战局。</p>
           </section>
 
-          <section class="manual-section">
+          <section class="manual-section" id="tutorial-practice">
             <div class="manual-head">
               <span class="manual-index">05</span>
               <div>
@@ -360,7 +481,7 @@
             </div>
           </section>
 
-          <section class="manual-section">
+          <section class="manual-section" id="tutorial-glossary">
             <div class="manual-head">
               <span class="manual-index">06</span>
               <div>
@@ -431,8 +552,28 @@
         </header>
         <div class="codex-toolbar">
           <div id="codex-faction-tabs" class="deck-faction-tabs"></div>
-          <div class="deck-filter-row">
+          <div class="codex-search-row">
             <input id="codex-search" class="codex-search" type="search" placeholder="搜索卡名 / 文本 / 关键词" autocomplete="off" />
+            <select id="codex-cost" class="codex-select" aria-label="费用筛选">
+              <option value="all">全部费用</option>
+              <option value="low">0–1 费</option>
+              <option value="mid">2–3 费</option>
+              <option value="high">4–5 费</option>
+              <option value="top">6+ 费</option>
+            </select>
+            <select id="codex-keyword" class="codex-select" aria-label="关键词筛选">
+              <option value="all">全部关键词</option>
+            </select>
+            <select id="codex-sort" class="codex-select" aria-label="排序方式">
+              <option value="faction">按阵营</option>
+              <option value="cost">按费用</option>
+              <option value="name">按名称</option>
+              <option value="type">按类型</option>
+            </select>
+            <button id="codex-reset" class="btn btn-small btn-ghost">重置</button>
+            <button id="codex-random" class="btn btn-small btn-ghost">随机一张</button>
+          </div>
+          <div class="deck-filter-row codex-type-row">
             <button class="deck-filter active" data-codex-filter="all">全部</button>
             <button class="deck-filter" data-codex-filter="minion">随从</button>
             <button class="deck-filter" data-codex-filter="spell">战术</button>
@@ -440,6 +581,7 @@
             <button class="deck-filter" data-codex-filter="relic">遗物</button>
           </div>
         </div>
+        <div id="codex-empty" class="codex-empty" hidden>没有匹配的卡牌。试试放宽筛选条件，或重置过滤。</div>
         <div id="codex-grid" class="codex-grid"></div>
         <button id="codex-more" class="btn btn-small btn-ghost codex-more" hidden>加载更多</button>
       </div>
@@ -523,14 +665,21 @@
             <div class="settings-row"><div><strong>音乐</strong><span>首页与对局背景音乐</span></div><button id="btn-settings-bgm" class="btn btn-small btn-ghost">音乐：开</button></div>
             <div class="settings-row"><div><strong>音效</strong><span>出牌、攻击与界面反馈</span></div><button id="btn-settings-sfx" class="btn btn-small btn-ghost">音效：开</button></div>
             <div class="settings-row settings-volume-row"><div><strong>主音量</strong><span>总音量 · 当前 <b id="settings-volume-label">70%</b></span></div><input id="settings-volume" class="settings-volume" type="range" min="0" max="100" value="70" /></div>
+            <div class="settings-row settings-volume-row"><div><strong>音乐音量</strong><span>首页与对局 BGM · 当前 <b id="settings-bgm-label">22%</b></span></div><input id="settings-bgm-volume" class="settings-volume" type="range" min="0" max="100" value="22" /></div>
+            <div class="settings-row settings-volume-row"><div><strong>音效音量</strong><span>出牌、攻击与界面音 · 当前 <b id="settings-sfx-label">42%</b></span></div><input id="settings-sfx-volume" class="settings-volume" type="range" min="0" max="100" value="42" /></div>
           </div>
           <div class="panel settings-panel">
             <div class="panel-label">VIDEO</div>
+            <div class="settings-row"><div><strong>剧情演出</strong><span>开场、章节与胜利/失败过场</span></div><button id="btn-settings-cinema" class="btn btn-small btn-ghost">演出：开</button></div>
+            <div class="settings-row"><div><strong>重播开场</strong><span>再次观看《戈克降临》</span></div><button id="btn-settings-replay-cg" class="btn btn-small btn-ghost">播放</button></div>
+            <div class="settings-row"><div><strong>背景视频</strong><span>首页低亮度循环播放的开场影像</span></div><button id="btn-settings-bgvideo" class="btn btn-small btn-ghost">背景视频：关</button></div>
             <div class="settings-row"><div><strong>背景动画</strong><span>首页云雾与背景漂移</span></div><button id="btn-settings-bg" class="btn btn-small btn-ghost">背景动画：开</button></div>
             <div class="settings-row"><div><strong>减少动态</strong><span>关闭大部分界面过渡与特效</span></div><button id="btn-settings-motion" class="btn btn-small btn-ghost">动态效果：开</button></div>
             <div class="settings-row"><div><strong>伤害数字</strong><span>显示战斗中的浮动伤害与恢复</span></div><button id="btn-settings-damage" class="btn btn-small btn-ghost">伤害数字：开</button></div>
             <div class="settings-row"><div><strong>战斗特效</strong><span>出牌飞行、关键词弹出与死亡尘光</span></div><button id="btn-settings-fx" class="btn btn-small btn-ghost">战斗特效：完整</button></div>
+            <div class="settings-row"><div><strong>低配模式</strong><span>关闭动效、伤害数字与屏幕震动</span></div><button id="btn-settings-lowfx" class="btn btn-small btn-ghost">一键低配</button></div>
             <div class="settings-row"><div><strong>AI 行动速度</strong><span>对手每次出牌、攻击之间的停顿</span></div><button id="btn-settings-ai" class="btn btn-small btn-ghost">AI：标准</button></div>
+            <div class="settings-row"><div><strong>动画速度</strong><span>抽牌、施法、攻击与回合提示的播放速度</span></div><button id="btn-settings-anim" class="btn btn-small btn-ghost">动画：快</button></div>
             <div class="settings-row"><div><strong>屏幕震动</strong><span>领袖受击与重击反馈</span></div><button id="btn-settings-shake" class="btn btn-small btn-ghost">震动：开</button></div>
             <div class="settings-row"><div><strong>卡牌文字</strong><span>手牌与卡面文字大小</span></div><button id="btn-settings-textsize" class="btn btn-small btn-ghost">文字：标准</button></div>
             <div class="settings-row settings-volume-row"><div><strong>画面暗度</strong><span>压暗背景 · 当前 <b id="settings-dim-label">0%</b></span></div><input id="settings-dim" class="settings-volume" type="range" min="0" max="55" value="0" /></div>
@@ -542,7 +691,8 @@
           </div>
           <div class="panel settings-panel">
             <div class="panel-label">CONTROLS</div>
-            <div class="settings-row"><div><strong>出牌</strong><span>点击手牌，或拖到手牌高亮阵位</span></div><span class="settings-badge">点击 / 拖拽</span></div>
+            <div class="settings-row"><div><strong>手牌操作</strong><span>拖拽出牌，或切换为双击 / 单击出牌</span></div><button id="btn-settings-hand-mode" class="btn btn-small btn-ghost">出牌：拖拽</button></div>
+            <div class="settings-row"><div><strong>拖拽</strong><span>拖到高亮阵位或目标出牌</span></div><span class="settings-badge">DRAG</span></div>
             <div class="settings-row"><div><strong>取消</strong><span>右键或 Esc 取消选牌 / 目标</span></div><span class="settings-badge">右键 / ESC</span></div>
             <div class="settings-row"><div><strong>信息</strong><span>右上角「日志」查看事件记录</span></div><span class="settings-badge">LOG</span></div>
           </div>
@@ -551,11 +701,12 @@
             <div class="settings-row"><div><strong>账号与存档</strong><span>本地账号 · 自动备份 · 导出 / 导入存档</span></div><button id="btn-settings-account" class="btn btn-small btn-primary">管理存档</button></div>
             <div class="settings-row"><div><strong>成就记录</strong><span>重置所有本地成就进度</span></div><button id="btn-settings-clear-achievements" class="btn btn-small btn-ghost">重置成就</button></div>
             <div class="settings-row"><div><strong>档案统计</strong><span>清除总局数、胜率与对阵记录</span></div><button id="btn-settings-clear-profile" class="btn btn-small btn-ghost">重置统计</button></div>
+            <div class="settings-row"><div><strong>画面与声音</strong><span>恢复默认音量、动效与演出设置</span></div><button id="btn-settings-reset-prefs" class="btn btn-small btn-ghost">恢复默认</button></div>
           </div>
           <div class="panel settings-panel settings-about-panel">
             <div class="panel-label">ABOUT</div>
-            <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。六阵营、229 张主卡 + 13 件遗物，支持起手调度、编成、单人 AI 与局域网对战。</p>
-            <p class="settings-about">当前构建：20261020dv</p>
+            <p class="settings-about">《戈克世界：流脉牌局》经典模式 2.0。六阵营、229 张主卡 + 13 件遗物，支持起手调度、编成、单人 AI 与在线组队码房间。</p>
+            <p class="settings-about">当前构建：20261020e19</p>
             <button id="btn-settings-credits" class="btn btn-small btn-ghost">制作与素材说明</button>
           </div>
         </div>
@@ -667,7 +818,7 @@
                 <div class="faction-portrait" style="background-image:url('assets/heroes/lain.webp')"></div>
                 <div class="faction-body">
                   <span class="faction-tag">普卫岛</span>
-                  <strong>莱恩·科斯特「序」</strong>
+                  <strong>莱恩·科斯特</strong>
                   <small>协同 / 恢复 / 阵位 · 中速</small>
                   <span class="faction-stats">28 生命</span>
                 </div>
@@ -676,7 +827,7 @@
                 <div class="faction-portrait" style="background-image:url('assets/heroes/karna.webp')"></div>
                 <div class="faction-body">
                   <span class="faction-tag">西昭</span>
-                  <strong>卡尔纳「血爵」</strong>
+                  <strong>卡尔纳</strong>
                   <small>血祭 / 突进 / 魔物 · 快攻</small>
                   <span class="faction-stats">36 生命</span>
                 </div>
@@ -685,7 +836,7 @@
                 <div class="faction-portrait" style="background-image:url('assets/heroes/marta.webp')"></div>
                 <div class="faction-body">
                   <span class="faction-tag">学院</span>
-                  <strong>玛尔塔·冯·艾森「演」</strong>
+                  <strong>玛尔塔·冯·艾森</strong>
                   <small>抽牌 / 冻结 / 检索 · 控制</small>
                   <span class="faction-stats">32 生命</span>
                 </div>
@@ -694,7 +845,7 @@
                 <div class="faction-portrait" style="background-image:url('assets/heroes/wolfram.webp')"></div>
                 <div class="faction-body">
                   <span class="faction-tag">共和国</span>
-                  <strong>沃尔夫拉姆·冯·施泰因「律」</strong>
+                  <strong>沃尔夫拉姆·冯·施泰因</strong>
                   <small>护甲 / 拦截 / 秩序 · 中速</small>
                   <span class="faction-stats">33 生命</span>
                 </div>
@@ -703,7 +854,7 @@
                 <div class="faction-portrait" style="background-image:url('assets/heroes/otto_centered.webp')"></div>
                 <div class="faction-body">
                   <span class="faction-tag">帝国</span>
-                  <strong>奥托·汉瑟尔「炮」</strong>
+                  <strong>奥托·汉瑟尔</strong>
                   <small>炮击 / 护甲 / 重装 · 中速</small>
                   <span class="faction-stats">30 生命</span>
                 </div>
@@ -712,7 +863,7 @@
                 <div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div>
                 <div class="faction-body">
                   <span class="faction-tag">灰港同盟</span>
-                  <strong>莫纳克「赏」</strong>
+                  <strong>莫纳克</strong>
                   <small>悬赏 / 沉默 / 毒袭 · 中速</small>
                   <span class="faction-stats">30 生命</span>
                 </div>
@@ -730,7 +881,8 @@
             </div>
             <div class="panel-label section-gap">03 / 推演参数</div>
             <div class="setup-summary" id="setup-summary">普卫岛 vs 学院 · 30+1 · 先手随机</div>
-            <div class="setup-ai-row"><span>AI 难度</span><button class="ai-diff-btn active" data-ai-diff="normal">标准</button><button class="ai-diff-btn" data-ai-diff="easy">简单</button><button class="ai-diff-btn" data-ai-diff="hard">困难</button><button class="ai-diff-btn" data-ai-diff="nightmare">噩梦</button></div>
+            <div class="setup-ai-row"><span>AI 难度</span><button class="ai-diff-btn" data-ai-diff="normal">标准</button><button class="ai-diff-btn" data-ai-diff="easy">简单</button><button class="ai-diff-btn active" data-ai-diff="hard">困难</button><button class="ai-diff-btn" data-ai-diff="nightmare">噩梦</button></div>
+            <div class="setup-ai-row setup-ai-faction-row"><span>AI 阵营</span><div id="setup-ai-factions" class="setup-ai-factions"></div></div>
             <button id="btn-start-game" class="btn btn-primary btn-wide">开始推演</button>
             <div class="fine-print">开局先进行起手调度；双方开场无护甲；先手首回合正常抽牌，后手获得「采掘许可」（本回合 +2 点行动力）。</div>
           </div>
@@ -739,11 +891,11 @@
             <div class="setup-hero-art" id="setup-hero-art"></div>
             <div class="setup-hero-copy">
               <div class="eyebrow">SELECTED LEADER</div>
-              <h3 id="setup-hero-name">莱恩·科斯特「序」</h3>
+              <h3 id="setup-hero-name">莱恩·科斯特</h3>
               <p id="setup-hero-quote">“他不是强者。他只是第一个试图理解的人。”</p>
               <div class="hero-power-preview">
-                <span class="hero-power-name" id="setup-power-name">协调 · 2 行动力</span>
-                <span id="setup-power-text">使一个友方随从获得 +1/+1；若它与另一个友方随从同阵位，改为 +2/+2。</span>
+                <div class="setup-power-head"><img id="setup-power-icon" class="setup-power-icon" src="/assets/icons/skills/lain.webp" alt=""><span class="hero-power-name" id="setup-power-name">协调 · 2 行动力</span></div>
+                <span id="setup-power-text">使一个友方随从获得 +0/+1；若它与另一个友方随从同阵位，改为 +1/+1。</span>
                 <span id="setup-passive-text" class="setup-passive-text"></span>
               </div>
             </div>
@@ -802,7 +954,7 @@
                   <div class="faction-portrait" style="background-image:url('assets/heroes/lain.webp')"></div>
                   <div class="faction-body">
                     <span class="faction-tag">普卫岛</span>
-                    <strong>莱恩·科斯特「序」</strong>
+                    <strong>莱恩·科斯特</strong>
                     <small>协同 / 恢复 / 阵位</small>
                   </div>
                 </button>
@@ -810,7 +962,7 @@
                   <div class="faction-portrait" style="background-image:url('assets/heroes/karna.webp')"></div>
                   <div class="faction-body">
                     <span class="faction-tag">西昭</span>
-                    <strong>卡尔纳「血爵」</strong>
+                    <strong>卡尔纳</strong>
                     <small>血祭 / 突进 / 魔物</small>
                   </div>
                 </button>
@@ -818,7 +970,7 @@
                   <div class="faction-portrait" style="background-image:url('assets/heroes/marta.webp')"></div>
                   <div class="faction-body">
                     <span class="faction-tag">学院</span>
-                    <strong>玛尔塔·冯·艾森「演」</strong>
+                    <strong>玛尔塔·冯·艾森</strong>
                     <small>抽牌 / 冻结 / 检索</small>
                   </div>
                 </button>
@@ -826,7 +978,7 @@
                   <div class="faction-portrait" style="background-image:url('assets/heroes/wolfram.webp')"></div>
                   <div class="faction-body">
                     <span class="faction-tag">共和国</span>
-                    <strong>沃尔夫拉姆·冯·施泰因「律」</strong>
+                    <strong>沃尔夫拉姆·冯·施泰因</strong>
                     <small>护甲 / 拦截 / 秩序</small>
                   </div>
                 </button>
@@ -834,7 +986,7 @@
                   <div class="faction-portrait" style="background-image:url('assets/heroes/otto_centered.webp')"></div>
                   <div class="faction-body">
                     <span class="faction-tag">帝国</span>
-                    <strong>奥托·汉瑟尔「炮」</strong>
+                    <strong>奥托·汉瑟尔</strong>
                     <small>炮击 / 护甲 / 重装</small>
                   </div>
                 </button>
@@ -842,7 +994,7 @@
                   <div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div>
                   <div class="faction-body">
                     <span class="faction-tag">灰港同盟</span>
-                    <strong>莫纳克「赏」</strong>
+                    <strong>莫纳克</strong>
                     <small>悬赏 / 沉默 / 毒袭</small>
                   </div>
                 </button>
@@ -871,12 +1023,12 @@
               </div>
               <div class="panel-label section-gap">你的阵营</div>
               <div id="lan-guest-faction" class="faction-choice">
-                <button class="faction-card active" data-guest-faction="pus"><div class="faction-portrait" style="background-image:url('assets/heroes/lain.webp')"></div><div class="faction-body"><span class="faction-tag">普卫岛</span><strong>莱恩·科斯特「序」</strong><small>协同 / 恢复 / 阵位</small></div></button>
-                <button class="faction-card" data-guest-faction="xizhao"><div class="faction-portrait" style="background-image:url('assets/heroes/karna.webp')"></div><div class="faction-body"><span class="faction-tag">西昭</span><strong>卡尔纳「血爵」</strong><small>血祭 / 突进 / 魔物</small></div></button>
-                <button class="faction-card" data-guest-faction="academy"><div class="faction-portrait" style="background-image:url('assets/heroes/marta.webp')"></div><div class="faction-body"><span class="faction-tag">学院</span><strong>玛尔塔·冯·艾森「演」</strong><small>抽牌 / 冻结 / 检索</small></div></button>
-                <button class="faction-card" data-guest-faction="republic"><div class="faction-portrait" style="background-image:url('assets/heroes/wolfram.webp')"></div><div class="faction-body"><span class="faction-tag">共和国</span><strong>沃尔夫拉姆·冯·施泰因「律」</strong><small>护甲 / 拦截 / 秩序</small></div></button>
-                <button class="faction-card" data-guest-faction="empire"><div class="faction-portrait" style="background-image:url('assets/heroes/otto_centered.webp')"></div><div class="faction-body"><span class="faction-tag">帝国</span><strong>奥托·汉瑟尔「炮」</strong><small>炮击 / 护甲 / 重装</small></div></button>
-                <button class="faction-card" data-guest-faction="greyharbor"><div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div><div class="faction-body"><span class="faction-tag">灰港同盟</span><strong>莫纳克「赏」</strong><small>悬赏 / 沉默 / 毒袭</small></div></button>
+                <button class="faction-card active" data-guest-faction="pus"><div class="faction-portrait" style="background-image:url('assets/heroes/lain.webp')"></div><div class="faction-body"><span class="faction-tag">普卫岛</span><strong>莱恩·科斯特</strong><small>协同 / 恢复 / 阵位</small></div></button>
+                <button class="faction-card" data-guest-faction="xizhao"><div class="faction-portrait" style="background-image:url('assets/heroes/karna.webp')"></div><div class="faction-body"><span class="faction-tag">西昭</span><strong>卡尔纳</strong><small>血祭 / 突进 / 魔物</small></div></button>
+                <button class="faction-card" data-guest-faction="academy"><div class="faction-portrait" style="background-image:url('assets/heroes/marta.webp')"></div><div class="faction-body"><span class="faction-tag">学院</span><strong>玛尔塔·冯·艾森</strong><small>抽牌 / 冻结 / 检索</small></div></button>
+                <button class="faction-card" data-guest-faction="republic"><div class="faction-portrait" style="background-image:url('assets/heroes/wolfram.webp')"></div><div class="faction-body"><span class="faction-tag">共和国</span><strong>沃尔夫拉姆·冯·施泰因</strong><small>护甲 / 拦截 / 秩序</small></div></button>
+                <button class="faction-card" data-guest-faction="empire"><div class="faction-portrait" style="background-image:url('assets/heroes/otto_centered.webp')"></div><div class="faction-body"><span class="faction-tag">帝国</span><strong>奥托·汉瑟尔</strong><small>炮击 / 护甲 / 重装</small></div></button>
+                <button class="faction-card" data-guest-faction="greyharbor"><div class="faction-portrait" style="background-image:url('assets/heroes/monarch.webp')"></div><div class="faction-body"><span class="faction-tag">灰港同盟</span><strong>莫纳克</strong><small>悬赏 / 沉默 / 毒袭</small></div></button>
               </div>
               <div class="lan-guest-deck-row">
                 <div><span id="lan-guest-deck-label">预设牌组 · 30+1</span><small>加入后使用这套牌组</small></div>
@@ -912,7 +1064,6 @@
           <button id="btn-game-home" class="btn btn-small btn-ghost">← 退出</button>
           <div class="game-mode" id="game-mode-label">普卫岛 vs 学院</div>
           <div class="turn-badge" id="turn-badge">第 1 轮</div>
-          <div class="deck-left-badge" id="deck-left-badge" title="你的牌库剩余张数"><span>牌库</span><b id="deck-left-value">—</b></div>
           <div id="log-mini" class="log-mini" title="点击查看完整推演日志">等待第一条推演记录…</div>
           <div class="game-top-actions">
             <button id="btn-concede" class="btn btn-small btn-ghost">认输</button>
@@ -930,9 +1081,10 @@
         <div id="vein-banner" class="vein-banner"></div>
         <div id="targeting-prompt" class="targeting-prompt"></div>
         <aside id="tutorial-coach" class="tutorial-coach" hidden>
-          <div class="tutorial-coach-top"><span>NEW PLAYER / DRILL</span><button id="btn-tutorial-exit" class="tutorial-exit">退出教程</button></div>
+          <div class="tutorial-coach-top"><span>NEW PLAYER / DRILL</span><span class="tutorial-coach-actions"><button id="btn-tutorial-restart" class="tutorial-exit">重开本局</button><button id="btn-tutorial-coach-collapse" class="tutorial-exit">收起</button><button id="btn-tutorial-exit" class="tutorial-exit">退出教程</button></span></div>
           <strong id="tutorial-coach-title">新手演练</strong>
           <p id="tutorial-coach-text"></p>
+          <button id="btn-tutorial-coach-restore" class="tutorial-coach-restore" type="button" title="展开教程">?</button>
         </aside>
 
         <div class="battlefield" id="battlefield">
@@ -949,12 +1101,31 @@
 
           <div class="vein-row" id="vein-row" title="流脉阈值：4 震荡，所有随从受到 1 点伤害；7 裂隙，双方领袖受到 2 点伤害；10 魔物潮，所有随从受到 3 点伤害、双方领袖受到 5 点伤害；达到 12 时流脉回流清空。">
             <div class="vein-title">
-              <span class="eyebrow">SHARED VEIN</span>
-              <strong>流脉 <span id="vein-value">0</span> / 12</strong>
-              <small id="vein-next" class="vein-next">下一阈值 4 · 震荡</small>
+              <div class="vein-sigil" aria-hidden="true">∿</div>
+              <div class="vein-title-copy">
+                <span class="eyebrow">SHARED VEIN</span>
+                <strong>流脉 <span id="vein-value">0</span> / 12</strong>
+                <small id="vein-next" class="vein-next">下一阈值 4 · 震荡</small>
+              </div>
             </div>
-            <div class="vein-track" id="vein-track"></div>
-            <button id="btn-end-turn" class="btn btn-primary end-turn-btn">结束回合</button>
+            <div class="vein-gauge">
+              <div class="vein-track" id="vein-track"></div>
+              <div class="vein-legend" id="vein-legend" aria-hidden="true">
+                <span data-at="4" class="tone-calm">4 震荡</span>
+                <span data-at="7" class="tone-hot">7 裂隙</span>
+                <span data-at="10" class="tone-danger">10 魔物潮</span>
+                <span data-at="12" class="tone-return">12 回流</span>
+              </div>
+            </div>
+            <div class="end-turn-stack">
+              <div class="enemy-deck-corner" id="enemy-deck-corner" title="对手牌库剩余张数">
+                <span>对手牌库</span><b id="enemy-deck-value">—</b><small>张</small>
+              </div>
+              <button id="btn-end-turn" class="btn btn-primary end-turn-btn">结束回合</button>
+              <div class="deck-corner" id="deck-corner" title="你的牌库剩余张数">
+                <span>牌库</span><b id="deck-left-value">—</b><small>张</small>
+              </div>
+            </div>
           </div>
 
           <div class="hs-half hs-player player-side" data-faction="">
@@ -967,6 +1138,21 @@
               <div class="hero-panel player-hero" id="player-hero"></div>
             </div>
           </div>
+
+          <div class="deck-rail enemy-deck-rail" id="enemy-deck-rail" title="对手牌库剩余张数">
+            <span class="deck-rail-label">对手牌库</span>
+            <div class="deck-rail-cards" aria-hidden="true">
+              <i class="deck-rail-card"></i><i class="deck-rail-card"></i><i class="deck-rail-card"></i><i class="deck-rail-card"></i><i class="deck-rail-card"></i>
+            </div>
+            <div class="deck-rail-count"><b id="enemy-deck-rail-value">—</b><small>张</small></div>
+          </div>
+          <div class="deck-rail player-deck-rail" id="player-deck-rail" title="你的牌库剩余张数">
+            <span class="deck-rail-label">我方牌库</span>
+            <div class="deck-rail-cards" aria-hidden="true">
+              <i class="deck-rail-card"></i><i class="deck-rail-card"></i><i class="deck-rail-card"></i><i class="deck-rail-card"></i><i class="deck-rail-card"></i>
+            </div>
+            <div class="deck-rail-count"><b id="player-deck-rail-value">—</b><small>张</small></div>
+          </div>
         </div>
 
         <div class="hand-zone">
@@ -975,15 +1161,20 @@
               <div id="hero-power-dock" class="hero-power-dock">
                 <button id="btn-hero-power" class="btn btn-ghost hero-power-btn">领袖技能</button>
               </div>
-              <div class="deck-dock"><span>牌库剩余</span><strong id="deck-dock-value">—</strong><small>张</small></div>
             </div>
             <div class="hint" id="game-hint">点击手牌出牌；点击随从攻击。</div>
-            <div class="mana-display" id="mana-display">行动力 0 / 0</div>
           </div>
           <div class="mobile-hint">长按卡牌查看详情 · 左右滑动浏览手牌</div>
           <div class="hand-row">
             <div class="hand" id="hand"></div>
           </div>
+        </div>
+
+        <div class="mana-corner enemy-mana-corner" id="enemy-mana-corner">
+          <div class="mana-display" id="enemy-mana-display">行动力 0 / 0</div>
+        </div>
+        <div class="mana-corner" id="mana-corner">
+          <div class="mana-display" id="mana-display">行动力 0 / 0</div>
         </div>
 
         <aside class="log-panel" id="log-panel">
@@ -1000,12 +1191,19 @@
   <div id="modal-root"></div>
   <div id="toast" class="toast"></div>
 
-  <script src="js/data.js"></script>
-  <script src="js/engine.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/cinematic.js?v=20261020dv"></script>
-  <script src="js/ui.js?v=20261020dv"></script>
-  <script src="js/content.js?v=20261020dv"></script>
-  <script src="js/main.js"></script>
+  <script src="js/data.js?v=20261020e19"></script>
+  <script src="js/engine.js?v=20261020e19"></script>
+  <script src="js/ai.js?v=20261020e19"></script>
+  <script src="js/cinematic.js?v=20261020e19"></script>
+  <script src="js/ui.js?v=20261020e19"></script>
+  <script src="js/content.js?v=20261020e19"></script>
+  <script src="js/main.js?v=20261020e19"></script>
 </body>
 </html>
+
+
+
+
+
+
+

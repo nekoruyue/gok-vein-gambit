@@ -1,1 +1,42 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#17151f"/><stop offset="1" stop-color="#5a3f8f"/></linearGradient></defs><rect width="512" height="512" fill="url(#g)"/><circle cx="370" cy="150" r="150" fill="#fff" fill-opacity=".06"/><path d="M256 100 L300 200 L400 215 L320 290 L350 400 L256 330 L162 400 L192 290 L112 215 L212 200 Z" fill="none" stroke="#d9b46a" stroke-width="3" stroke-opacity=".75"/><text x="36" y="442" fill="#f3ead7" font-family="serif" font-size="34" font-weight="700">记录弹</text><text x="38" y="474" fill="#d9b46a" font-family="sans-serif" font-size="16" letter-spacing="1">学院 · 战术 · 0费</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0" stop-color="#143a48"/>
+      <stop offset=".58" stop-color="#081820"/>
+      <stop offset="1" stop-color="#03080d"/>
+    </radialGradient>
+    <radialGradient id="core" cx="40%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#f8f2cf"/>
+      <stop offset=".35" stop-color="#a8f5e6"/>
+      <stop offset="1" stop-color="#2ab9b4"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4d28b"/>
+      <stop offset=".5" stop-color="#c9974d"/>
+      <stop offset="1" stop-color="#7a4f24"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="24" fill="url(#bg)"/>
+  <g opacity=".28" stroke="#c6fbf2" fill="none" stroke-width="1.5">
+    <circle cx="256" cy="238" r="156"/>
+    <circle cx="256" cy="238" r="122" stroke-dasharray="4 12"/>
+    <path d="M56 238h400M256 38v400"/>
+  </g>
+  <g filter="url(#glow)" opacity=".75">
+    <path d="M96 238c52-62 105-92 162-92 58 0 109 30 158 92-49 62-100 92-158 92-57 0-110-30-162-92Z" fill="none" stroke="#62e4d6" stroke-width="3"/>
+    <path d="M128 238c42-40 84-58 130-58 48 0 91 18 126 58-35 40-78 58-126 58-46 0-88-18-130-58Z" fill="none" stroke="#c9974d" stroke-width="2" opacity=".8"/>
+  </g>
+  <g>
+    <path d="M256 116 280 194 362 202 298 254 320 336 256 290 192 336 214 254 150 202 232 194Z" fill="url(#gold)" opacity=".9"/>
+    <circle cx="256" cy="238" r="43" fill="url(#core)" stroke="#fff4ca" stroke-width="3"/>
+    <circle cx="256" cy="238" r="64" fill="none" stroke="#9ff7ea" stroke-width="2" opacity=".55"/>
+    <path d="M256 196v84M214 238h84" stroke="#f7f1d0" stroke-width="4" opacity=".95"/>
+  </g>
+  <g fill="#9ff7ea" opacity=".8">
+    <circle cx="122" cy="132" r="3"/><circle cx="394" cy="150" r="2.5"/><circle cx="386" cy="344" r="3"/><circle cx="116" cy="330" r="2"/>
+  </g>
+</svg>

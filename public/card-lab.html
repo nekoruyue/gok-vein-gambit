@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>流脉牌局 · 逐卡效果测试台</title>
+<style>
+  :root{--bg:#071012;--panel:#0d1a1c;--panel2:#102427;--line:rgba(150,206,190,.18);--gold:#e4bd72;--teal:#79d6c5;--text:#dbe7e2;--muted:#8aa39c;--red:#e58d86;--yellow:#e5c16f;--green:#7dd5a4}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(circle at 30% 0%,#12372f 0,#071012 42%,#050a0b 100%);color:var(--text);font:14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif;min-height:100vh}
+  .wrap{max-width:1380px;margin:0 auto;padding:28px 22px 48px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  h1{font-family:Georgia,"Songti SC",serif;font-weight:500;font-size:32px;margin:0;letter-spacing:.04em}
+  .eyebrow{color:var(--teal);font-size:11px;letter-spacing:.24em;margin-bottom:6px}
+  .sub{color:var(--muted);font-size:12px;margin:4px 0 0}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  button{font:inherit;color:var(--text);background:#132624;border:1px solid rgba(121,214,197,.3);border-radius:8px;padding:9px 14px;cursor:pointer}
+  button:hover{border-color:var(--teal);background:#18312d}
+  button.primary{background:linear-gradient(180deg,#d7b56f,#9d7432);border-color:#e4bd72;color:#1d160c;font-weight:700}
+  .summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0}
+  .metric{background:rgba(13,26,28,.82);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .metric b{display:block;font:28px/1.1 Georgia,serif;color:var(--gold)}
+  .metric span{font-size:11px;color:var(--muted)}
+  .metric.pass b{color:var(--green)}.metric.warn b{color:var(--yellow)}.metric.fail b{color:var(--red)}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 10px}
+  input,select{font:inherit;color:var(--text);background:#0b1819;border:1px solid var(--line);border-radius:7px;padding:8px 10px;outline:none}
+  input:focus,select:focus{border-color:var(--teal)}
+  input[type=search]{min-width:280px;flex:1}
+  .hint{color:var(--muted);font-size:12px;margin:0 0 12px}
+  .table-wrap{background:rgba(7,16,18,.75);border:1px solid var(--line);border-radius:11px;overflow:auto;max-height:64vh}
+  table{width:100%;border-collapse:collapse;min-width:920px}
+  th{position:sticky;top:0;background:#0c1b1c;color:var(--muted);font-size:11px;letter-spacing:.06em;text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);z-index:2}
+  td{padding:9px 10px;border-bottom:1px solid rgba(150,206,190,.08);vertical-align:top}
+  tr.row{cursor:pointer}
+  tr.row:hover{background:rgba(121,214,197,.06)}
+  .card-name{font-weight:600;color:#eef7f1}
+  .small{font-size:11px;color:var(--muted)}
+  .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin:2px 3px 0 0;font-size:10px;color:#a7c7bd;background:#0a1718}
+  .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700}
+  .badge.pass{color:#082015;background:#71c99a}.badge.warn{color:#241b06;background:#d9bb68}.badge.fail{color:#260b08;background:#df8b82}
+  .evidence{font-size:11px;color:var(--muted);max-width:420px;line-height:1.45}
+  .detail{background:#091719;border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0;display:none}
+  .detail.show{display:block}
+  .detail h3{margin:0 0 8px;font:22px/1.3 Georgia,serif;color:var(--gold)}
+  .variant{border-top:1px solid var(--line);padding:9px 0 4px;margin-top:8px}
+  .variant:first-of-type{border-top:0}
+  pre{white-space:pre-wrap;word-break:break-word;background:#050d0e;border:1px solid rgba(150,206,190,.12);border-radius:7px;padding:9px;color:#aac4bb;font-size:11px;max-height:220px;overflow:auto}
+  .empty{padding:36px;text-align:center;color:var(--muted)}
+  .foot{margin-top:14px;color:#6f8981;font-size:11px;line-height:1.8}
+  .error{color:var(--red);white-space:pre-wrap}
+  @media(max-width:720px){.wrap{padding:18px 12px}.summary{grid-template-columns:repeat(2,1fr)}header{align-items:flex-start;flex-direction:column}.table-wrap{max-height:none}td{padding:8px 7px}input[type=search]{min-width:0;width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">GOK WORLD / CARD EFFECT LAB</div>
+      <h1>流脉牌局 · 逐卡效果测试台</h1>
+      <p class="sub">对 242 张可收藏卡逐张构造对局，执行打出、登场、余响、阵型、遗物与被动安装，并记录实际状态变化。</p>
+    </div>
+    <div class="actions">
+      <button class="primary" id="run">重新测试全部</button>
+      <button id="export-json">导出 JSON</button>
+      <button id="export-csv">导出 CSV</button>
+    </div>
+  </header>
+
+  <div class="summary">
+    <div class="metric"><b id="m-total">—</b><span>可测试卡牌</span></div>
+    <div class="metric pass"><b id="m-pass">—</b><span>PASS</span></div>
+    <div class="metric warn"><b id="m-warn">—</b><span>WARN / 需复核</span></div>
+    <div class="metric fail"><b id="m-fail">—</b><span>FAIL</span></div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="搜索卡名 / ID / 效果字段…">
+    <select id="faction"><option value="">全部阵营</option></select>
+    <select id="type"><option value="">全部类型</option><option value="minion">随从</option><option value="spell">战术</option><option value="formation">阵型</option><option value="relic">遗物</option></select>
+    <select id="status"><option value="">全部状态</option><option value="pass">PASS</option><option value="warn">WARN</option><option value="fail">FAIL</option></select>
+    <span class="small" id="count"></span>
+  </div>
+  <p class="hint">测试口径：每张卡在富场景、空敌方、单独场景中尝试打出/安装；用真实引擎执行并比较生命、护甲、流脉、手牌、牌库、随从数值/关键词、冻结、悬赏、遗物、阵型等状态。被动卡默认验证“安装成功且无异常”，未强制触发每一种被动；WARN 表示需要人工复核条件效果。</p>
+
+  <div class="detail" id="detail"></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>卡牌</th><th>阵营</th><th>类型 / 费用</th><th>状态</th><th>效果字段</th><th>证据 / 备注</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty">正在准备测试台…</div>
+  </div>
+
+  <div class="foot">
+    测试台是独立页面，不会修改牌局数据。核心测试代码：<code>js/card-lab-core.js</code>；命令行：<code>node tools/card-effect-lab.js --verbose</code>。
+  </div>
+</div>
+
+<script src="js/data.js?v=20261020e19"></script>
+<script src="js/engine.js?v=20261020e19"></script>
+<script src="js/card-lab-core.js?v=20261020lab1"></script>
+<script>
+(function () {
+  "use strict";
+  var D = window.GokData, E = window.GokEngine;
+  var lab = window.GokCardLab && window.GokCardLab.create(D, E);
+  var report = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var factionNames = {};
+  Object.keys(D.FACTIONS).forEach(function (f) { factionNames[f] = D.FACTIONS[f].name; });
+  factionNames.neutral = "中立";
+  var factionSelect = $("faction");
+  Object.keys(factionNames).forEach(function (f) {
+    var o = document.createElement("option"); o.value = f; o.textContent = factionNames[f]; factionSelect.appendChild(o);
+  });
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; }); }
+  function tags(r) { return (r.tags || []).map(function (t) { return '<span class="tag">' + esc(t) + '</span>'; }).join(""); }
+  function statusLabel(s) { return s === "pass" ? "PASS" : s === "warn" ? "WARN" : "FAIL"; }
+  function statusBadge(s) { return '<span class="badge ' + esc(s) + '">' + statusLabel(s) + '</span>'; }
+
+  function run() {
+    try {
+      report = lab.runAll();
+      window.__CARD_LAB_REPORT__ = report;
+      $("m-total").textContent = report.summary.total;
+      $("m-pass").textContent = report.summary.pass;
+      $("m-warn").textContent = report.summary.warn;
+      $("m-fail").textContent = report.summary.fail;
+      render();
+    } catch (err) {
+      $("empty").style.display = "block";
+      $("empty").innerHTML = '<div class="error">测试崩溃：' + esc(err && err.stack || err) + '</div>';
+    }
+  }
+
+  function render() {
+    if (!report) return;
+    var q = $("search").value.trim().toLowerCase();
+    var ff = $("faction").value, tt = $("type").value, ss = $("status").value;
+    var list = report.results.filter(function (r) {
+      if (ff && r.faction !== ff) return false;
+      if (tt && r.type !== tt) return false;
+      if (ss && r.status !== ss) return false;
+      if (q) {
+        var hay = [r.id, r.name, r.type, r.faction, r.note, (r.tags || []).join(" ")].join(" ").toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+    $("count").textContent = "显示 " + list.length + " / " + report.summary.total;
+    $("rows").innerHTML = list.map(function (r) {
+      var ev = r.note || "";
+      if (!ev && r.runs && r.runs.length) {
+        var hit = r.runs.filter(function (x) { return x.status === "pass"; })[0];
+        if (hit && hit.effectEvents && hit.effectEvents.length) ev = "触发 " + hit.effectEvents.map(function (e) { return e.kind; }).join(" / ");
+        else if (hit && hit.changed) ev = "观察到状态变化";
+      }
+      return '<tr class="row" data-id="' + esc(r.id) + '">' +
+        '<td><div class="card-name">' + esc(r.name) + '</div><div class="small">' + esc(r.id) + '</div></td>' +
+        '<td>' + esc(factionNames[r.faction] || r.faction) + '</td>' +
+        '<td>' + esc(r.type) + ' · ' + esc(r.cost == null ? "-" : r.cost) + '</td>' +
+        '<td>' + statusBadge(r.status) + '</td>' +
+        '<td>' + tags(r) + '</td>' +
+        '<td class="evidence">' + esc(ev || "—") + '</td>' +
+        '</tr>';
+    }).join("");
+    $("empty").style.display = list.length ? "none" : "block";
+    $("empty").textContent = list.length ? "" : "没有符合筛选条件的卡牌";
+    Array.prototype.forEach.call(document.querySelectorAll("tr.row"), function (tr) {
+      tr.onclick = function () { showDetail(tr.dataset.id); };
+    });
+  }
+
+  function showDetail(id) {
+    var r = report && report.results.filter(function (x) { return x.id === id; })[0];
+    if (!r) return;
+    var box = $("detail");
+    box.classList.add("show");
+    var runs = (r.runs || []).map(function (x) {
+      return '<div class="variant"><strong>' + esc(x.variant) + '</strong> ' + (x.skip ? '<span class="small">跳过：' + esc(x.reason) + '</span>' : statusBadge(x.status) + ' <span class="small">' + esc(x.note || "") + '</span>') +
+        (x.effectEvents && x.effectEvents.length ? '<div class="small">events: ' + esc(x.effectEvents.map(function (e) { return e.kind; }).join(", ")) + '</div>' : "") +
+        (x.logs && x.logs.length ? '<pre>' + esc(x.logs.slice(-6).join("\n")) + '</pre>' : "") +
+        (x.fail ? '<div class="error">' + esc(x.error) + '</div>' : "") +
+        '</div>';
+    }).join("");
+    box.innerHTML = '<h3>' + esc(r.name) + ' <span class="small">' + esc(r.id) + ' · ' + esc(factionNames[r.faction] || r.faction) + ' · ' + esc(r.type) + '</span></h3>' +
+      '<div>' + statusBadge(r.status) + ' <span class="small">' + esc(r.note || "") + '</span></div>' +
+      '<div style="margin-top:8px">' + tags(r) + '</div>' + runs;
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function download(name, text, type) {
+    var blob = new Blob([text], { type: type || "application/json;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function csvEscape(v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; }
+  $("run").onclick = run;
+  $("search").oninput = render;
+  $("faction").onchange = render;
+  $("type").onchange = render;
+  $("status").onchange = render;
+  $("export-json").onclick = function () { if (report) download("card-effect-report.json", JSON.stringify(report, null, 2)); };
+  $("export-csv").onclick = function () {
+    if (!report) return;
+    var head = ["id", "name", "faction", "type", "cost", "status", "note", "tags"];
+    var lines = [head.map(csvEscape).join(",")];
+    report.results.forEach(function (r) { lines.push([r.id, r.name, r.faction, r.type, r.cost, r.status, r.note || "", (r.tags || []).join("|")].map(csvEscape).join(",")); });
+    download("card-effect-report.csv", "\ufeff" + lines.join("\r\n"), "text/csv;charset=utf-8");
+  };
+  if (!lab) {
+    $("empty").textContent = "加载测试核心失败：缺少 GokCardLab。";
+    return;
+  }
+  run();
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+

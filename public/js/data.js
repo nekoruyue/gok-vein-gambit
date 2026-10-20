@@ -28,7 +28,6 @@
       id: "lain",
       name: "莱恩·科斯特",
       short: "莱恩",
-      title: "高级协调者 · 新人类",
       faction: "pus",
       hp: 30,
       armor: 10,
@@ -46,7 +45,6 @@
       id: "marta",
       name: "玛尔塔·冯·艾森",
       short: "玛尔塔",
-      title: "学院评议员 · 新人类",
       faction: "academy",
       hp: 30,
       armor: 8,
@@ -64,7 +62,6 @@
       id: "otto",
       name: "奥托·汉瑟尔",
       short: "奥托",
-      title: "帝国首相 · 铁血官僚",
       faction: "empire",
       hp: 31,
       armor: 6,
@@ -82,7 +79,6 @@
       id: "wolfram",
       name: "沃尔夫拉姆·冯·施泰因",
       short: "沃尔夫拉姆",
-      title: "共和国议长 · 旧贵族",
       faction: "republic",
       hp: 35,
       armor: 10,
@@ -92,7 +88,7 @@
         name: "筑防",
         cost: 2,
         target: "friendly",
-        text: "改写一张手牌：将它变成另一张相同行动力消耗的卡牌。"
+        text: "改写一张手牌：将它变成另一张相同行动力消耗的本阵营或中立卡牌。"
       },
       passive: { name: "铁壁纪律", text: "当一个友方随从获得拦截时，它获得 +1/+1。" }
     },
@@ -100,7 +96,6 @@
       id: "karna",
       name: "卡尔纳",
       short: "卡尔纳",
-      title: "西昭主事者 · 血族",
       faction: "xizhao",
       hp: 34,
       armor: 9,
@@ -118,7 +113,6 @@
       id: "monarch",
       name: "莫纳克",
       short: "莫纳克",
-      title: "灰港同盟 · 引荐人",
       faction: "greyharbor",
       hp: 30,
       armor: 0,
@@ -661,9 +655,10 @@
     vein_channel: {
       id: "vein_channel", name: "流脉疏导", faction: "neutral", type: "spell",
       cost: 2, rarity: "common", art: null, target: "none",
-      text: "流脉 -2（最低 0）；抽 1 张牌。",
+      text: "逆流 1：抽 1 张牌。",
       flavor: "会挖的人，也要会放。",
-      spell: { type: "channelVein", amount: -2, draw: 1 }
+      reflux: 1,
+      spell: { type: "draw", amount: 1 }
     },
     mining_permit: {
       id: "mining_permit", name: "采掘许可", faction: "neutral", type: "spell",
@@ -853,30 +848,34 @@
     reflux: {
       id: "reflux", name: "逆流", faction: "xizhao", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -3；恢复你的领袖 3 点生命。",
+      text: "压脉 3：消耗 3 点流脉，对敌方领袖造成 3 点伤害；恢复你的领袖 3 点生命。",
       flavor: "潮水退回去时，也会把伤口一起带走。",
-      spell: { type: "veinTrade", amount: -3, healHero: 3 }
+      pressure: 3,
+      spell: { type: "healHero", amount: 3 }
     },
     stabilize: {
       id: "stabilize", name: "镇脉", faction: "republic", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -2；获得 4 点护甲。",
+      text: "逆流 2：获得 2 点护甲。",
       flavor: "秩序的工作，就是让河流按堤坝走。",
-      spell: { type: "veinTrade", amount: -2, armor: 4 }
+      reflux: 2,
+      spell: { type: "armor", amount: 2 }
     },
     pressure_vein: {
       id: "pressure_vein", name: "压脉", faction: "empire", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -3；对敌方领袖造成 2 点伤害。",
+      text: "压脉 3：消耗 3 点流脉，对敌方领袖造成 3 点伤害。",
       flavor: "把地脉压进炮膛，然后扣下扳机。",
-      spell: { type: "veinTrade", amount: -3, damageHero: 2 }
+      pressure: 3,
+      spell: { type: "none" }
     },
     return_tide: {
       id: "return_tide", name: "回潮", faction: "pus", type: "spell",
       cost: 2, rarity: "rare", art: null, target: "none",
-      text: "流脉 -2；恢复你的领袖 2 点生命；抽 1 张牌。",
+      text: "逆流 2：恢复你的领袖 2 点生命；抽 1 张牌。",
       flavor: "退潮不是结束，是把力量收回身体里。",
-      spell: { type: "veinTrade", amount: -2, healHero: 2, draw: 1 }
+      reflux: 2,
+      spell: { type: "healHeroDraw", amount: 2, draw: 1 }
     },
 
     /* ===== 阵型 ===== */
@@ -2656,7 +2655,7 @@
   Object.assign(CARDS.phalanx_warden, { health: 5 });
   Object.assign(CARDS.shield_sergeant, { health: 5 });
   Object.assign(CARDS.martial_law, { cost: 6 });
-  Object.assign(CARDS.stabilize, { spell: { type: "veinTrade", amount: -2, armor: 2 }, text: "流脉 -2；获得 2 点护甲。" });
+  Object.assign(CARDS.stabilize, { reflux: 2, spell: { type: "armor", amount: 2 }, text: "逆流 2：获得 2 点护甲。" });
 
   // 西昭/普卫岛：在“领袖无开场护甲”新规则下维持预组强度，不再额外上调。
 
@@ -3093,7 +3092,7 @@
   Object.assign(CARDS, {
     republic_recruit: {
       id: "republic_recruit", name: "共和国新兵", faction: "republic", type: "minion",
-      cost: 0, attack: 1, health: 1, rarity: "token", art: null, noGeneratedArt: true, noArtwork: true,
+      cost: 0, attack: 1, health: 1, rarity: "token", art: null, noGeneratedArt: false, noArtwork: false,
       token: true, keywords: [], target: "none", text: ""
     }
   });
@@ -4131,6 +4130,247 @@
   }
   Object.assign(CARDS.formation_wall, { formation: { deathrattleSummon: "republic_recruit", excludeDeathrattle: "republic_recruit" } });
 
+  // ===== 2026-10-20 用户指定卡牌改动 =====
+  Object.assign(CARDS.spell_codex, {
+    cost: 2,
+    text: "遗物：你的领袖技能被替换为「编目」：随机使一张手牌中的战术牌行动力消耗 -1。"
+  });
+  Object.assign(CARDS.elsa, {
+    text: "镇脉 2：消耗 2 点流脉，获得 2 点护甲。 连动。"
+  });
+  Object.assign(CARDS.zhenmai_artisan, {
+    text: "镇脉 1：消耗 1 点流脉，获得 1 点护甲。 连动。"
+  });
+  Object.assign(CARDS.siege_captain, {
+    text: "登场：对所有敌方随从造成 1 点伤害。 镇脉 1：消耗 1 点流脉，获得 1 点护甲。"
+  });
+  Object.assign(CARDS.wind_cannon, {
+    text: "连动。 镇脉 1：消耗 1 点流脉，获得 1 点护甲。"
+  });
+  Object.assign(CARDS.empire_guard, {
+    text: "镇脉 1：消耗 1 点流脉，获得 1 点护甲。"
+  });
+  Object.assign(CARDS.klaus, {
+    keywords: ["battlecry", "charge"],
+    text: "突进。反噬 1。 登场：场上每有一个其他随从（不分敌我），获得 +1/+1。"
+  });
+  Object.assign(CARDS.rush_lancer, {
+    keywords: ["rush"],
+    passive: null,
+    text: "袭扰。"
+  });
+  Object.assign(CARDS.armor_mortar, {
+    spell: { type: "armorToDamageFixed", armor: 3, damage: 5 },
+    text: "消耗 3 点护甲，对敌方领袖造成 5 点伤害。"
+  });
+  Object.assign(CARDS.gunther, {
+    keywords: ["battlecry", "windfury"],
+    text: "连动。 登场：获得 4 点护甲。"
+  });
+  Object.assign(CARDS.martial_court, {
+    spell: { type: "armorPerEnemy", amount: 2 },
+    text: "每有一个敌方随从，获得 2 点护甲。"
+  });
+  Object.assign(CARDS.zone_barrage, {
+    spell: { type: "damageAllEnemies", amount: 2 },
+    text: "对所有敌方随从造成 2 点伤害。"
+  });
+  Object.assign(CARDS.shield_sergeant, {
+    mirrorBonus: null,
+    text: "拦截。余响：所有友方拦截随从获得 +0/+1。"
+  });
+  Object.assign(CARDS.martial_law, {
+    target: "friendly",
+    spell: { type: "tauntRebornZone" },
+    text: "使同阵位的所有随从获得拦截与回潮。"
+  });
+  Object.assign(CARDS.shield_marshal, {
+    text: "拦截。回潮。余响：召唤两个 1/1 的共和国新兵。 若本回合已打出过其他牌，则本回合你每召唤一个共和国新兵，获得 +1/+1。"
+  });
+  Object.assign(CARDS.erhardt, {
+    text: "突进。回潮。登场：若本回合已打出过其他牌，则本回合每有一个随从死亡，获得 +1/+1。"
+  });
+
+  // ===== 2026-10-20 第三批用户指定改动 =====
+  Object.assign(CARDS.doorman, {
+    keywords: ["taunt"],
+    taunt: true,
+    text: "拦截。"
+  });
+  Object.assign(CARDS.guard, {
+    keywords: ["taunt"],
+    veinTiers: null,
+    text: "拦截。被动：该随从在场时，同阵位每有一个其他友方随从，本随从获得 +1/+0。"
+  });
+  Object.assign(CARDS.armor_break, {
+    cost: 2,
+    spell: { type: "stripArmorToMana", amount: 4, mana: 0 },
+    text: "移除敌方领袖 4 点护甲。"
+  });
+  Object.assign(CARDS.aidric, {
+    text: "拦截。引脉 4/8：获得 +1/+1 / +2/+2。登场：若该随从对位有敌方随从，获得 3 点护甲。"
+  });
+  Object.assign(CARDS.timon, {
+    keywords: ["passive"],
+    battlecry: null,
+    passive: { type: "firstCardDiscount", amount: 1 },
+    text: "被动：提蒙存活时，你每个回合打出的第一张牌行动力消耗 -1。"
+  });
+  Object.assign(CARDS.formation_standard, {
+    text: "遗物：使用过阵型卡的阵位上，所有随从固定获得 +1/+0。"
+  });
+  Object.assign(CARDS.vein_echo, {
+    text: "恢复你的领袖 3 点生命，并使流脉 +2；若流脉达到 7，抽 1 张牌。"
+  });
+
+  // ===== 2026-10-20 关键词顺序与流脉术语统一 =====
+  Object.assign(CARDS.vein_channel, {
+    reflux: 1,
+    spell: { type: "draw", amount: 1 },
+    text: "逆流 1：抽 1 张牌。"
+  });
+  Object.assign(CARDS.stabilize, {
+    reflux: 2,
+    spell: { type: "armor", amount: 2 },
+    text: "逆流 2：获得 2 点护甲。"
+  });
+  Object.assign(CARDS.return_tide, {
+    reflux: 2,
+    spell: { type: "healHeroDraw", amount: 2, draw: 1 },
+    text: "逆流 2：恢复你的领袖 2 点生命；抽 1 张牌。"
+  });
+  Object.assign(CARDS.wanderer_charm, {
+    text: "遗物：你的领袖生命上限 +5。"
+  });
+  Object.assign(CARDS.vein_tithe, {
+    excavate: 2,
+    text: "获得 5 点护甲；采掘 2。",
+    spell: { type: "armor", amount: 5 }
+  });
+  Object.assign(CARDS.vein_behemoth, {
+    text: "登场：采掘 2；引脉 10：获得 +0/+1 和拦截。",
+    battlecry: { type: "veinBuff", amount: 2, draw: 2, vein: 10, attack: 0, health: 1 }
+  });
+  Object.assign(CARDS.vein_leviathan, {
+    text: "登场：采掘 1；引脉 7：抽 1 张牌。",
+    battlecry: { type: "veinDraw", amount: 1, vein: 7, draw: 1, thresholdDraw: 1 }
+  });
+  Object.assign(CARDS.void_titan, {
+    keywords: ["battlecry"],
+    target: "none",
+    battlecry: { type: "destroyAllEnemies" },
+    text: "登场：消灭所有敌方随从。"
+  });
+  Object.assign(CARDS.final_bell, {
+    text: "对所有敌方单位造成 5 点伤害。",
+    spell: { type: "damageAllEnemyUnits", amount: 5 }
+  });
+  Object.assign(CARDS.snow_medic, {
+    keywords: ["battlecry", "deathrattle"],
+    text: "登场：同阵位有其他友方随从时，恢复你的领袖 1 点生命。余响：恢复你的领袖 1 点生命。"
+  });
+  Object.assign(CARDS.shield_marshal, {
+    keywords: ["taunt", "reborn", "battlecry", "deathrattle"],
+    text: "拦截。回潮。登场：若本回合已打出过其他牌，本回合每召唤一个共和国新兵，获得 +1/+1。余响：召唤两个 1/1 的共和国新兵。"
+  });
+  Object.assign(CARDS.iron_phalanx, {
+    keywords: ["taunt", "battlecry", "deathrattle"],
+    text: "拦截。登场：若本回合已打出过其他牌，本回合每使用一个随从，获得 +1/+1。余响：对敌方所有单位造成 1 点伤害。"
+  });
+  Object.assign(CARDS.vein_prospect, { text: "采掘 2。" });
+  Object.assign(CARDS.recon, { text: "采掘 1。" });
+  Object.assign(CARDS.resonance, { text: "采掘 1。" });
+  Object.assign(CARDS.insight, { text: "采掘 1。" });
+  // 关键词统一放在所有效果文字之前：先放纯关键词，再放带关键词触发的效果，最后放普通效果。
+  (function normalizeKeywordOrder() {
+    const labels = ["登场", "余响", "拦截", "突进", "被动", "冻结", "沉默", "隐匿", "引脉", "检索", "采掘", "血祭", "吞噬", "护幕", "连动", "蚀毒", "汲取", "袭扰", "回潮", "反噬", "固定", "逆流", "镇脉", "压脉", "悬赏", "遗物"];
+    const keywordOf = (s) => labels.find(k => s === k || s.indexOf(k + "：") === 0 || new RegExp("^" + k + "\\s+\\d").test(s)) || null;
+    const keyStart = (s) => !!keywordOf(s);
+    for (const c of Object.values(CARDS)) {
+      const text = (c.text || "").trim();
+      if (!text) continue;
+      const ends = text.charAt(text.length - 1) === "。";
+      const parts = text.split("。").map(s => s.trim()).filter(Boolean);
+      if (!parts.length) continue;
+      const simple = [];
+      const keyed = [];
+      const plain = [];
+      for (const part of parts) {
+        if (labels.indexOf(part) >= 0) simple.push(part);
+        else if (keyStart(part)) keyed.push(part);
+        else plain.push(part);
+      }
+      keyed.sort((a, b) => labels.indexOf(keywordOf(a)) - labels.indexOf(keywordOf(b)));
+      c.text = simple.concat(keyed, plain).join("。") + (ends ? "。" : "");
+    }
+  })();
+
+  // 最终覆盖：避免并发文案整理覆盖本轮指定效果。
+  Object.assign(CARDS.aidric, {
+    text: "拦截。引脉 4/8：获得 +1/+1 / +2/+2。登场：若该随从对位有敌方随从，获得 3 点护甲。"
+  });
+  Object.assign(CARDS.shield_marshal, {
+    text: "拦截。回潮。余响：召唤两个 1/1 的共和国新兵。若本回合已打出过其他牌，则本回合你每召唤一个共和国新兵，获得 +1/+1。"
+  });
+
+  // ===== 2026-10-20 领袖技能重做：单技能、无头衔 =====
+  for (const h of Object.values(HEROES)) delete h.title;
+  Object.assign(HEROES.lain, {
+    power: {
+      name: "协调",
+      cost: 2,
+      target: "friendly",
+      text: "使一个友方随从获得 +0/+1；若它与另一个友方随从同阵位，改为 +1/+1。"
+    },
+    passive: null
+  });
+  Object.assign(HEROES.karna, {
+    power: {
+      name: "血祭",
+      cost: 2,
+      target: "none",
+      text: "对自己造成 1 点伤害，抽 1 张牌。"
+    },
+    passive: null
+  });
+  Object.assign(HEROES.marta, {
+    power: {
+      name: "演算",
+      cost: 0,
+      target: "passive",
+      passive: true,
+      text: "被动：每回合第一张战术牌行动力消耗 -1。"
+    },
+    passive: null
+  });
+  Object.assign(HEROES.wolfram, {
+    power: {
+      name: "筑防",
+      cost: 2,
+      target: "hand",
+      text: "改写一张手牌：将它变成另一张相同行动力消耗的同阵营卡牌。"
+    },
+    passive: null
+  });
+  Object.assign(HEROES.otto, {
+    power: {
+      name: "炮击",
+      cost: 2,
+      target: "enemy",
+      text: "对一个敌方随从或敌方领袖造成 1 点伤害。"
+    },
+    passive: null
+  });
+  Object.assign(HEROES.monarch, {
+    power: {
+      name: "悬赏",
+      cost: 0,
+      target: "passive",
+      passive: true,
+      text: "被动：悬赏名单上的随从死亡时，你获得 1 点护甲并抽 1 张牌。"
+    },
+    passive: null
+  });
 
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });

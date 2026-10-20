@@ -9,7 +9,17 @@
 
   function minionValue(m) {
     if (!m || m.dead) return 0;
-    return m.attack * 2 + m.health + (m.taunt ? 1 : 0) + (m.stealth ? 1 : 0);
+    let v = m.attack * 2 + m.health;
+    if (m.taunt) v += 2;
+    if (m.divineShield) v += 3;
+    if (m.windfury) v += Math.max(1, m.attack);
+    if (m.poisonous) v += 2;
+    if (m.lifesteal) v += 1;
+    if (m.reborn) v += 1.5;
+    if (m.stealth) v += 1;
+    if (m.rush || m.charge) v += 1;
+    if (m.frozenTurns > 0) v -= 1;
+    return v;
   }
   function enemyOf(state, p) { return state.players[1 - p.index]; }
   function ownMinions(p) { return E.allMinions(p).filter(m => !m.dead); }
@@ -23,7 +33,7 @@
   function lethalAvailable(state, p) {
     if (enemyTaunts(state, p).length) return false;
     const e = enemyOf(state, p);
-    const facePower = (p.heroId === "otto" || p.heroId === "marta") && !p.heroPowerUsed && p.mana >= 2 ? 2 : 0;
+    const facePower = p.heroId === "otto" && !p.heroPowerUsed && p.mana >= 2 ? 1 : 0;
     return totalAttack(p) + facePower >= e.hp + e.armor;
   }
 
@@ -89,17 +99,17 @@
     return null;
   }
 
+  function zoneScore(state, p, def, zone) {
+    const n = p.board[zone].length;
+    if (p.faction === "pus") return (n === 1 ? 10 : 0) + (zone === "center" ? 1 : 0);
+    return (n === 0 ? 3 : 0) + (zone === "center" ? 1 : 0);
+  }
+
   function chooseZone(state, p, def, opt) {
     if (def.type !== "minion" && def.type !== "formation") return null;
     const zones = opt.zones || [];
     if (!zones.length) return null;
-    // 普卫岛优先和已有随从的阵位同列，触发协同；其他阵营优先空列，减少被 AOE 一锅端
-    const score = (z) => {
-      const n = p.board[z].length;
-      if (p.faction === "pus") return (n === 1 ? 10 : 0) + (z === "center" ? 1 : 0);
-      return (n === 0 ? 3 : 0) + (z === "center" ? 1 : 0);
-    };
-    return zones.slice().sort((a, b) => score(b) - score(a))[0];
+    return zones.slice().sort((a, b) => zoneScore(state, p, def, b) - zoneScore(state, p, def, a))[0];
   }
 
   function shouldPayBlood(state, p, def) {
@@ -256,7 +266,13 @@
 
   function chooseHeroPower(state, p) {
     const o = E.getHeroPowerOptions(state, p.index);
-    if (!o.ok || !o.targets.length) return null;
+    if (!o.ok) return null;
+    if (p.hero.power && p.hero.power.id === "spell_codex") return { type: "heroPower", targetUid: null, score: 3.6 };
+    if (p.heroId === "karna") {
+      if (p.hp <= 8) return null;
+      return { type: "heroPower", targetUid: null, score: 3 };
+    }
+    if (!o.targets.length) return null;
     const allies = ownMinions(p);
     if (p.heroId === "otto") {
       const enemies = enemyMinions(state, p).filter(m => !m.stealth);
@@ -295,7 +311,7 @@
       return { type: "heroPower", targetUid: target.uid, score: 3.7 };
     }
     if (p.heroId === "wolfram") {
-      const card = p.hand.slice().sort((a, b) => (D.CARDS[a.cardId].cost || 0) - (D.CARDS[b.cardId].cost || 0))[0];
+      const card = p.hand.filter(c => o.targets.indexOf(c.uid) >= 0).sort((a, b) => (D.CARDS[a.cardId].cost || 0) - (D.CARDS[b.cardId].cost || 0))[0];
       return card ? { type: "heroPower", targetUid: card.uid, score: 2.4 } : null;
     }
     return null;
@@ -318,6 +334,10 @@
     return ownMinions(player).reduce((sum, m) => sum + minionValue(m), 0);
   }
 
+  function boardAttack(player) {
+    return ownMinions(player).reduce((sum, m) => sum + Math.max(0, m.attack), 0);
+  }
+
   function evaluateState(state, playerIndex) {
     if (state.status === "gameover") {
       if (state.winner === playerIndex) return 100000;
@@ -327,43 +347,90 @@
     const me = state.players[playerIndex];
     const op = enemyOf(state, me);
     let score = 0;
-    score += (me.hp + me.armor) * 1.15 - (op.hp + op.armor) * 2.25;
-    score += boardValue(me) * 1.0 - boardValue(op) * 1.05;
-    score += (me.hand.length - op.hand.length) * 2.4;
-    score += (me.mana - op.mana) * 0.15;
-    score += (me.heroPowerUsed ? 0 : 1) * 1.2;
+    score += (me.hp + me.armor) * 1.3 - (op.hp + op.armor) * 2.4;
+    score += boardValue(me) * 1.15 - boardValue(op) * 1.1;
+    score += (boardAttack(me) - boardAttack(op)) * 0.75;
+    score += (me.hand.length - op.hand.length) * 2.8;
+    score += (me.mana - op.mana) * 0.18;
+    score += (me.heroPowerUsed ? 0 : 1) * 1.4;
+    score += (me.deck.length - op.deck.length) * 0.04;
+    const myTaunts = ownMinions(me).filter(m => m.taunt).length;
+    const opTaunts = ownMinions(op).filter(m => m.taunt).length;
+    score += (myTaunts - opTaunts) * 0.8;
+    if (op.hp + op.armor <= boardAttack(me)) score += 30;
+    if (me.hp + me.armor <= boardAttack(op)) score -= 30;
     if (op.hp <= 0) score += 5000;
     if (me.hp <= 0) score -= 5000;
     return score;
   }
 
+  function targetChoices(state, p, def, opt) {
+    if (!opt.targetType) return [null];
+    const first = chooseTarget(state, p, def, opt);
+    const ids = (opt.targets || []).slice();
+    const minions = ids.map(uid => E.findMinion(state, uid)).filter(Boolean);
+    minions.sort((a, b) => minionValue(b) - minionValue(a));
+    const ordered = [];
+    if (first) ordered.push(first.uid);
+    for (const m of minions) if (ordered.indexOf(m.uid) < 0) ordered.push(m.uid);
+    if (!ordered.length) {
+      if (def.type === "minion" || def.optionalTarget) return [null];
+      return [];
+    }
+    return ordered.slice(0, 3);
+  }
+
   function enumerateActions(state, p) {
     const actions = [];
+    const seen = new Set();
+    const push = (a) => {
+      const key = JSON.stringify(a);
+      if (seen.has(key)) return;
+      seen.add(key);
+      actions.push(a);
+    };
     for (const c of p.hand) {
       const def = D.CARDS[c.cardId];
       if (!def) continue;
       const opt = E.getPlayOptions(state, p.index, c.uid);
       if (!opt.ok) continue;
-      const target = chooseTarget(state, p, def, opt);
-      if (opt.targetType && !target && def.type !== "minion" && !def.optionalTarget) continue;
+      const targets = targetChoices(state, p, def, opt);
+      if (!targets.length) continue;
       const target2 = (def.target2 && (opt.target2Targets || []).length) ? E.findMinion(state, opt.target2Targets[0]) : null;
-      if (def.target2 && (opt.target2Targets || []).length && !target2) continue;
-      const zone = chooseZone(state, p, def, opt);
-      if ((def.type === "minion" || def.type === "formation") && !zone) continue;
-      actions.push({
-        type: "play",
-        cardUid: c.uid,
-        opts: { targetUid: target ? target.uid : null, targetUid2: target2 ? target2.uid : null, zone: zone, payBlood: shouldPayBlood(state, p, def) }
-      });
+      if (def.target2 && !target2 && !def.optionalTarget2) continue;
+      const zones = (def.type === "minion" || def.type === "formation")
+        ? (opt.zones || []).slice().sort((a, b) => zoneScore(state, p, def, b) - zoneScore(state, p, def, a))
+        : [null];
+      if ((def.type === "minion" || def.type === "formation") && !zones.length) continue;
+      let combos = 0;
+      for (const targetUid of targets) {
+        for (const zone of zones) {
+          push({
+            type: "play",
+            cardUid: c.uid,
+            opts: { targetUid: targetUid || null, targetUid2: target2 ? target2.uid : null, zone: zone, payBlood: shouldPayBlood(state, p, def) }
+          });
+          if (++combos >= 6) break;
+        }
+        if (combos >= 6) break;
+      }
     }
     for (const m of ownMinions(p)) {
       if (m.attacksLeft <= 0 || m.frozenTurns > 0) continue;
       const o = E.getAttackOptions(state, p.index, m.uid);
       if (!o.ok) continue;
-      for (const targetUid of o.targets) actions.push({ type: "attack", attackerUid: m.uid, targetUid: targetUid });
+      for (const targetUid of o.targets) push({ type: "attack", attackerUid: m.uid, targetUid: targetUid });
     }
-    const hp = chooseHeroPower(state, p);
-    if (hp) actions.push(hp);
+    const hpOpt = E.getHeroPowerOptions(state, p.index);
+    if (hpOpt.ok) {
+      if (!(hpOpt.targets || []).length) {
+        push({ type: "heroPower", targetUid: null });
+      } else {
+        for (const targetUid of (hpOpt.targets || []).slice(0, 6)) {
+          push({ type: "heroPower", targetUid: targetUid });
+        }
+      }
+    }
     return actions;
   }
 
@@ -383,14 +450,38 @@
     return result && result.ok !== false ? s : null;
   }
 
-  function searchBestAction(state, p, depth) {
-    const actions = enumerateActions(state, p);
+  function actionPriority(state, p, action) {
+    if (action.type === "play") {
+      const card = p.hand.find(c => c.uid === action.cardUid);
+      const def = card && D.CARDS[card.cardId];
+      if (!def) return 0;
+      const target = action.opts.targetUid ? E.findMinion(state, action.opts.targetUid) : null;
+      return effectScore(state, p, def, target, action.opts.zone) + (def.attack || 0) * 0.8 + (def.health || 0) * 0.6;
+    }
+    if (action.type === "attack") {
+      const attacker = E.findMinion(state, action.attackerUid);
+      if (!attacker) return 0;
+      if (action.targetUid === "hero") return 3 + attacker.attack * 1.2;
+      const target = E.findMinion(state, action.targetUid);
+      if (!target) return 0;
+      return (attacker.attack >= target.health ? minionValue(target) : target.attack * 0.4) - (target.attack >= attacker.health ? minionValue(attacker) * 0.5 : 0);
+    }
+    if (action.type === "heroPower") return 3.5;
+    return 0;
+  }
+
+  function searchBestAction(state, p, depth, limit) {
+    let actions = enumerateActions(state, p);
+    if (!actions.length) return null;
+    actions.sort((a, b) => actionPriority(state, p, b) - actionPriority(state, p, a));
+    if (limit) actions = actions.slice(0, limit);
     let best = null;
     for (const action of actions) {
       let next = applyCandidate(state, action, p.index);
       if (!next) continue;
       if ((depth || 1) > 1 && next.status === "playing" && next.current === p.index) {
-        const second = searchBestAction(next, p, 1);
+        const nextP = next.players[p.index];
+        const second = searchBestAction(next, nextP, 1, limit ? Math.max(4, Math.floor(limit / 2)) : 10);
         if (second) {
           const afterSecond = applyCandidate(next, second.action, p.index);
           if (afterSecond) next = afterSecond;
@@ -412,8 +503,13 @@
     const p = state.players[playerIndex];
     if (!p || state.current !== playerIndex) return { type: "end" };
     if (state.aiDifficulty !== "easy") {
-      const searched = searchBestAction(state, p, state.aiDifficulty === "nightmare" ? 2 : 1);
-      if (searched && searched.action) return Object.assign({}, searched.action, { score: searched.score });
+      const depth = state.aiDifficulty === "normal" ? 1 : 2;
+      const limit = state.aiDifficulty === "nightmare" ? 24 : state.aiDifficulty === "hard" ? 14 : 0;
+      const baseline = evaluateState(state, p.index);
+      const searched = searchBestAction(state, p, depth, limit);
+      if (searched && searched.action && searched.score > baseline + 0.35) {
+        return Object.assign({}, searched.action, { score: searched.score });
+      }
     }
     if (lethalAvailable(state, p)) {
       const atk = chooseAttack(state, p);
