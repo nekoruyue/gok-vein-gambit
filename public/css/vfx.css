@@ -1,0 +1,69 @@
+/* 状态贴图层：只负责卡面调色，不改动布局 */
+.board-card[data-vfx~="frozen"] .card-art {
+  filter: saturate(.72) brightness(1.03) hue-rotate(145deg);
+}
+.board-card[data-vfx~="frozen"] {
+  box-shadow: 0 0 0 1px rgba(155, 235, 255, .65), 0 0 26px rgba(70, 180, 230, .3), 0 8px 18px rgba(0,0,0,.5);
+}
+.board-card[data-vfx~="silenced"] .card-art {
+  filter: grayscale(.62) brightness(.86) contrast(.94);
+}
+.board-card[data-vfx~="silenced"] {
+  box-shadow: 0 0 0 1px rgba(170, 170, 165, .5), 0 8px 18px rgba(0,0,0,.55);
+}
+.board-card[data-vfx~="silenced"] .board-keyword-bar,
+.board-card[data-vfx~="silenced"] .card-text {
+  opacity: .45;
+}
+.board-card[data-vfx~="poisoned"] .card-art {
+  filter: saturate(.85) hue-rotate(-18deg) brightness(1.02);
+}
+.board-card[data-vfx~="poisoned"] {
+  box-shadow: 0 0 0 1px rgba(145, 215, 100, .5), 0 0 22px rgba(100, 180, 60, .2), 0 8px 18px rgba(0,0,0,.5);
+}
+.board-card[data-vfx~="shielded"] {
+  box-shadow: 0 0 0 2px rgba(255, 225, 150, .72), 0 0 30px rgba(230, 190, 100, .38), 0 8px 18px rgba(0,0,0,.5);
+}
+.board-card[data-vfx~="stealthed"] {
+  opacity: .86;
+  box-shadow: 0 0 0 1px rgba(130, 105, 180, .5), 0 0 24px rgba(60, 40, 100, .22);
+}
+.board-card[data-vfx~="rebirthed"] {
+  box-shadow: 0 0 0 1px rgba(130, 225, 255, .58), 0 0 26px rgba(80, 190, 230, .28);
+}
+.board-card[data-vfx~="taunted"] {
+  box-shadow: 0 0 0 1px rgba(225, 170, 100, .4), 0 0 18px rgba(160, 100, 40, .15), 0 8px 18px rgba(0,0,0,.5);
+}
+.board-card[data-vfx~="bountied"] {
+  box-shadow: 0 0 0 1px rgba(230, 190, 105, .7), 0 0 20px rgba(180, 120, 30, .2);
+}
+
+/* 反击/反伤时攻击者有一个明确的后坐 */
+.board-card.vfx-counter-recoil {
+  animation: vfxCounterRecoil .28s cubic-bezier(.2,.8,.3,1);
+  z-index: 16;
+}
+@keyframes vfxCounterRecoil {
+  0% { transform: translate(0,0) scale(1); }
+  28% { transform: translate(var(--recoil-x, 0px), var(--recoil-y, 6px)) scale(.975); filter: brightness(1.2); }
+  62% { transform: translate(calc(var(--recoil-x, 0px) * -.35), calc(var(--recoil-y, 6px) * -.25)) scale(1.01); }
+  100% { transform: translate(0,0) scale(1); }
+}
+
+/* 状态贴图本身由 Canvas 绘制，这里只保留低配/减少动态的降级 */
+@media (prefers-reduced-motion: reduce) {
+  .board-card[data-vfx] .card-art { filter: none; }
+}
+
+/* 死亡遗影：卡牌本体已被移除，仍保留 0.7 秒的碎裂轮廓 */
+.vfx-death-ghost {
+  transform-origin: 50% 55%;
+  animation: vfxDeathGhost .68s cubic-bezier(.2,.7,.25,1) forwards;
+  filter: none;
+}
+@keyframes vfxDeathGhost {
+  0% { opacity: 1; transform: translate(0,0) rotate(0) scale(1); filter: brightness(1); }
+  14% { opacity: 1; transform: translate(3px,-2px) rotate(1.5deg) scale(1.035); filter: brightness(2.2) saturate(.2); }
+  30% { opacity: .95; transform: translate(-2px,2px) rotate(-1.2deg) scale(.99); filter: brightness(1.15) saturate(.5); }
+  100% { opacity: 0; transform: translate(0,-20px) rotate(2.5deg) scale(.9); filter: brightness(.7) blur(3px); }
+}

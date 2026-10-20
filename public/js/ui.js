@@ -2035,11 +2035,34 @@
 
   function showDeathPuff(ev) {
     const pt = zonePoint(ev.player, ev.zone);
+    if (global.GokVFX) global.GokVFX.death(pt.x, pt.y);
     const puff = el("div", "death-puff");
     puff.style.left = pt.x + "px";
     puff.style.top = pt.y + "px";
     document.body.appendChild(puff);
     setTimeout(() => { if (puff.parentNode) puff.parentNode.removeChild(puff); }, 650);
+  }
+
+  // 目标随从死亡时，卡牌本体已经从 DOM 移除；保留一张短暂的“遗影”让击杀看得清。
+  function showDeathGhost(source, rect) {
+    if (!source || !rect) return;
+    const ghost = source.cloneNode(true);
+    ghost.classList.remove("selected", "targetable", "attackable", "drag-target", "hit");
+    ghost.classList.add("vfx-death-ghost");
+    ghost.removeAttribute("data-minion");
+    ghost.setAttribute("aria-hidden", "true");
+    Object.assign(ghost.style, {
+      position: "fixed",
+      left: rect.left + "px",
+      top: rect.top + "px",
+      width: rect.width + "px",
+      height: rect.height + "px",
+      margin: "0",
+      pointerEvents: "none",
+      zIndex: "195"
+    });
+    document.body.appendChild(ghost);
+    setTimeout(() => { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); }, 720);
   }
 
   function flashScreen(kind) {
@@ -2126,6 +2149,9 @@
         chooseSound("draw");
         AudioBox.play("select");
       } else if (ev.kind === "summon") {
+        const pt = zonePoint(ev.player, ev.zone);
+        const summonOwner = app.game && app.game.players[ev.player];
+        if (global.GokVFX) global.GokVFX.summon(pt.x, pt.y, { count: 7, landingDelay: 90, faction: summonOwner && summonOwner.faction });
         chooseSound("summon");
       }
     }
@@ -3048,6 +3074,7 @@
   }
 
   function showKeywordPop(label, x, y, tone) {
+    if (global.GokVFX) global.GokVFX.keyword(label, x, y, tone);
     const pop = el("div", "keyword-pop" + (tone ? " " + tone : ""), label);
     pop.style.left = x + "px";
     pop.style.top = y + "px";
@@ -3116,6 +3143,16 @@
     else if (st.indexOf("armor") >= 0) sound = "armor";
     else if (st.indexOf("heal") >= 0 || st.indexOf("Vein") >= 0) sound = "heal";
     if (sound) AudioBox.play(sound);
+    if (global.GokVFX) {
+      const isFreeze = st.indexOf("freeze") >= 0;
+      const isBlood = st.indexOf("blood") >= 0 || def.bloodCost != null;
+      const land = () => {
+        if (def.type === "spell") global.GokVFX.cast(point.x, point.y, { freeze: isFreeze, blood: isBlood });
+        else if (def.type === "relic") global.GokVFX.landing(point.x, point.y, { faction: def.faction, count: 9 });
+      };
+      // 随从的传送门/落地由强化后的 summon 事件统一触发，避免同一阵位叠两层。
+      if (def.type !== "minion") land();
+    }
     playSemanticFx(def, point);
   }
 
@@ -3142,6 +3179,7 @@
   }
 
   function showAbilityFeedback(name, point) {
+    if (global.GokVFX) global.GokVFX.cast(point.x, point.y, {});
     const ring = el("div", "cast-ring summon-ring");
     ring.style.left = point.x + "px";
     ring.style.top = point.y + "px";
@@ -3150,7 +3188,8 @@
     AudioBox.play("hero_power");
   }
 
-  function showImpact(x, y) {
+  function showImpact(x, y, opts) {
+    if (global.GokVFX && !(opts && opts.vfx === false)) global.GokVFX.impact(x, y, opts || {});
     const n = el("div", "impact-flash");
     n.style.left = x + "px";
     n.style.top = y + "px";
@@ -3246,6 +3285,7 @@
   }
 
   function showAttackLine(ax, ay, bx, by) {
+    if (global.GokVFX) global.GokVFX.attack(ax, ay, bx, by);
     const distance = Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
     const angle = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
     const line = el("div", "attack-overlay-line");
@@ -3271,57 +3311,96 @@
     const targetElBefore = targetUid === "hero"
       ? document.getElementById(targetHeroId)
       : document.querySelector('.board-card[data-minion="' + targetUid + '"]');
+    const targetGhost = targetUid !== "hero" && targetElBefore ? targetElBefore.cloneNode(true) : null;
     const rect = targetElBefore ? targetElBefore.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
     app.animating = true;
     app.busy = true;
     app.attacker = null;
     app.targetInfo = null;
     renderGame();
+
     const attackerEl = document.querySelector('.board-card[data-minion="' + attackerUid + '"]');
     const targetEl = targetUid === "hero"
       ? document.getElementById(targetHeroId)
       : document.querySelector('.board-card[data-minion="' + targetUid + '"]');
     if (attackerEl) attackerEl.classList.add(attackerOwner === app.viewer ? "attack-up" : "attack-down");
-    if (targetEl) setTimeout(() => targetEl.classList.add("hit"), 100);
-    if (targetEl && targetUid === "hero") {
-      setTimeout(() => {
-        targetEl.classList.add("hero-hit");
-        showHeroImpact(rect.left + rect.width / 2, rect.top + rect.height / 2);
-        flashScreen("damage");
-        setTimeout(() => targetEl.classList.remove("hero-hit"), 800);
-      }, 190);
-    }
-    if (targetMinion && targetMinion.taunt) setTimeout(() => showKeywordPop("拦截", rect.left + rect.width / 2, rect.top + rect.height / 2, ""), 110);
-    if (targetMinion && targetMinion.divineShield) setTimeout(() => showKeywordPop("护幕", rect.left + rect.width / 2, rect.top + rect.height / 2, "shield"), 150);
-    if (attacker.poisonous) setTimeout(() => showKeywordPop("蚀毒", rect.left + rect.width / 2, rect.top + rect.height / 2, "poison"), 190);
-    if (attacker.lifesteal) setTimeout(() => showKeywordPop("汲取", rect.left + rect.width / 2, rect.top + rect.height / 2, "heal"), 190);
+    if (targetEl) setTimeout(() => targetEl.classList.add("hit"), 180);
+
     if (attackerRect) {
       const ax = attackerRect.left + attackerRect.width / 2;
       const ay = attackerRect.top + attackerRect.height / 2;
-      const bx = rect.left + rect.width / 2;
-      const by = rect.top + rect.height / 2;
-      setTimeout(() => showAttackLine(ax, ay, bx, by), 80);
-      setTimeout(() => showImpact((ax + bx) / 2, (ay + by) / 2), 160);
+      setTimeout(() => showAttackLine(ax, ay, cx, cy), 100);
     }
-    setTimeout(() => showImpact(rect.left + rect.width / 2, rect.top + rect.height / 2), 210);
-    AudioBox.play("battle");
+    if (targetMinion && targetMinion.taunt) setTimeout(() => showKeywordPop("拦截", cx, cy, ""), 190);
+    if (targetMinion && targetMinion.divineShield) setTimeout(() => showKeywordPop("护幕", cx, cy, "shield"), 205);
+    if (attacker.poisonous) setTimeout(() => showKeywordPop("蚀毒", cx, cy, "poison"), 220);
+    if (attacker.lifesteal) setTimeout(() => showKeywordPop("汲取", cx, cy, "heal"), 220);
+
+    // 命中帧才结算，伤害数字和引擎状态在同一拍出现；之后只播回收和余波。
     setTimeout(() => {
+      const impactPoint = { x: cx, y: cy };
+      if (global.GokVFX) {
+        global.GokVFX.impact(cx, cy, { freeze: !!targetMinion && targetMinion.frozenTurns > 0 });
+        if (attacker.lifesteal && attackerRect) {
+          const ax = attackerRect.left + attackerRect.width / 2;
+          const ay = attackerRect.top + attackerRect.height / 2;
+          global.GokVFX.drain(cx, cy, ax, ay, { color: [110, 220, 150] });
+        }
+      }
+      showImpact(cx, cy, { vfx: false });
+      if (targetUid === "hero") {
+        const heroEl = document.getElementById(targetHeroId);
+        if (heroEl) {
+          heroEl.classList.add("hero-hit");
+          setTimeout(() => heroEl.classList.remove("hero-hit"), 700);
+        }
+        showHeroImpact(cx, cy);
+        flashScreen("damage");
+      }
+      AudioBox.play("battle");
+      if (app.screenShake) shakeScreen();
+
       const r = E.attack(s, attackerOwner, attackerUid, targetUid);
-      app.animating = false;
-      app.busy = false;
       renderGame();
+      if (targetMinion && targetMinion.dead && targetGhost) showDeathGhost(targetGhost, rect);
       if (r.ok) {
-        showFloatingNumber("-" + damage, rect.left + rect.width / 2, rect.top + rect.height / 2, targetUid === "hero" ? "damage hero-damage" : "damage");
+        showFloatingNumber("-" + damage, cx, cy, targetUid === "hero" ? "damage hero-damage" : "damage");
         if (counterDamage > 0 && attackerRect) {
           showFloatingNumber("-" + counterDamage, attackerRect.left + attackerRect.width / 2, attackerRect.top + attackerRect.height / 2, "damage");
+          const attackerNow = document.querySelector('.board-card[data-minion="' + attackerUid + '"]');
+          if (attackerNow && !attacker.dead) {
+            const ax = attackerRect.left + attackerRect.width / 2;
+            const ay = attackerRect.top + attackerRect.height / 2;
+            const dx = ax - cx, dy = ay - cy;
+            const len = Math.sqrt(dx * dx + dy * dy) || 1;
+            attackerNow.style.setProperty("--recoil-x", (dx / len * 9).toFixed(1) + "px");
+            attackerNow.style.setProperty("--recoil-y", (dy / len * 9).toFixed(1) + "px");
+            attackerNow.classList.remove("vfx-counter-recoil");
+            void attackerNow.offsetWidth;
+            attackerNow.classList.add("vfx-counter-recoil");
+            setTimeout(() => attackerNow.classList.remove("vfx-counter-recoil"), 300);
+            if (global.GokVFX) global.GokVFX.impact(ax, ay, { count: 5 });
+          }
         }
-        shakeScreen();
       } else {
         toast(r.reason || "攻击失败。");
       }
-      if (showPendingDiscoverIfNeeded()) { if (done) done(r); return; }
-      if (done) done(r);
-    }, 1050);
+      if (showPendingDiscoverIfNeeded()) {
+        setTimeout(() => finishAttack(r), 120);
+      } else {
+        finishAttack(r);
+      }
+    }, 270);
+
+    function finishAttack(r) {
+      setTimeout(() => {
+        app.animating = false;
+        app.busy = false;
+        if (done) done(r);
+      }, 300);
+    }
   }
 
   function showPendingDiscoverIfNeeded() {

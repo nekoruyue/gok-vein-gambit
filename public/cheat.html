@@ -82,6 +82,7 @@
     <button class="tab" data-tab="cards">卡牌库/牌组</button>
     <button class="tab" data-tab="deck">牌库</button>
     <button class="tab" data-tab="ai">AI 调试</button>
+    <button class="tab" data-tab="vfx">VFX 测试</button>
     <button class="tab" data-tab="scenario">快速局面</button>
     <button class="tab" data-tab="state">状态/日志</button>
   </div>
@@ -215,6 +216,24 @@
       </div>
       <div class="box"><div class="box-title">AI 最近动作 <span class="hint" id="ai-decision"></span></div><div class="log" id="ai-log"></div></div>
       <p class="hint">AI 直接调用真实 GokAI 决策与引擎动作，不经过主界面的 AI 定时器；你可以随时暂停、单步或强制切换回合观察。</p>
+    </div>
+
+    <div class="section" id="tab-vfx">
+      <div class="box">
+        <div class="box-title">VFX 测试台 <span class="hint" id="vfx-state">等待 VFX</span></div>
+        <div class="row" style="align-items:center"><label style="flex:0 0 auto"><input id="vfx-enabled" type="checkbox" checked> VFX 开</label><div><label>播放速度</label><select id="vfx-speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></div></div>
+        <div class="row"><button id="vfx-attack" class="primary">测试攻击</button><button id="vfx-landing">测试召唤</button><button id="vfx-cast">测试法术</button><button id="vfx-impact">测试命中</button><button id="vfx-death">测试死亡</button><button id="vfx-clear" class="danger">清空粒子</button></div>
+      </div>
+      <div class="box">
+        <div class="box-title">关键词爆发</div>
+        <div class="row"><div><label>关键词</label><select id="vfx-keyword"><option>冻结</option><option>沉默</option><option>护幕</option><option>蚀毒</option><option>汲取</option><option>拦截</option><option>余响</option><option>回潮</option><option>悬赏</option><option>引脉</option><option>连动</option><option>突进</option><option>血祭</option><option>登场</option></select></div><button id="vfx-keyword-play" class="primary">播放</button></div>
+      </div>
+      <div class="box">
+        <div class="box-title">持续状态贴图</div>
+        <div class="row"><div><label>状态</label><select id="vfx-status"><option value="frozen">冻结</option><option value="silenced">沉默</option><option value="shielded">护幕</option><option value="poisoned">蚀毒</option><option value="stealthed">隐匿</option><option value="rebirthed">回潮</option><option value="taunted">拦截</option><option value="bountied">悬赏</option></select></div><button id="vfx-status-apply" class="primary">挂到当前随从</button><button id="vfx-status-clear">清除状态</button></div>
+        <p class="hint">作用于当前“阵营”选中的第一个随从；没有随从时提示先召唤。状态贴图由 Canvas 持续渲染。</p>
+      </div>
+      <div class="box"><div class="box-title">最近 VFX 动作</div><div class="log" id="vfx-log"></div></div>
     </div>
 
     <div class="section" id="tab-scenario">
@@ -452,6 +471,74 @@
     sync(); aiSchedule(); notice("双 AI 自动推演已启动。");
   }
 
+  // ===== VFX 测试台 =====
+  function vfxApi(){ return win() && win().GokVFX; }
+  function vfxLog(text){
+    var box=$("vfx-log"); if(!box)return;
+    box.textContent=("["+new Date().toLocaleTimeString()+"] "+text+"\n"+box.textContent).slice(0,5000);
+  }
+  function firstCardRect(playerIdx,enemy){
+    var w=win(); if(!w)return null;
+    var root=w.document.querySelector(enemy?"#enemy-board":"#player-board");
+    var card=root&&root.querySelector(".board-card[data-minion]");
+    if(card)return card.getBoundingClientRect();
+    var hero=w.document.getElementById(enemy?"opponent-hero":"player-hero");
+    if(hero)return hero.getBoundingClientRect();
+    return null;
+  }
+  function vfxPoint(){
+    var r=firstCardRect(state.owner,false)||firstCardRect(1-state.owner,true);
+    if(r)return {x:r.left+r.width/2,y:r.top+r.height/2};
+    var w=win();return {x:(w?w.innerWidth:innerWidth)/2,y:(w?w.innerHeight:innerHeight)/2};
+  }
+  function vfxTest(kind){
+    var V=vfxApi(); if(!V){notice("VFX 还没有载入。");return;}
+    if(!state.vfxStep)state.vfxStep=0;
+    var p=vfxPoint();
+    var a=firstCardRect(state.owner,false);
+    var b=firstCardRect(1-state.owner,true);
+    if(kind==="attack"){
+      if(a&&b)V.attack(a.left+a.width/2,a.top+a.height/2,b.left+b.width/2,b.top+b.height/2);
+      else V.attack(p.x-120,p.y+40,p.x+160,p.y-60);
+      vfxLog("攻击特效 "+(a&&b?"目标连线":"中心"));
+    }else if(kind==="landing"){
+      V.summon(p.x,p.y,{faction:owner()&&owner().faction,count:16,landingDelay:220});vfxLog("召唤传送门 + 落地");
+    }else if(kind==="cast"){
+      V.cast(p.x,p.y,{});vfxLog("法术施放");
+    }else if(kind==="impact"){
+      V.impact(p.x,p.y,{});vfxLog("命中冲击");
+    }else if(kind==="death"){
+      V.death(p.x,p.y,{});vfxLog("死亡烟尘");
+    }
+  }
+  function applyVfxStatus(status){
+    if(!requireGame())return;
+    var p=owner(); var m=null;
+    ["left","center","right"].some(function(z){m=(p.board[z]||[]).find(function(x){return !x.dead;});return !!m;});
+    if(!m){notice("当前阵营场上没有随从，先召唤一个。");return;}
+    if(status==="frozen")m.frozenTurns=2;
+    else if(status==="silenced")m.silenced=true;
+    else if(status==="shielded")m.divineShield=true;
+    else if(status==="poisoned")m.poisonous=true;
+    else if(status==="stealthed")m.stealth=true;
+    else if(status==="rebirthed")m.reborn=true;
+    else if(status==="taunted")m.taunt=true;
+    else if(status==="bountied")m.bounty={owner:0};
+    w_render(); vfxLog("挂载状态："+status+" @ "+m.name);
+  }
+  function clearVfxStatus(){
+    if(!requireGame())return;
+    var p=owner();
+    ["left","center","right"].forEach(function(z){ (p.board[z]||[]).forEach(function(m){
+      m.frozenTurns=0;m.silenced=false;m.divineShield=false;m.poisonous=false;m.stealth=false;m.reborn=false;m.taunt=false;m.bounty=null;
+    });});
+    w_render(); vfxLog("清除当前阵营全部状态");
+  }
+  function w_render(){
+    var a=app(); if(!a||!a.game)return;
+    a.render();refresh();
+  }
+
   // ===== 快照 =====
   function saveSnapshot(){
     if(!requireGame())return;
@@ -512,6 +599,10 @@
     $("ai-delay").value=state.aiDelay;
     $("ai-log").textContent=state.aiLog.join("\n");
     $("snapshot-hint").textContent=state.snapshot?"快照已保存 · 可恢复":"尚未保存快照。";
+    var V=vfxApi();
+    $("vfx-state").textContent=V?(V.ready?"VFX 已就绪 · "+V.particles.length+" 粒子":"VFX 载入中"):"VFX 未载入";
+    $("vfx-enabled").checked=V?!!V.enabled:false;
+    $("vfx-speed").value=String(V&&V.timeScale!=null?V.timeScale:1);
     $("view-side").value=String(state.viewSide);
     $("view-lock").textContent=state.viewLocked?"视角锁定：P"+(state.viewSide+1)+" ✓":"视角锁定：关";
     $("view-lock").classList.toggle("primary",state.viewLocked);
@@ -645,6 +736,17 @@
   $("ai-both-stop").onclick=function(){aiStop("双 AI 已停止。");};
   $("view-lock").onclick=function(){state.viewLocked=!state.viewLocked;state.viewSide=Number($("view-side").value);sync();notice(state.viewLocked?"视角锁定：P"+(state.viewSide+1):"视角已恢复跟随当前回合。");};
   $("view-side").onchange=function(){state.viewSide=Number(this.value);if(state.viewLocked)sync();else refresh();};
+  $("vfx-enabled").onchange=function(){var V=vfxApi();if(V)V.setEnabled(this.checked);vfxLog("VFX "+(this.checked?"开启":"关闭"));};
+  $("vfx-speed").onchange=function(){var V=vfxApi();if(V)V.timeScale=Number(this.value)||1;vfxLog("VFX 速度 "+this.value+"×");};
+  $("vfx-attack").onclick=function(){vfxTest("attack");};
+  $("vfx-landing").onclick=function(){vfxTest("landing");};
+  $("vfx-cast").onclick=function(){vfxTest("cast");};
+  $("vfx-impact").onclick=function(){vfxTest("impact");};
+  $("vfx-death").onclick=function(){vfxTest("death");};
+  $("vfx-clear").onclick=function(){var V=vfxApi();if(V)V.clear();vfxLog("清空粒子");};
+  $("vfx-keyword-play").onclick=function(){var V=vfxApi();if(!V)return;var p=vfxPoint();V.keyword($("vfx-keyword").value,p.x,p.y);vfxLog("关键词："+$("vfx-keyword").value);};
+  $("vfx-status-apply").onclick=function(){applyVfxStatus($("vfx-status").value);};
+  $("vfx-status-clear").onclick=clearVfxStatus;
   $("save-snapshot").onclick=saveSnapshot; $("restore-snapshot").onclick=restoreSnapshot;
   $("sc-empty").onclick=function(){scenario("empty");}; $("sc-fill").onclick=function(){scenario("fill");}; $("sc-low").onclick=function(){scenario("low");}; $("sc-full").onclick=function(){scenario("full");}; $("sc-vein10").onclick=function(){scenario("vein10");};
   $("export-state").onclick=function(){if(!requireGame())return;var blob=new Blob([JSON.stringify(game(),null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="gok-cheat-state.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);};

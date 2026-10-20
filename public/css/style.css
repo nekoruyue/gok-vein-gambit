@@ -728,25 +728,28 @@ body[data-screen="game"] .hs-skill-cost.passive { font-size: 8px; color: #d8f6e9
 .zone.drop-ready::after { border-color: rgba(242,198,109,0.5); opacity: 0.8; }
 
 @keyframes lungeUp {
-  0% { transform: translateY(0) scale(1); }
-  35% { transform: translateY(-24px) scale(1.04); }
-  58% { transform: translateY(-12px) scale(1.02); }
-  100% { transform: translateY(0) scale(1); }
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  16% { transform: translateY(10px) scale(.98); filter: brightness(1.18); }
+  48% { transform: translateY(-62px) scale(1.06); filter: brightness(1.45); }
+  64% { transform: translateY(-48px) scale(1.04); filter: brightness(1.32); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
 }
 @keyframes lungeDown {
-  0% { transform: translateY(0) scale(1); }
-  35% { transform: translateY(24px) scale(1.04); }
-  58% { transform: translateY(12px) scale(1.02); }
-  100% { transform: translateY(0) scale(1); }
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  16% { transform: translateY(-10px) scale(.98); filter: brightness(1.18); }
+  48% { transform: translateY(62px) scale(1.06); filter: brightness(1.45); }
+  64% { transform: translateY(48px) scale(1.04); filter: brightness(1.32); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
 }
 .board-card.attack-up { animation: lungeUp 0.3s ease; z-index: 15; }
 .board-card.attack-down { animation: lungeDown 0.3s ease; z-index: 15; }
 .board-card.hit, .hero-panel.hit { animation: hitShake 0.3s ease; }
 @keyframes hitShake {
-  0%,100% { filter: none; transform: translateX(0); }
-  20% { filter: brightness(1.65) saturate(1.4); transform: translateX(-4px); }
-  45% { filter: brightness(1.4) saturate(1.2); transform: translateX(4px); }
-  70% { filter: brightness(1.15); transform: translateX(-2px); }
+  0%,100% { filter: none; transform: translate(0,0) rotate(0) scale(1); }
+  18% { filter: brightness(1.95) saturate(1.5); transform: translate(-7px,2px) rotate(-1.8deg) scale(.96); }
+  38% { filter: brightness(1.55) saturate(1.3); transform: translate(6px,-1px) rotate(1.3deg) scale(.985); }
+  60% { filter: brightness(1.2); transform: translate(-3px,1px) rotate(-.6deg) scale(1); }
+  80% { filter: brightness(1.08); transform: translate(2px,0) rotate(.25deg); }
 }
 .game-shell.screen-shake { animation: screenShake 0.26s ease; }
 @keyframes screenShake {
