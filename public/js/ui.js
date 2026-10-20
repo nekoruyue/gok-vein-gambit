@@ -3398,6 +3398,9 @@
       setTimeout(() => {
         app.animating = false;
         app.busy = false;
+        // 命中帧 renderGame 时 busy 仍为 true，按钮会被渲染成 disabled。
+        // 动画结束必须再重绘一次控件，否则结束回合会一直卡灰。
+        if (app.game && app.screen === "game") renderGame();
         if (done) done(r);
       }, 300);
     }

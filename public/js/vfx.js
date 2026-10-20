@@ -7,7 +7,7 @@
   "use strict";
 
   const BASE = "assets/vfx/";
-  const ASSET_VERSION = "20261020e22";
+  const ASSET_VERSION = "20261020e23";
   const CELL = 128;
   const FRAMES = {
     glow: 0, spark: 1, smoke: 2, dust: 3,
@@ -667,6 +667,7 @@
 
   root.GokVFX = VFX;
 })(typeof window !== "undefined" ? window : globalThis);
+
 
 
 
