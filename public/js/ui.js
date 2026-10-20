@@ -432,7 +432,7 @@
     document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
     const target = $("screen-" + name);
     if (target) target.classList.add("active");
-    if (name === "home" || name === "mode" || name === "sim" || name === "setup" || name === "lan" || name === "deck" || name === "tutorial" || name === "codex" || name === "achievements" || name === "settings" || name === "rank" || name === "rules" || name === "match" || name === "room") AudioBox.bgm("bgm_title");
+    if (name === "home" || name === "mode" || name === "sim" || name === "setup" || name === "lan" || name === "deck" || name === "tutorial" || name === "codex" || name === "achievements" || name === "settings" || name === "rank" || name === "rules" || name === "match" || name === "room" || name === "lab") AudioBox.bgm("bgm_title");
     if (name === "game") AudioBox.bgm("bgm_game");
     if (name !== "home") closeStartMenu();
     if (name === "home") { updateHomeLegendary(); updateHomeAccount(); renderHomeDash(); }
@@ -485,6 +485,7 @@
       case "rank": showScreen("home"); return;
       case "match": showScreen("mode"); showModeMulti(true); return;
       case "room": showScreen("mode"); showModeMulti(true); return;
+      case "lab": showScreen("home"); return;
       case "sim": showScreen("home"); return;
       case "rules": closeRulesScreen(); return;
       case "game":
@@ -709,6 +710,7 @@
       seed: config.seed == null ? ((Date.now() >>> 0) ^ Math.floor(Math.random() * 0x7fffffff)) : config.seed
     });
     if (typeof config.setup === "function") config.setup(state);
+    if (config.experimental && config.experimental.length) applyExperimentalMods(state, config.experimental);
     state.ranked = !!config.ranked;
     app.matchmaking = !!config.matchmaking;
     const onlineNames = !!(config.matchmaking || config.ranked || config.online);
@@ -897,6 +899,12 @@
     if (oppEmblem) oppEmblem.style.backgroundImage = "url('" + (D.FACTIONS[top.faction].emblem || "") + "')";
     if (myEmblem) myEmblem.style.backgroundImage = "url('" + (D.FACTIONS[viewer.faction].emblem || "") + "')";
     $("game-mode-label").textContent = s.players[0].factionName + " 对阵 " + s.players[1].factionName + (s.ranked ? " · 排位" : app.net ? " · 在线房间" : " · 单人 AI");
+    const experimentBadge = $("game-experiment-badge");
+    if (experimentBadge) {
+      const mods = s.experimental || [];
+      experimentBadge.hidden = !mods.length;
+      if (mods.length) experimentBadge.textContent = "实验：" + mods.map(id => (LAB_MODS.find(m => m.id === id) || {}).name || id).join(" · ");
+    }
     const turnBadge = $("turn-badge");
     if (turnBadge) {
       if (s.status === "gameover") turnBadge.textContent = "推演结束";
@@ -6054,6 +6062,132 @@
     });
   }
 
+  const LAB_MODS = [
+    { id: "veinStorm", name: "流脉暴走", desc: "开局流脉直接 +6。世界会更早替你们结算。" },
+    { id: "manaFlood", name: "行动力沸腾", desc: "双方开局最大行动力 +2，当前行动力也补满。" },
+    { id: "ironRush", name: "全员突进", desc: "双方之后召唤的所有随从获得突进。" },
+    { id: "crossFaction", name: "跨阵营乱斗", desc: "双方牌组从六阵营卡池随机混编，不再讲阵营纪律。" }
+  ];
+
+  function applyExperimentalMods(state, mods) {
+    if (!state || !Array.isArray(mods)) return;
+    state.experimental = mods.slice();
+    for (const mod of mods) {
+      if (mod === "veinStorm") state.vein = Math.min(12, (state.vein || 0) + 6);
+      if (mod === "manaFlood") {
+        for (const p of state.players) {
+          p.maxMana = Math.min(10, (p.maxMana || 1) + 2);
+          p.mana = p.maxMana;
+        }
+      }
+      if (mod === "ironRush") state.experimentalIronRush = true;
+    }
+  }
+
+  function buildChaosDeck(faction) {
+    const pool = Object.keys(D.CARDS).filter(id => {
+      const d = D.CARDS[id];
+      return d && !d.token && !d.disabled && d.type !== "relic";
+    });
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const deck = [];
+    const counts = {};
+    for (const id of pool) {
+      if (deck.length >= 30) break;
+      const max = D.maxCopies(D.CARDS[id]) || 2;
+      const n = counts[id] || 0;
+      if (n >= max) continue;
+      deck.push(id);
+      counts[id] = n + 1;
+      if (deck.length < 30 && n + 1 < max && Math.random() > 0.45) {
+        deck.push(id);
+        counts[id] = n + 2;
+      }
+    }
+    const source = D.DECKS[faction] || [];
+    const relic = source.find(id => D.CARDS[id] && D.CARDS[id].type === "relic") || "vein_heart";
+    deck.push(relic);
+    return deck.slice(0, 30).concat(relic);
+  }
+
+  function openLabPage() {
+    if (!window.GOK_IS_PREVIEW) { toast("疯狂实验只在抢先版开放。"); return; }
+    showScreen("lab");
+    renderLabPage();
+  }
+
+  function renderLabPage() {
+    const root = $("lab-page-root");
+    if (!root) return;
+    clear(root);
+    let faction = D.FACTIONS[app.faction] ? app.faction : "pus";
+    const selected = new Set(Array.isArray(app.labMods) ? app.labMods : []);
+    const intro = el("div", "lab-intro");
+    intro.appendChild(el("div", "eyebrow", "PREVIEW / CHAOS LAB"));
+    intro.appendChild(el("h3", null, "疯狂实验"));
+    intro.appendChild(el("p", null, "这里可以组合一些不稳定、未平衡的规则。它们只影响本局，不会写入稳定版。建议先单人试。"));
+    root.appendChild(intro);
+    root.appendChild(el("div", "eyebrow", "选择实验规则"));
+    const modsBox = el("div", "lab-mods");
+    for (const mod of LAB_MODS) {
+      const b = el("button", "lab-mod" + (selected.has(mod.id) ? " active" : ""));
+      b.type = "button";
+      b.appendChild(el("strong", null, mod.name));
+      b.appendChild(el("small", null, mod.desc));
+      b.onclick = () => {
+        if (selected.has(mod.id)) selected.delete(mod.id);
+        else selected.add(mod.id);
+        app.labMods = Array.from(selected);
+        b.classList.toggle("active", selected.has(mod.id));
+      };
+      modsBox.appendChild(b);
+    }
+    root.appendChild(modsBox);
+    root.appendChild(el("div", "eyebrow", "选择阵营"));
+    const factionRow = el("div", "match-faction-grid");
+    for (const id of D.FACTION_IDS) {
+      const fact = D.FACTIONS[id];
+      const b = el("button", "match-faction-card" + (id === faction ? " active" : ""));
+      b.type = "button";
+      const emblem = el("img", "match-faction-emblem"); emblem.src = fact.emblem; emblem.alt = "";
+      const copy = el("span", "match-faction-copy");
+      copy.appendChild(el("strong", null, fact.name));
+      copy.appendChild(el("small", null, D.HEROES[fact.hero] ? "领袖 · " + D.HEROES[fact.hero].name : "领袖"));
+      b.appendChild(emblem); b.appendChild(copy);
+      b.onclick = () => { faction = id; renderLabPage(); };
+      factionRow.appendChild(b);
+    }
+    root.appendChild(factionRow);
+    const actions = el("div", "lab-actions");
+    const start = el("button", "btn btn-primary", "开始实验");
+    start.onclick = () => startLabGame(faction, Array.from(selected));
+    const back = el("button", "btn btn-small btn-ghost", "返回档案处");
+    back.onclick = () => showScreen("home");
+    actions.appendChild(back); actions.appendChild(start);
+    root.appendChild(actions);
+  }
+
+  function startLabGame(faction, mods) {
+    const opponent = D.nextFaction(faction);
+    const chaos = mods.indexOf("crossFaction") >= 0;
+    const p1Deck = chaos ? buildChaosDeck(faction) : getSelectedPlayDeck(faction, "preset");
+    const p2Deck = chaos ? buildChaosDeck(opponent) : getSelectedPlayDeck(opponent, "preset");
+    startGame({
+      faction: faction,
+      opponent: opponent,
+      p1Deck: p1Deck,
+      p2Deck: p2Deck,
+      mode: "ai",
+      aiDifficulty: "hard",
+      mulligan: false,
+      skipIntro: true,
+      experimental: mods
+    });
+  }
+
   function openSettings(returnScreen) {
     app.settingsReturn = returnScreen === "game" ? "game" : (returnScreen || "home");
     const back = $("btn-settings-back");
@@ -7008,6 +7142,86 @@
     }, 450);
   }
 
+  function channelBuild() {
+    return (window.GOK_BUILD || "dev").replace(/^v/, "");
+  }
+
+  function showChannelNotice(data) {
+    if (app.modalOpen) return;
+    const preview = window.GOK_CHANNEL === "preview";
+    openModal((content) => {
+      content.appendChild(el("div", "eyebrow", preview ? "PREVIEW / 抢先版" : "STABLE / 稳定版"));
+      content.appendChild(el("h3", null, preview ? "抢先体验版" : "稳定版更新"));
+      content.appendChild(el("p", null, preview ? "这个版本包含尚未完全平衡的新卡和实验机制，可能出现 bug。稳定版功能保持独立。" : "以下内容已经进入稳定版。"));
+      const notes = (data && data.notes) || [];
+      if (notes.length) {
+        const list = el("ul", "channel-notice-list");
+        for (const n of notes) list.appendChild(el("li", null, n));
+        content.appendChild(list);
+      }
+      const issues = (data && data.knownIssues) || [];
+      if (issues.length) {
+        const known = el("div", "channel-notice-known");
+        known.appendChild(el("strong", null, "已知问题"));
+        for (const n of issues) known.appendChild(el("div", null, "· " + n));
+        content.appendChild(known);
+      }
+      const actions = el("div", "modal-actions");
+      if (preview && window.GOK_CHANNEL_LINKS && window.GOK_CHANNEL_LINKS.stable) {
+        const stable = el("button", "btn btn-small btn-ghost", "返回稳定版");
+        stable.onclick = () => { location.href = window.GOK_CHANNEL_LINKS.stable; };
+        actions.appendChild(stable);
+      }
+      const ok = el("button", "btn btn-primary", preview ? "进入抢先版" : "继续");
+      ok.onclick = () => closeModal(true);
+      actions.appendChild(ok);
+      content.appendChild(actions);
+    });
+  }
+
+  function tryChannelNotice(data, attempt) {
+    if (app.modalOpen) {
+      if ((attempt || 0) < 8) setTimeout(() => tryChannelNotice(data, (attempt || 0) + 1), 900);
+      return;
+    }
+    showChannelNotice(data);
+  }
+
+  function initChannelUI() {
+    const preview = window.GOK_CHANNEL === "preview";
+    if (window.GOK_IS_PREVIEW) { const lab = $("btn-lab-home"); if (lab) lab.hidden = false; }
+    const badge = $("channel-badge");
+    if (badge) {
+      badge.hidden = false;
+      badge.textContent = preview ? "抢先版 PREVIEW" : "稳定版 STABLE";
+      badge.classList.toggle("preview", preview);
+      badge.title = preview ? window.GOK_BUILD + " · 可能包含未平衡内容" : window.GOK_BUILD + " · 稳定通道";
+      badge.onclick = () => {
+        if (app.modalOpen) return;
+        fetch("announcements.json", { cache: "no-store" })
+          .then((r) => r.json())
+          .then((all) => showChannelNotice(all[window.GOK_CHANNEL] || {}))
+          .catch(() => showChannelNotice({}));
+      };
+    }
+    fetch("announcements.json", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((all) => {
+        const data = all[window.GOK_CHANNEL] || {};
+        const version = data.version || channelBuild();
+        const key = "gok_channel_seen_" + window.GOK_CHANNEL + "_" + version;
+        let seen = false;
+        try { seen = localStorage.getItem(key) === "1"; } catch (e) {}
+        if (!seen) {
+          try { localStorage.setItem(key, "1"); } catch (e) {}
+          if (preview) setTimeout(() => tryChannelNotice(data, 0), 900);
+        }
+      })
+      .catch(() => {
+        if (preview) setTimeout(() => tryChannelNotice({}, 0), 900);
+      });
+  }
+
   /* ===== init ===== */
   function updateOnlineRoomBar() {
     const bar = $("lan-online-bar");
@@ -7713,6 +7927,8 @@
     if ($("mode-online")) $("mode-online").onclick = () => { AudioBox.play("ui_open"); openRoomPage(); };
     if ($("btn-match-back")) $("btn-match-back").onclick = () => { showScreen("mode"); showModeMulti(true); };
     if ($("btn-room-back")) $("btn-room-back").onclick = () => { showScreen("mode"); showModeMulti(true); };
+    if ($("btn-lab-home")) $("btn-lab-home").onclick = () => { AudioBox.play("ui_open"); openLabPage(); };
+    if ($("btn-lab-back")) $("btn-lab-back").onclick = () => showScreen("home");
     if ($("mode-match")) $("mode-match").onclick = () => { AudioBox.play("ui_open"); openMatchPage(); };
     if ($("btn-mode-multi")) $("btn-mode-multi").onclick = () => setStartSubmenu(true);
     if ($("btn-mode-back")) $("btn-mode-back").onclick = () => setStartSubmenu(false);
@@ -7985,6 +8201,7 @@
     }
     AudioBox.updateButton();
     autoReconnectOnLoad();
+    initChannelUI();
     startHostKeepAlive();
     initOnlineFromQuery();
     // 便于自动截图/调试
