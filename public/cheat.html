@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>流脉牌局 · 沙盒对局作弊台</title>
+<style>
+  :root{--bg:#050d0f;--panel:#0b1a1c;--panel2:#102629;--line:rgba(142,203,188,.22);--gold:#e6c277;--teal:#7bd8c5;--text:#d9e8e2;--muted:#8da8a0;--red:#e48d84;--green:#7bd4a2}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 "Segoe UI","Microsoft YaHei",sans-serif;overflow:hidden}
+  #game{position:fixed;inset:0 430px 0 0;width:calc(100% - 430px);height:100%;border:0;background:#050b0c}
+  #cheat{position:fixed;right:0;top:0;bottom:0;width:430px;background:linear-gradient(180deg,#102629,#071112 50%,#050c0d);border-left:1px solid var(--line);display:flex;flex-direction:column;z-index:10;box-shadow:-20px 0 50px rgba(0,0,0,.45)}
+  #cheat.hidden{display:none}#game.full{right:0;width:100%}
+  .c-head{padding:12px 14px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .c-head h1{margin:0;font:20px/1.2 Georgia,"Songti SC",serif;color:var(--gold);font-weight:500}
+  .c-head small{display:block;color:var(--muted);font-size:10px;letter-spacing:.15em;margin-top:3px}
+  .c-actions{display:flex;gap:6px}
+  button{font:inherit;color:var(--text);background:#122a2c;border:1px solid rgba(123,216,197,.28);border-radius:6px;padding:6px 9px;cursor:pointer}
+  button:hover{border-color:var(--teal);background:#1a3838}
+  button.primary{background:#c49d54;border-color:#e6c277;color:#161105;font-weight:700}
+  button.danger{border-color:rgba(228,141,132,.5);color:var(--red)}
+  button.small{padding:3px 6px;font-size:11px}
+  .status{padding:8px 14px;border-bottom:1px solid var(--line);color:var(--muted);font-size:11px;display:flex;justify-content:space-between;gap:8px}
+  .status b{color:var(--teal);font-weight:600}
+  .tabs{display:flex;flex-wrap:wrap;gap:3px;padding:8px 10px 0;border-bottom:1px solid var(--line)}
+  .tab{border-radius:6px 6px 0 0;padding:7px 9px;font-size:12px;background:transparent;border-color:transparent;color:var(--muted)}
+  .tab.active{color:var(--gold);background:#0d2022;border-color:var(--line);border-bottom-color:#0d2022}
+  .body{overflow:auto;padding:10px 12px 20px;flex:1}
+  .section{display:none}.section.active{display:block}
+  .box{border:1px solid var(--line);background:rgba(9,24,26,.75);border-radius:8px;padding:9px;margin-bottom:9px}
+  .box-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;color:var(--gold);font-size:11px;letter-spacing:.08em}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+  label{display:block;color:var(--muted);font-size:10px;margin-bottom:2px}
+  input,select,textarea{width:100%;font:inherit;color:var(--text);background:#071416;border:1px solid var(--line);border-radius:5px;padding:5px 6px;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+  input[type=checkbox]{width:auto}
+  .row{display:flex;gap:5px;align-items:end;margin-top:6px;flex-wrap:wrap}
+  .row > *{flex:1}.row > button{flex:0 0 auto}
+  .owner-tabs{display:flex;gap:4px;margin-bottom:7px}
+  .owner-tabs button{flex:1}.owner-tabs button.active{background:#c49d54;color:#161105;border-color:#e6c277}
+  .list{max-height:180px;overflow:auto;border-top:1px solid var(--line);margin-top:7px}
+  .item{padding:5px 0;border-bottom:1px solid rgba(142,203,188,.09);font-size:11px}
+  .item .name{color:#eaf6ef;font-weight:600}.item .meta{color:var(--muted);font-size:10px}
+  .item .ops{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .item .ops button{font-size:10px;padding:2px 5px}
+  input.mini{width:42px;padding:1px 3px;font-size:10px;display:inline-block}
+  .stat-edit{display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin:3px 0 1px;color:var(--muted);font-size:10px}
+  .lib-results{max-height:240px;overflow:auto;border-top:1px solid var(--line)}
+  .lib-card{display:grid;grid-template-columns:1fr auto;gap:4px;padding:6px 4px;border-bottom:1px solid rgba(142,203,188,.09);cursor:pointer;font-size:11px}
+  .lib-card:hover{background:rgba(123,216,197,.07)}
+  .lib-card.selected{background:rgba(230,194,119,.12);outline:1px solid rgba(230,194,119,.35)}
+  .lib-card .title{color:#eaf6ef;font-weight:600}
+  .lib-card .meta{color:var(--muted);font-size:10px}
+  .hint{color:var(--muted);font-size:10px;line-height:1.5;margin:3px 0 0}
+  .log{height:150px;overflow:auto;background:#040b0c;border:1px solid var(--line);border-radius:6px;padding:6px;font:10px/1.55 Consolas,"Microsoft YaHei",monospace;color:#a9c3ba;white-space:pre-wrap}
+  .notice{color:var(--gold);font-size:10px;min-height:14px;margin:4px 0}
+  .divider{height:1px;background:var(--line);margin:8px 0}
+  .toggle{position:fixed;right:10px;top:10px;z-index:30;display:none}
+  @media(max-width:900px){#game{right:0;width:100%}#cheat{width:100%;top:42%;box-shadow:0 -20px 50px rgba(0,0,0,.5)}#cheat.hidden{display:none}}
+</style>
+</head>
+<body>
+<script>try{localStorage.setItem("gok_account_named_v1","1");localStorage.setItem("gok_force_first_run","0");}catch(e){}</script>
+<iframe id="game" src="index.html?cheat=1"></iframe>
+<button id="show-cheat" class="toggle primary">打开作弊台</button>
+<aside id="cheat">
+  <div class="c-head">
+    <div><h1>沙盒对局</h1><small>CHEAT CONSOLE · 真实引擎 · AI 已暂停</small></div>
+    <div class="c-actions">
+      <button id="btn-hide" class="small">收起</button>
+      <button id="btn-reset" class="primary small">重开</button>
+    </div>
+  </div>
+  <div class="status"><span>状态：<b id="st-game">等待载入</b></span><span id="st-turn">—</span></div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="match">对局</button>
+    <button class="tab" data-tab="hero">英雄/资源</button>
+    <button class="tab" data-tab="hand">手牌</button>
+    <button class="tab" data-tab="board">场上</button>
+    <button class="tab" data-tab="cards">卡牌库/牌组</button>
+    <button class="tab" data-tab="deck">牌库</button>
+    <button class="tab" data-tab="ai">AI 调试</button>
+    <button class="tab" data-tab="scenario">快速局面</button>
+    <button class="tab" data-tab="state">状态/日志</button>
+  </div>
+  <div class="body">
+    <div class="notice" id="notice"></div>
+    <div class="section active" id="tab-match">
+      <div class="box">
+        <div class="box-title">当前玩家 <span class="hint">切换后左右视角随之切换</span></div>
+        <div class="row"><button id="cur-p0">玩家 1 的回合</button><button id="cur-p1">玩家 2 的回合</button></div>
+        <div class="row"><div><label>轮次</label><input id="round" type="number" min="1"></div><button id="set-round">设置轮次</button><button id="end-turn" class="primary">结束当前回合</button></div>
+      </div>
+      <div class="box">
+        <div class="box-title">观察视角 <span class="hint">双 AI 换手时不跳视角</span></div>
+        <div class="row"><div><label>固定看</label><select id="view-side"><option value="0">玩家 1</option><option value="1">玩家 2</option></select></div><button id="view-lock">视角锁定：关</button></div>
+        <p class="hint">开启后，无论当前轮到谁、AI 如何行动，画面都固定在所选玩家一侧。</p>
+      </div>
+      <div class="box">
+        <div class="box-title">世界流脉</div>
+        <div class="row"><div><label>当前流脉 0–12</label><input id="vein" type="number" min="0" max="12"></div><button id="set-vein">设置</button><button id="vein-4">4</button><button id="vein-7">7</button><button id="vein-10">10</button><button id="vein-0">0</button></div>
+        <p class="hint">直接写流脉不会自动触发阈值事件；需要测试世界事件时用正常出牌/加流脉。</p>
+      </div>
+      <div class="box">
+        <div class="box-title">重开沙盒</div>
+        <div class="grid">
+          <div><label>玩家 1 阵营</label><select id="new-f1"></select></div>
+          <div><label>玩家 2 阵营</label><select id="new-f2"></select></div>
+        </div>
+        <div class="row"><button id="btn-new" class="primary">以当前阵营重开</button></div>
+      </div>
+    </div>
+
+    <div class="section" id="tab-hero">
+      <div class="owner-tabs"><button class="owner active" data-owner="0">玩家 1</button><button class="owner" data-owner="1">玩家 2</button></div>
+      <div class="box">
+        <div class="box-title">领袖资源</div>
+        <div class="grid">
+          <div><label>生命</label><input id="h-hp" type="number"></div>
+          <div><label>生命上限</label><input id="h-max" type="number"></div>
+          <div><label>护甲</label><input id="h-armor" type="number"></div>
+          <div><label>行动力</label><input id="h-mana" type="number"></div>
+          <div><label>行动力上限</label><input id="h-maxmana" type="number"></div>
+          <div><label>技能已用</label><select id="h-used"><option value="0">否</option><option value="1">是</option></select></div>
+        </div>
+        <div class="row"><button id="apply-hero" class="primary">应用资源</button><button id="hero-full">满行动力</button><button id="hero-reset-used">重置技能</button></div>
+      </div>
+      <div class="box">
+        <div class="box-title">遗物/<span class="hint">直接设置，特殊覆盖需实际打出验证</span></div>
+        <div class="grid"><div><label>装备遗物</label><select id="relic"></select></div><div><label>已装备</label><input id="relic-now" readonly></div></div>
+        <div class="row"><button id="apply-relic">装备</button><button id="clear-relic" class="danger">卸下</button></div>
+      </div>
+      <div class="box">
+        <div class="box-title">当前技能</div>
+        <div class="hint" id="power-info">—</div>
+      </div>
+    </div>
+
+    <div class="section" id="tab-hand">
+      <div class="owner-tabs"><button class="owner active" data-owner="0">玩家 1</button><button class="owner" data-owner="1">玩家 2</button></div>
+      <div class="box">
+        <div class="box-title">加入手牌</div>
+        <div><label>搜索卡牌</label><input id="card-search" type="search" placeholder="输入卡名或 ID"></div>
+        <div class="row"><div><label>卡牌</label><select id="card-select"></select></div><button id="add-hand" class="primary">加入</button><button id="add-hand-3">加三张</button></div>
+      </div>
+      <div class="box"><div class="box-title">手牌 <span id="hand-count" class="hint"></span></div><div class="list" id="hand-list"></div></div>
+    </div>
+
+    <div class="section" id="tab-board">
+      <div class="owner-tabs"><button class="owner active" data-owner="0">玩家 1</button><button class="owner" data-owner="1">玩家 2</button></div>
+      <div class="box">
+        <div class="box-title">召唤随从</div>
+        <div><label>搜索卡牌</label><input id="board-search" type="search" placeholder="输入随从名或 ID"></div>
+        <div class="row"><div><label>随从</label><select id="minion-select"></select></div><div><label>阵位</label><select id="spawn-zone"><option value="left">左</option><option value="center" selected>中</option><option value="right">右</option></select></div><button id="spawn" class="primary">召唤</button></div>
+      </div>
+      <div class="box"><div class="box-title">场上随从 <span id="board-count" class="hint"></span></div><div class="list" id="board-list"></div></div>
+      <p class="hint">每个随从可改攻/血、加关键词、伤害/治疗、冻结、击杀、静默移除。直接改属性不会触发被动，击杀会触发余响。</p>
+    </div>
+
+    <div class="section" id="tab-cards">
+      <div class="owner-tabs"><button class="owner active" data-owner="0">玩家 1</button><button class="owner" data-owner="1">玩家 2</button></div>
+      <div class="box">
+        <div class="box-title">搜索卡牌 <span class="hint" id="lib-count"></span></div>
+        <input id="lib-search" type="search" placeholder="输入卡名 / ID / 关键词">
+        <div class="grid three" style="margin-top:6px">
+          <div><label>阵营</label><select id="lib-faction"><option value="">全部</option></select></div>
+          <div><label>类型</label><select id="lib-type"><option value="">全部</option><option value="minion">随从</option><option value="spell">战术</option><option value="relic">遗物</option><option value="formation">阵型</option></select></div>
+          <div><label>费用</label><select id="lib-cost"><option value="">全部</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7+</option></select></div>
+        </div>
+      </div>
+      <div class="box"><div class="box-title">搜索结果 <span class="hint" id="lib-hint">点击选中</span></div><div class="lib-results" id="lib-results"></div></div>
+      <div class="box">
+        <div class="box-title">当前选中：<span id="lib-picked-name">—</span></div>
+        <p class="hint" id="lib-picked-text">从上方搜索并选中一张牌。</p>
+        <div class="row"><div><label>数量</label><input id="lib-qty" type="number" min="1" max="30" value="1"></div><button id="lib-add-hand" class="primary">加入手牌</button><button id="lib-add-deck">加入牌库</button><button id="lib-spawn-board">召唤到场上</button></div>
+      </div>
+      <div class="box">
+        <div class="box-title">当前牌库构成 <span class="hint" id="deck-summary"></span></div>
+        <div class="row"><button id="deck-fill" class="primary">用选中牌补到 30 张</button><button id="deck-clear-2" class="danger">清空牌库</button><button id="deck-copy">复制牌组</button></div>
+        <div class="list" id="deck-groups" style="max-height:240px"></div>
+      </div>
+    </div>
+
+    <div class="section" id="tab-deck">
+      <div class="owner-tabs"><button class="owner active" data-owner="0">玩家 1</button><button class="owner" data-owner="1">玩家 2</button></div>
+      <div class="box">
+        <div class="box-title">牌库</div>
+        <div class="row"><button id="draw-1">抽 1</button><button id="draw-5">抽 5</button><button id="add-deck">随机加入 1 张</button><button id="clear-deck" class="danger">清空牌库</button></div>
+        <p class="hint" id="deck-info">—</p>
+      </div>
+      <div class="box"><div class="box-title">牌库顶/摘要</div><div class="list" id="deck-list"></div></div>
+    </div>
+
+    <div class="section" id="tab-ai">
+      <div class="box">
+        <div class="box-title">双 AI 自动推演</div>
+        <div class="row"><button id="ai-both-start" class="primary">开始双 AI 互打</button><button id="ai-both-stop" class="danger">停止双 AI</button></div>
+        <p class="hint" id="ai-both-status">未启动。双方将由真实 AI 连续决策；可配合“观察视角”锁定画面。</p>
+      </div>
+      <div class="box">
+        <div class="box-title">AI 决策控制器</div>
+        <div class="row" style="align-items:center"><label style="flex:0 0 auto"><input id="ai-enabled" type="checkbox"> 启用 AI 自动行动</label><span class="hint" id="ai-toggle-hint">当前暂停</span></div>
+        <div class="grid" style="margin-top:8px">
+          <div><label>AI 阵营</label><select id="ai-side"><option value="0">玩家 1</option><option value="1" selected>玩家 2</option></select></div>
+          <div><label>AI 难度</label><select id="ai-difficulty"><option value="easy">简单</option><option value="normal">标准</option><option value="hard" selected>困难</option><option value="nightmare">噩梦</option></select></div>
+          <div><label>步间延迟（毫秒）</label><input id="ai-delay" type="number" min="60" max="4000" step="50" value="500"></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-title">AI 操作</div>
+        <div class="row"><button id="ai-step" class="primary">让 AI 走一步</button><button id="ai-turn">跑完 AI 本回合</button><button id="ai-takeover">切换到 AI 并跑完</button><button id="ai-stop" class="danger">全部暂停</button></div>
+        <p class="hint" id="ai-status">AI 当前暂停。勾选“启用 AI 自动行动”后，轮到所选阵营时会自动行动。</p>
+      </div>
+      <div class="box"><div class="box-title">AI 最近动作 <span class="hint" id="ai-decision"></span></div><div class="log" id="ai-log"></div></div>
+      <p class="hint">AI 直接调用真实 GokAI 决策与引擎动作，不经过主界面的 AI 定时器；你可以随时暂停、单步或强制切换回合观察。</p>
+    </div>
+
+    <div class="section" id="tab-scenario">
+      <div class="box"><div class="box-title">一键局面</div><div class="row"><button id="sc-empty">清空双方场面</button><button id="sc-fill">双方铺满随从</button><button id="sc-low">双方 5 生命</button><button id="sc-full">满行动力</button><button id="sc-vein10">流脉 10</button></div></div>
+      <div class="box"><div class="box-title">测试提示</div><p class="hint">快速测试卡牌时：加入手牌 → 实际点击牌桌中的卡牌打出 → 观察。需要触发余响就击杀随从；需要测被动就先召唤/施法，再用对应动作触发。</p></div>
+    </div>
+
+    <div class="section" id="tab-state">
+      <div class="box"><div class="box-title">最近日志</div><div class="log" id="log"></div></div>
+      <div class="box"><div class="box-title">导出当前局面</div><div class="row"><button id="export-state">下载 JSON</button><button id="copy-state">复制 JSON</button><button id="refresh" class="primary">刷新面板</button></div></div>
+      <div class="box"><div class="box-title">局面快照</div><div class="row"><button id="save-snapshot">保存当前局面</button><button id="restore-snapshot">恢复快照</button></div><p class="hint" id="snapshot-hint">尚未保存快照。</p></div>
+    </div>
+  </div>
+</aside>
+
+<script>
+(function(){
+  "use strict";
+  var frame = document.getElementById("game");
+  var panel = document.getElementById("cheat");
+  var showBtn = document.getElementById("show-cheat");
+  var state = { owner: 0, started: false, noticeTimer: null, libPick: null, aiEnabled: false, aiBoth: false, aiSide: 1, aiDelay: 500, aiTimer: null, aiBusy: false, aiLog: [], snapshot: null, viewLocked: false, viewSide: 0 };
+  function $(id){ return document.getElementById(id); }
+  function win(){ return frame.contentWindow; }
+  function app(){ return win() && win().GokApp; }
+  function game(){ var a=app(); return a && a.game; }
+  function E(){ return win().GokEngine; }
+  function D(){ return win().GokData; }
+  function owner(){ var g=game(); return g ? g.players[state.owner] : null; }
+  function other(){ var g=game(); return g ? g.players[1-state.owner] : null; }
+  function notice(msg){ var n=$("notice"); n.textContent=msg||""; clearTimeout(state.noticeTimer); if(msg) state.noticeTimer=setTimeout(function(){ n.textContent=""; },3000); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];}); }
+  function cardName(id){ var c=D().CARDS[id]; return c?c.name:id; }
+  function cardDef(id){ return D().CARDS[id]; }
+  function isMinionCard(c){ return c && c.type==="minion"; }
+
+  function sync(){ var a=app(); if(!a||!a.game)return; a.aiPlayer=-1; a.aiRunning=false; a.busy=false; var view=state.viewLocked?state.viewSide:a.game.current; a.human=view; a.viewer=view; a.selectedCard=null; a.targetInfo=null; a.zoneSelect=null; a.attacker=null; if(a.game.pendingChoice){ /* leave pending modal to UI */ } a.render(); refresh(); }
+  function requireGame(){ var a=app(); if(!a||!a.game){ notice("游戏还没载入。"); return false; } return true; }
+
+  function start(f1,f2,seed){
+    var w=win(); if(!w||!w.GokUI){ notice("等待游戏载入…"); return; }
+    var a=w.GokApp;
+    if(state.aiTimer){ clearTimeout(state.aiTimer); state.aiTimer=null; }
+    state.aiEnabled=false; state.aiBoth=false; state.aiBusy=false; state.aiLog=[]; state.snapshot=null; state.viewLocked=false; state.viewSide=0;
+    w.GokUI.startGame({mode:"ai",faction:f1||"academy",opponent:f2||"empire",mulligan:false,skipIntro:true,first:0,seed:seed||Date.now()>>>0});
+    a=w.GokApp; a.aiPlayer=-1; a.aiRunning=false; a.busy=false; a.local=false; a.human=a.game.current; a.viewer=a.game.current;
+    a.render(); state.started=true; refresh(); notice("沙盒已就绪，AI 已暂停。");
+  }
+
+  function fillSelect(sel, filter){
+    var old=sel.value; sel.innerHTML="";
+    Object.keys(D().CARDS).forEach(function(id){
+      var c=D().CARDS[id]; if(!c||c.token||c.disabled)return; if(filter&&!filter(c))return;
+      var o=document.createElement("option"); o.value=id; o.textContent=c.name+" · "+(c.type==="minion"?(c.attack+"/"+c.health):(c.cost+"费")); sel.appendChild(o);
+    });
+    if(old) sel.value=old;
+  }
+  function fillFactionSelect(sel){
+    sel.innerHTML=""; Object.keys(D().FACTIONS).forEach(function(f){var o=document.createElement("option");o.value=f;o.textContent=D().FACTIONS[f].name;sel.appendChild(o);});
+  }
+  function factionName(f){ return f==="neutral"?"中立":(D().FACTIONS[f]?D().FACTIONS[f].name:f); }
+  function cardMeta(id){ var c=D().CARDS[id]; if(!c)return id; return c.name+" · "+(c.type==="minion"?(c.attack+"/"+c.health):(c.cost+"费")); }
+
+  // ===== 卡牌库 =====
+  function libList(){
+    var q=($("lib-search").value||"").toLowerCase();
+    var fac=$("lib-faction").value, typ=$("lib-type").value, cost=$("lib-cost").value;
+    return Object.keys(D().CARDS).filter(function(id){
+      var c=D().CARDS[id]; if(!c||c.token||c.disabled)return false;
+      if(fac&&c.faction!==fac)return false; if(typ&&c.type!==typ)return false;
+      if(cost){ var n=Number(c.cost)||0; if(cost==="7"?n<7:n!==Number(cost))return false; }
+      if(q){ var hay=(id+" "+c.name+" "+(c.text||"")+" "+(c.keywords||[]).join(" ")).toLowerCase(); if(hay.indexOf(q)<0)return false; }
+      return true;
+    }).sort(function(a,b){var ca=D().CARDS[a],cb=D().CARDS[b];return (ca.cost||0)-(cb.cost||0)||ca.name.localeCompare(cb.name);});
+  }
+  function renderLibrary(){
+    if(!win().GokData)return;
+    var list=libList(), root=$("lib-results"); if(!root)return;
+    $("lib-count").textContent=list.length+" 张";
+    root.innerHTML=list.slice(0,100).map(function(id){
+      var c=D().CARDS[id];
+      return '<div class="lib-card'+(state.libPick===id?" selected":"")+'" data-card="'+esc(id)+'"><div><div class="title">'+esc(c.name)+'</div><div class="meta">'+esc(factionName(c.faction))+' · '+esc(c.type)+' · '+esc(c.cost)+'费 · '+esc(c.text||"")+'</div></div><div class="meta">'+esc(c.type==="minion"?c.attack+"/"+c.health:"")+'</div></div>';
+    }).join("")||'<div class="hint">没有符合条件的卡牌</div>';
+    $("lib-hint").textContent="点击选中 · 双击直接加手牌";
+    var picked=state.libPick&&D().CARDS[state.libPick];
+    $("lib-picked-name").textContent=picked?picked.name:"—";
+    $("lib-picked-text").textContent=picked?(picked.text||"无效果文本"):"从上方搜索并选中一张牌。";
+  }
+  function selectLib(id){
+    if(!D().CARDS[id])return; state.libPick=id; renderLibrary(); notice("已选中 "+D().CARDS[id].name);
+  }
+  function libQty(){ return Math.max(1,Math.min(30,Math.floor(Number($("lib-qty").value)||1))); }
+  function addToDeck(ownerIdx,id,count){
+    var p=game().players[ownerIdx]; if(!p)return;
+    for(var i=0;i<count;i++) p.deck.push({uid:"cheatdeck_"+Date.now()+"_"+i,cardId:id});
+    notice("牌库加入 "+cardMeta(id)+" ×"+count);
+  }
+  function libAdd(target){
+    if(!requireGame())return;
+    var id=state.libPick; if(!id){notice("先在卡牌库里选中一张牌。");return;}
+    var qty=libQty();
+    if(target==="hand") addHand(id,qty);
+    else if(target==="deck"){ addToDeck(state.owner,id,qty); sync(); }
+    else if(target==="board"){
+      var p=owner(); var n=0;
+      for(var i=0;i<qty;i++){var z=E().openZones(p)[0];if(!z){notice("场上已满。");break;}E().summonMinion(game(),p,id,z,null);n++;}
+      sync(); notice("召唤 "+cardMeta(id)+" ×"+n);
+    }
+  }
+  function renderDeckGroups(){
+    var p=owner(); if(!p)return;
+    var counts={}; p.deck.forEach(function(c){counts[c.cardId]=(counts[c.cardId]||0)+1;});
+    var ids=Object.keys(counts).sort(function(a,b){return (D().CARDS[a].cost||0)-(D().CARDS[b].cost||0)||a.localeCompare(b);});
+    $("deck-summary").textContent="P"+(state.owner+1)+" · "+p.deck.length+" 张 / "+ids.length+" 种";
+    $("deck-groups").innerHTML=ids.map(function(id){
+      var c=D().CARDS[id]||{name:id,cost:"?"};
+      return '<div class="item"><span class="name">'+esc(c.name)+'</span> <span class="meta">×'+counts[id]+' · '+esc(c.type||"")+' · '+esc(c.cost==null?"?":c.cost)+'费</span><div class="ops"><button data-op="deck-inc" data-card="'+esc(id)+'">+1</button><button data-op="deck-dec" data-card="'+esc(id)+'">-1</button><button data-op="deck-del" data-card="'+esc(id)+'" class="danger">全删</button></div></div>';
+    }).join("")||'<div class="hint">牌库为空</div>';
+  }
+  function changeDeckCard(id,delta,removeAll){
+    if(!requireGame())return; var p=owner();
+    if(removeAll) p.deck=p.deck.filter(function(c){return c.cardId!==id;});
+    else if(delta>0) p.deck.push({uid:"cheatdeck_"+Date.now()+"_"+Math.random(),cardId:id});
+    else { var i=p.deck.findIndex(function(c){return c.cardId===id;}); if(i>=0)p.deck.splice(i,1); }
+    sync(); notice((removeAll?"已全部移除 ":"已调整 ")+(D().CARDS[id]?D().CARDS[id].name:id));
+  }
+
+  // ===== AI 调试 =====
+  function aiLog(text){
+    state.aiLog.unshift("["+new Date().toLocaleTimeString()+"] "+text);
+    state.aiLog=state.aiLog.slice(0,30);
+    var box=$("ai-log"); if(box)box.textContent=state.aiLog.join("\n");
+  }
+  function aiDescribe(action, handBefore, side){
+    if(!action)return "无动作";
+    if(action.type==="play"){
+      var cid=action.cardId;
+      if(!cid && handBefore)cid=handBefore[action.cardUid];
+      if(!cid && game()){ var h=game().players[side==null?state.aiSide:side].hand.find(function(x){return x.uid===action.cardUid;}); if(h)cid=h.cardId; }
+      var c=D().CARDS[cid];
+      return "打出「"+(c?c.name:(cid||action.cardUid))+"」";
+    }
+    if(action.type==="attack")return "攻击 "+(action.targetUid==="hero"?"敌方领袖":"随从")+"（"+action.attackerUid+"）";
+    if(action.type==="heroPower")return "使用领袖技能";
+    if(action.type==="discover"){var d=D().CARDS[action.cardId];return "发现「"+(d?d.name:action.cardId)+"」";}
+    if(action.type==="end")return "结束回合";
+    return action.type;
+  }
+  function aiPrepare(){
+    state.aiSide=Number($("ai-side").value);
+    state.aiDelay=Math.max(60,Math.min(4000,Number($("ai-delay").value)||500));
+    var g=game(); if(g)g.aiDifficulty=$("ai-difficulty").value;
+  }
+  function aiStop(msg){
+    if(state.aiTimer){clearTimeout(state.aiTimer);state.aiTimer=null;}
+    state.aiEnabled=false;state.aiBoth=false;state.aiBusy=false;
+    var cb=$("ai-enabled");if(cb)cb.checked=false;
+    if(msg)notice(msg);
+    refresh();
+  }
+  function aiSchedule(){
+    if(state.aiTimer)return;
+    if(!state.aiEnabled||state.aiBusy)return;
+    var g=game(),a=app(); if(!g||!a||g.status!=="playing"||a.modalOpen)return;
+    if(!state.aiBoth && g.current!==state.aiSide)return;
+    aiPrepare();
+    state.aiTimer=setTimeout(function(){
+      state.aiTimer=null;
+      if(!state.aiEnabled)return;
+      var gg=game(); if(!gg||gg.status!=="playing")return;
+      if(!state.aiBoth && gg.current!==state.aiSide)return;
+      aiDoStep(false);
+    },state.aiDelay);
+  }
+  function aiDoStep(manual){
+    if(!requireGame())return;
+    var g=game();
+    if(g.status!=="playing"){notice("对局已结束。");return;}
+    var side=state.aiBoth?g.current:state.aiSide;
+    if(g.current!==side){notice("现在不是 AI 阵营的回合（当前 P"+(g.current+1)+"）。");return;}
+    if(state.aiBusy)return;
+    state.aiBusy=true;
+    try{
+      aiPrepare();
+      var handBefore={};
+      g.players[side].hand.forEach(function(c){handBefore[c.uid]=c.cardId;});
+      var res=win().GokAI.takeAction(g,side);
+      var act=res&&res.action, r=res&&res.result;
+      var desc=aiDescribe(act,handBefore,side);
+      aiLog((state.aiBoth?"[P"+(side+1)+"] ":"")+desc+(r&&r.ok===false?"（失败："+(r.reason||"规则拒绝")+"，已保底结束）":""));
+      $("ai-decision").textContent=desc;
+      if(!manual)notice("AI："+desc);
+    }catch(err){ aiLog("异常："+(err.message||err)); notice("AI 执行异常："+(err.message||err)); }
+    state.aiBusy=false;
+    sync();
+    if(state.aiEnabled) aiSchedule();
+  }
+  function aiRunTurn(){
+    if(!requireGame())return;
+    var g=game();
+    if(g.status!=="playing"){notice("对局已结束。");return;}
+    var side=state.aiBoth?g.current:state.aiSide;
+    if(g.current!==side){notice("现在不是 AI 阵营的回合。");return;}
+    if(state.aiBusy)return;
+    state.aiBusy=true; aiPrepare();
+    var steps=0,last=null;
+    try{
+      while(g.status==="playing"&&g.current===side&&steps<60){
+        var handBefore={};
+        g.players[side].hand.forEach(function(c){handBefore[c.uid]=c.cardId;});
+        var res=win().GokAI.takeAction(g,side);
+        last=res&&res.action;
+        aiLog((state.aiBoth?"[P"+(side+1)+"] ":"")+aiDescribe(last,handBefore,side)+(res&&res.result&&res.result.ok===false?"（失败）":""));
+        steps++;
+        if(!last||last.type==="end")break;
+      }
+      $("ai-decision").textContent="本回合 "+steps+" 步 · "+(last?aiDescribe(last,null,side):"无动作");
+    }catch(err){ aiLog("异常："+(err.message||err)); notice("AI 执行异常："+(err.message||err)); }
+    state.aiBusy=false; sync(); notice("AI 本回合完成 "+steps+" 步。");
+  }
+  function aiTakeover(){
+    if(!requireGame())return;
+    if(state.aiBoth){state.aiBoth=false;}
+    aiPrepare(); game().current=state.aiSide; app().human=state.aiSide; app().viewer=state.aiSide;
+    state.aiEnabled=false; var cb=$("ai-enabled"); if(cb)cb.checked=false;
+    aiRunTurn();
+  }
+  function startBothAi(){
+    if(!requireGame())return;
+    var g=game(); if(g.status!=="playing"){notice("对局已结束，请重开沙盒。");return;}
+    if(state.aiTimer){clearTimeout(state.aiTimer);state.aiTimer=null;}
+    aiPrepare();
+    state.aiBoth=true; state.aiEnabled=true; state.aiBusy=false;
+    var cb=$("ai-enabled"); if(cb)cb.checked=true;
+    sync(); aiSchedule(); notice("双 AI 自动推演已启动。");
+  }
+
+  // ===== 快照 =====
+  function saveSnapshot(){
+    if(!requireGame())return;
+    try{state.snapshot=JSON.parse(JSON.stringify(game()));$("snapshot-hint").textContent="已保存 · "+new Date().toLocaleTimeString();notice("当前局面已保存。");}
+    catch(e){notice("保存失败："+e.message);}
+  }
+  function restoreSnapshot(){
+    if(!requireGame()||!state.snapshot){notice("还没有可恢复的快照。");return;}
+    try{
+      var a=app();
+      if(state.aiTimer){clearTimeout(state.aiTimer);state.aiTimer=null;}
+      state.aiEnabled=false; var cb=$("ai-enabled"); if(cb)cb.checked=false;
+      a.game=JSON.parse(JSON.stringify(state.snapshot));
+      a.aiPlayer=-1;a.aiRunning=false;a.busy=false;a.human=a.game.current;a.viewer=a.game.current;
+      a.render();sync();notice("已恢复快照，AI 已暂停。");
+    }catch(e){notice("恢复失败："+e.message);}
+  }
+
+  function refresh(){
+    var g=game(); if(!g){ $("st-game").textContent="未载入"; return; }
+    $("st-game").textContent=g.status==="playing"?"对局中":g.status;
+    $("st-turn").textContent="第 "+g.round+" 轮 · 当前 P"+(g.current+1)+" · 流脉 "+g.vein;
+    $("notice").textContent=$("notice").textContent;
+    if(state.owner===0||state.owner===1){
+      document.querySelectorAll(".owner").forEach(function(b){b.classList.toggle("active",Number(b.dataset.owner)===state.owner);});
+    }
+    var p=owner(); if(p){
+      $("h-hp").value=p.hp; $("h-max").value=p.maxHp; $("h-armor").value=p.armor; $("h-mana").value=p.mana; $("h-maxmana").value=p.maxMana; $("h-used").value=p.heroPowerUsed?"1":"0";
+      $("relic-now").value=p.relic||"";
+      $("relic").value=p.relic||"";
+      $("power-info").textContent=(p.hero&&p.hero.power?p.hero.power.name+" · "+p.hero.power.text:"—");
+    }
+    $("round").value=g.round; $("vein").value=g.vein;
+    $("hand-count").textContent="P"+(state.owner+1)+" · "+p.hand.length+"/8";
+    $("board-count").textContent="P"+(state.owner+1);
+    $("hand-list").innerHTML=p.hand.map(function(c){
+      var cd=D().CARDS[c.cardId]||{name:c.cardId,cost:"?"};
+      return '<div class="item"><span class="name">'+esc(cd.name)+'</span> <span class="meta">'+esc(c.cardId)+' · '+esc(cd.type||"")+' · 费用 '+(typeof cd.cost==="number"?cd.cost:"?")+(c.discount?' · 减'+c.discount:'')+'</span><div class="ops"><button data-op="hand-remove" data-uid="'+esc(c.uid)+'">移除</button><button data-op="hand-discount" data-uid="'+esc(c.uid)+'">费用 -1</button><button data-op="hand-cost" data-uid="'+esc(c.uid)+'">费用 +1</button></div></div>';
+    }).join("")||'<div class="hint">空手牌</div>';
+    var zones=["left","center","right"]; var all=[];
+    zones.forEach(function(z){ (p.board[z]||[]).forEach(function(m){all.push({m:m,z:z});}); });
+    $("board-list").innerHTML=all.map(function(x){
+      var m=x.m; var kw=(m.keywords||[]).join(",")||"—";
+      return '<div class="item"><span class="name">'+esc(m.name)+'</span> <span class="meta">'+esc(m.cardId)+' · '+esc(x.z)+' · '+m.attack+'/'+m.health+'（'+m.maxHealth+'） · '+esc(kw)+'</span><div class="stat-edit">攻 <input class="mini" type="number" data-stat="attack" data-uid="'+esc(m.uid)+'" value="'+m.attack+'"> / 血 <input class="mini" type="number" data-stat="health" data-uid="'+esc(m.uid)+'" value="'+m.health+'"><button data-op="m-set" data-uid="'+esc(m.uid)+'">套用属性</button></div><div class="ops">'+
+        '<button data-op="m-damage" data-uid="'+esc(m.uid)+'">-1</button><button data-op="m-heal" data-uid="'+esc(m.uid)+'">+1</button>'+
+        '<button data-op="m-buff" data-uid="'+esc(m.uid)+'">+1/+1</button><button data-op="m-taunt" data-uid="'+esc(m.uid)+'">拦截</button>'+
+        '<button data-op="m-freeze" data-uid="'+esc(m.uid)+'">冻结</button><button data-op="m-shield" data-uid="'+esc(m.uid)+'">护幕</button>'+
+        '<button data-op="m-rush" data-uid="'+esc(m.uid)+'">突进</button><button data-op="m-copy" data-uid="'+esc(m.uid)+'">复制</button><button data-op="m-kill" data-uid="'+esc(m.uid)+'" class="danger">击杀</button>'+
+        '<button data-op="m-remove" data-uid="'+esc(m.uid)+'">移除</button></div></div>';
+    }).join("")||'<div class="hint">空场</div>';
+    $("deck-info").textContent="P"+(state.owner+1)+" 牌库剩余 "+p.deck.length+" 张；手牌 "+p.hand.length+" 张；生命 "+p.hp+"/"+p.maxHp;
+    $("deck-list").innerHTML=p.deck.slice(0,30).map(function(c){return '<div class="item">'+esc(cardName(c.cardId))+'</div>';}).join("")||'<div class="hint">空牌库</div>';
+    $("log").textContent=(g.log||[]).slice(-18).map(function(x){return x.text||x;}).join("\n");
+    if($("tab-cards").classList.contains("active")){ renderLibrary(); renderDeckGroups(); }
+    $("ai-enabled").checked=state.aiEnabled;
+    $("ai-side").value=String(state.aiSide);
+    $("ai-difficulty").value=g.aiDifficulty||"hard";
+    $("ai-delay").value=state.aiDelay;
+    $("ai-log").textContent=state.aiLog.join("\n");
+    $("snapshot-hint").textContent=state.snapshot?"快照已保存 · 可恢复":"尚未保存快照。";
+    $("view-side").value=String(state.viewSide);
+    $("view-lock").textContent=state.viewLocked?"视角锁定：P"+(state.viewSide+1)+" ✓":"视角锁定：关";
+    $("view-lock").classList.toggle("primary",state.viewLocked);
+    if(state.aiBoth){
+      $("ai-both-status").textContent=g.status==="playing"?"双 AI 自动推演中 · 当前 P"+(g.current+1)+" · 延迟 "+state.aiDelay+"ms":"双 AI 推演已结束。";
+    } else {
+      $("ai-both-status").textContent="未启动。双方将由真实 AI 连续决策；可配合“观察视角”锁定画面。";
+    }
+    if(g.status!=="playing"){
+      $("ai-status").textContent="对局已结束。";
+      $("ai-toggle-hint").textContent="已停止";
+    } else if(state.aiBoth){
+      $("ai-toggle-hint").textContent="双 AI 推演中";
+      $("ai-status").textContent="双 AI 自动推演中，当前 P"+(g.current+1)+" 将在 "+state.aiDelay+"ms 后行动。";
+    } else if(state.aiEnabled){
+      $("ai-toggle-hint").textContent="自动行动已启用";
+      $("ai-status").textContent=g.current===state.aiSide?"AI（P"+(state.aiSide+1)+"）将在 "+state.aiDelay+"ms 后行动。":"AI 已启用，等待轮到 P"+(state.aiSide+1)+"。";
+    } else {
+      $("ai-toggle-hint").textContent="当前暂停";
+      $("ai-status").textContent="AI 当前暂停。勾选“启用 AI 自动行动”后，轮到所选阵营时会自动行动。";
+    }
+    if(state.aiEnabled) aiSchedule();
+  }
+
+  function applyHero(){
+    if(!requireGame())return; var p=owner();
+    p.hp=clamp(num("h-hp"),1,999); p.maxHp=Math.max(p.hp,clamp(num("h-max"),1,999)); p.armor=clamp(num("h-armor"),0,999); p.mana=clamp(num("h-mana"),0,999); p.maxMana=Math.max(0,clamp(num("h-maxmana"),0,999)); p.heroPowerUsed=$("h-used").value==="1";
+    sync(); notice("已修改 P"+(state.owner+1)+" 资源。");
+  }
+  function num(id){ return Number($(id).value)||0; }
+  function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
+  function cur(i){ if(!requireGame())return; game().current=i; app().human=i; app().viewer=i; sync(); notice("当前玩家：P"+(i+1)); }
+  function addHand(id,count){
+    if(!requireGame())return; var p=owner(); count=count||1;
+    for(var i=0;i<count;i++){ if(p.hand.length>=8){ notice("手牌已满（8）。"); break; } p.hand.push({uid:"cheat_"+Date.now()+"_"+i,cardId:id,generated:true}); }
+    sync(); notice("已加入 "+cardName(id)+" ×"+count);
+  }
+  function spawn(id,zone){
+    if(!requireGame())return; var p=owner(); var m=E().summonMinion(game(),p,id,zone||"center",null);
+    if(!m){ notice("召唤失败：阵位已满或卡牌非法。"); return; } sync(); notice("已召唤 "+cardName(id));
+  }
+  function findMinion(uid){ var p=owner(); for(var z of ["left","center","right"]){var m=(p.board[z]||[]).find(function(x){return x.uid===uid;}); if(m)return m;} return null; }
+  function removeMinion(uid){ var p=owner(); for(var z of ["left","center","right"]){ p.board[z]=(p.board[z]||[]).filter(function(x){return x.uid!==uid;}); } }
+  function handleMinion(uid,op){
+    if(!requireGame())return; var m=findMinion(uid); if(!m)return;
+    if(op==="m-damage"){ E().damageMinion(game(),m,1,null,"沙盒"); E().processDeaths(game()); }
+    else if(op==="m-heal"){ m.health=Math.min(m.maxHealth,m.health+1); }
+    else if(op==="m-set"){
+      var atkEl=document.querySelector('input[data-stat="attack"][data-uid="'+m.uid+'"]');
+      var hpEl=document.querySelector('input[data-stat="health"][data-uid="'+m.uid+'"]');
+      var atk=atkEl?Number(atkEl.value):m.attack, hp=hpEl?Number(hpEl.value):m.health;
+      m.attack=clamp(Math.round(atk),0,999); m.maxHealth=Math.max(1,clamp(Math.round(hp),1,999)); m.health=m.maxHealth;
+    }
+    else if(op==="m-buff"){ m.attack+=1; m.health+=1; m.maxHealth+=1; }
+    else if(op==="m-taunt"){ m.taunt=!m.taunt; if(m.taunt){if(m.keywords.indexOf("taunt")<0)m.keywords.push("taunt");}else{m.keywords=m.keywords.filter(function(k){return k!=="taunt";});} }
+    else if(op==="m-freeze"){ m.frozenTurns=1; }
+    else if(op==="m-shield"){ m.divineShield=true; }
+    else if(op==="m-rush"){ m.rush=true; m.attacksLeft=Math.max(m.attacksLeft||0,1); }
+    else if(op==="m-copy"){
+      var p=owner(); var zone=E().openZones(p)[0];
+      if(!zone){notice("场上已满，无法复制。");return;}
+      E().summonMinion(game(),p,m.cardId,zone,null);
+    }
+    else if(op==="m-kill"){ E().damageMinion(game(),m,999,null,"沙盒"); E().processDeaths(game()); }
+    else if(op==="m-remove"){ removeMinion(uid); }
+    sync(); notice("已修改随从："+m.name);
+  }
+  function removeHand(uid){ var p=owner(); p.hand=p.hand.filter(function(c){return c.uid!==uid;}); sync(); }
+  function discountHand(uid,delta){ var p=owner(); var c=p.hand.find(function(x){return x.uid===uid;}); if(!c)return; c.discount=Math.max(0,(c.discount||0)+delta); sync(); }
+  function applyRelic(){ if(!requireGame())return; var p=owner(); p.relic=$("relic").value||null; sync(); notice("已设置遗物："+(p.relic?D().CARDS[p.relic].name:"无")); }
+  function draw(n){ if(!requireGame())return; var p=owner(); for(var i=0;i<n;i++)E().drawCard(game(),p,1); sync(); notice("抽牌 "+n+" 张。"); }
+  function addDeck(){ if(!requireGame())return; var p=owner(); var ids=Object.keys(D().CARDS).filter(function(id){var c=D().CARDS[id];return c&&!c.token&&!c.disabled;}); var id=ids[Math.floor(Math.random()*ids.length)]; p.deck.push({uid:"cheatdeck_"+Date.now(),cardId:id}); sync(); notice("牌库加入 "+cardName(id)); }
+  function scenario(kind){
+    if(!requireGame())return; var g=game();
+    if(kind==="empty"){ [0,1].forEach(function(i){ g.players[i].board={left:[],center:[],right:[]}; }); }
+    if(kind==="fill"){ var ids=["guard","fog_sailor","doorman"]; [0,1].forEach(function(i){ g.players[i].board={left:[],center:[],right:[]}; ["left","center","right"].forEach(function(z,j){ E().summonMinion(g,g.players[i],ids[(i+j)%ids.length],z,null); }); }); }
+    if(kind==="low"){ [0,1].forEach(function(i){g.players[i].hp=Math.min(5,g.players[i].maxHp);}); }
+    if(kind==="full"){ [0,1].forEach(function(i){g.players[i].mana=g.players[i].maxMana; g.players[i].maxMana=Math.max(10,g.players[i].maxMana); g.players[i].mana=g.players[i].maxMana;}); }
+    if(kind==="vein10"){ g.vein=10; }
+    sync(); notice("已应用快速局面："+kind);
+  }
+
+  // start / wire
+  var controlsReady = false;
+  function initControls(){
+    if(controlsReady || !win() || !win().GokData) return;
+    controlsReady = true;
+    fillFactionSelect($("new-f1")); fillFactionSelect($("new-f2")); $("new-f1").value="academy"; $("new-f2").value="empire";
+    fillSelect($("card-select"),null); fillSelect($("minion-select"),isMinionCard);
+    var lf=$("lib-faction"); lf.innerHTML='<option value="">全部</option>';
+    Object.keys(D().FACTIONS).forEach(function(f){var o=document.createElement("option");o.value=f;o.textContent=D().FACTIONS[f].name;lf.appendChild(o);});
+    var lo=document.createElement("option"); lo.value="neutral"; lo.textContent="中立"; lf.appendChild(lo);
+    var relicSel=$("relic"); relicSel.innerHTML='<option value="">无</option>';
+    Object.keys(D().CARDS).forEach(function(id){var c=D().CARDS[id];if(c&&c.type==="relic"&&!c.disabled){var o=document.createElement("option");o.value=id;o.textContent=c.name;relicSel.appendChild(o);}});
+  }
+  frame.addEventListener("load", function(){ setTimeout(function(){ try{ initControls(); var a=app(); if(!a||!a.game) start("academy","empire"); else { state.started=true; refresh(); } }catch(e){ notice("载入失败："+e.message); } }, 350); });
+  $("btn-reset").onclick=function(){ start($("new-f1").value,$("new-f2").value,Date.now()>>>0); };
+  $("btn-new").onclick=function(){ start($("new-f1").value,$("new-f2").value,Date.now()>>>0); };
+  $("btn-hide").onclick=function(){ panel.classList.add("hidden"); frame.classList.add("full"); showBtn.style.display="block"; };
+  showBtn.onclick=function(){ panel.classList.remove("hidden"); frame.classList.remove("full"); showBtn.style.display="none"; };
+  $("cur-p0").onclick=function(){cur(0);}; $("cur-p1").onclick=function(){cur(1);};
+  $("set-round").onclick=function(){if(!requireGame())return; game().round=Math.max(1,num("round"));sync();};
+  $("end-turn").onclick=function(){if(!requireGame())return; var g=game(); E().endTurn(g,g.current); sync(); notice("回合已结束。");};
+  $("set-vein").onclick=function(){if(!requireGame())return; game().vein=clamp(num("vein"),0,12);sync();};
+  [4,7,10,0].forEach(function(n){ var b=$("vein-"+n); if(b)b.onclick=function(){if(!requireGame())return;game().vein=n;sync();}; });
+  document.querySelectorAll(".owner").forEach(function(b){ b.onclick=function(){ state.owner=Number(b.dataset.owner); refresh(); }; });
+  $("apply-hero").onclick=applyHero; $("hero-full").onclick=function(){if(!requireGame())return;var p=owner();p.mana=p.maxMana;sync();}; $("hero-reset-used").onclick=function(){if(!requireGame())return;owner().heroPowerUsed=false;sync();};
+  $("apply-relic").onclick=applyRelic; $("clear-relic").onclick=function(){if(!requireGame())return;owner().relic=null;sync();};
+  $("add-hand").onclick=function(){addHand($("card-select").value,1);}; $("add-hand-3").onclick=function(){addHand($("card-select").value,3);};
+  $("spawn").onclick=function(){spawn($("minion-select").value,$("spawn-zone").value);};
+  $("draw-1").onclick=function(){draw(1);}; $("draw-5").onclick=function(){draw(5);}; $("add-deck").onclick=addDeck; $("clear-deck").onclick=function(){if(!requireGame())return;owner().deck=[];sync();};
+  $("lib-search").oninput=renderLibrary;
+  $("lib-faction").onchange=renderLibrary; $("lib-type").onchange=renderLibrary; $("lib-cost").onchange=renderLibrary;
+  $("lib-results").onclick=function(e){var el=e.target.closest(".lib-card");if(el)selectLib(el.dataset.card);};
+  $("lib-results").ondblclick=function(e){var el=e.target.closest(".lib-card");if(el){selectLib(el.dataset.card);addHand(el.dataset.card,1);}};
+  $("lib-add-hand").onclick=function(){libAdd("hand");};
+  $("lib-add-deck").onclick=function(){libAdd("deck");};
+  $("lib-spawn-board").onclick=function(){libAdd("board");};
+  $("deck-fill").onclick=function(){if(!requireGame())return;if(!state.libPick){notice("先选中一张牌。");return;}var p=owner(),n=0;while(p.deck.length<30){p.deck.push({uid:"cheatdeck_"+Date.now()+"_"+Math.random(),cardId:state.libPick});n++;}sync();notice("补入 "+n+" 张 "+D().CARDS[state.libPick].name);};
+  $("deck-clear-2").onclick=function(){if(!requireGame())return;owner().deck=[];sync();};
+  $("deck-copy").onclick=function(){if(!requireGame())return;var p=owner(),counts={};p.deck.forEach(function(c){counts[c.cardId]=(counts[c.cardId]||0)+1;});var txt=JSON.stringify({faction:p.faction,cards:counts},null,2);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){notice("牌组已复制。");}).catch(function(){notice("复制失败。");});else notice(txt);};
+  $("ai-enabled").onchange=function(){state.aiEnabled=this.checked;if(state.aiEnabled){state.aiBoth=false;aiPrepare();if(game()&&game().current===state.aiSide)aiSchedule();notice("AI 自动行动已启用。");}else{aiStop("AI 已暂停。");}refresh();};
+  $("ai-side").onchange=function(){state.aiSide=Number(this.value);if(state.aiEnabled)aiSchedule();refresh();};
+  $("ai-difficulty").onchange=function(){if(game())game().aiDifficulty=this.value;refresh();};
+  $("ai-delay").onchange=function(){state.aiDelay=Math.max(60,Math.min(4000,Number(this.value)||500));this.value=state.aiDelay;};
+  $("ai-step").onclick=function(){aiDoStep(true);};
+  $("ai-turn").onclick=function(){aiRunTurn();};
+  $("ai-takeover").onclick=function(){aiTakeover();};
+  $("ai-stop").onclick=function(){aiStop("AI 全部暂停。");};
+  $("ai-both-start").onclick=startBothAi;
+  $("ai-both-stop").onclick=function(){aiStop("双 AI 已停止。");};
+  $("view-lock").onclick=function(){state.viewLocked=!state.viewLocked;state.viewSide=Number($("view-side").value);sync();notice(state.viewLocked?"视角锁定：P"+(state.viewSide+1):"视角已恢复跟随当前回合。");};
+  $("view-side").onchange=function(){state.viewSide=Number(this.value);if(state.viewLocked)sync();else refresh();};
+  $("save-snapshot").onclick=saveSnapshot; $("restore-snapshot").onclick=restoreSnapshot;
+  $("sc-empty").onclick=function(){scenario("empty");}; $("sc-fill").onclick=function(){scenario("fill");}; $("sc-low").onclick=function(){scenario("low");}; $("sc-full").onclick=function(){scenario("full");}; $("sc-vein10").onclick=function(){scenario("vein10");};
+  $("export-state").onclick=function(){if(!requireGame())return;var blob=new Blob([JSON.stringify(game(),null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="gok-cheat-state.json";a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},500);};
+  $("copy-state").onclick=function(){if(!requireGame())return;var txt=JSON.stringify(game(),null,2);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){notice("局面 JSON 已复制。");}).catch(function(){notice("复制失败，请用下载。");});else notice("浏览器不支持剪贴板，请用下载。");};
+  $("refresh").onclick=refresh;
+  document.querySelectorAll("#tabs .tab").forEach(function(b){b.onclick=function(){document.querySelectorAll("#tabs .tab").forEach(function(x){x.classList.remove("active");});b.classList.add("active");document.querySelectorAll(".section").forEach(function(x){x.classList.remove("active");});$("tab-"+b.dataset.tab).classList.add("active");refresh();};});
+  document.addEventListener("click",function(e){var b=e.target.closest("button[data-op]");if(!b)return;var op=b.dataset.op;if(op.indexOf("deck-")===0){changeDeckCard(b.dataset.card,op==="deck-inc"?1:-1,op==="deck-del");return;}var uid=b.dataset.uid;if(!uid)return;if(op.indexOf("hand-")===0){if(op==="hand-remove")removeHand(uid);else discountHand(uid,op==="hand-discount"?1:-1);}else handleMinion(uid,op);});
+  $("card-search").oninput=function(){if(!win().GokData)return;fillSelect($("card-select"),function(c){var q=this.value.toLowerCase();return !q||c.name.toLowerCase().indexOf(q)>=0||c.id.indexOf(q)>=0;}.bind(this));};
+  $("board-search").oninput=function(){if(!win().GokData)return;fillSelect($("minion-select"),function(c){var q=this.value.toLowerCase();return isMinionCard(c)&&(!q||c.name.toLowerCase().indexOf(q)>=0||c.id.indexOf(q)>=0);}.bind(this));};
+  setInterval(function(){ if(!state.started||!game())return; if(state.aiEnabled)aiSchedule(); if(!(document.activeElement && document.activeElement.closest && document.activeElement.closest("#cheat"))) refresh(); }, 1500);
+})();
+</script>
+</body>
+</html>

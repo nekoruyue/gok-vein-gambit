@@ -37,7 +37,7 @@ const MATCH_STALE_TTL = 4 * 1000;
 const MATCH_RESULT_TTL = 90 * 1000;
 
 function newRoom() {
-  return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, guestDecks: null, guestFaction: null, guestRelic: null, guestReady: false, ranked: false, createdAt: Date.now() };
+  return { seq: 0, messages: [], lastSeen: { 0: 0, 1: 0 }, names: [null, null], guestDecks: null, guestFaction: null, guestRelic: null, guestReady: false, ranked: false, createdAt: Date.now() };
 }
 
 function newMatchTicket() {
@@ -168,6 +168,7 @@ const server = http.createServer(async (req, res) => {
       const rrMode = roomFromRequest(u, false);
       if (!rrMode) { json(res, 404, { ok: false, error: "房间不存在" }); return; }
       rrMode.room.ranked = !!body.ranked;
+      rrMode.room.names[0] = typeof body.name === "string" ? body.name.slice(0, 24) : rrMode.room.names[0];
       rrMode.room.guestReady = false;
       rrMode.room.seq = 0;
       rrMode.room.messages.length = 0;
@@ -176,24 +177,32 @@ const server = http.createServer(async (req, res) => {
     }
     if (p === "/api/match/join" && req.method === "POST") {
       cleanupMatches();
+      const rawMatch = await readBody(req);
+      let matchBody = {};
+      try { matchBody = JSON.parse(rawMatch); } catch (e) { matchBody = {}; }
+      const matchRanked = !!matchBody.ranked;
+      const matchName = typeof matchBody.name === "string" ? matchBody.name.slice(0, 24) : null;
       const now = Date.now();
       let waitingTicket = null;
-      for (const [ticket] of matchQueue) { waitingTicket = ticket; break; }
+      for (const [ticket, entry] of matchQueue) { if (!!entry.ranked === matchRanked) { waitingTicket = ticket; break; } }
       const ticket = newMatchTicket();
       if (waitingTicket) {
+        const waiting = matchQueue.get(waitingTicket);
         const code = createRoomCode();
         if (!code) { json(res, 500, { ok: false, error: "无法创建匹配房间" }); return; }
         const room = rooms.get(code);
-        room.ranked = true;
+        room.ranked = matchRanked;
+        room.names[0] = waiting && waiting.name || null;
+        room.names[1] = matchName;
         room.createdAt = now;
         matchQueue.delete(waitingTicket);
-        matchResults.set(waitingTicket, { room: code, role: "host", at: now });
-        matchResults.set(ticket, { room: code, role: "guest", at: now });
-        json(res, 200, { ok: true, matched: true, ticket, room: code, role: "guest", ranked: true });
+        matchResults.set(waitingTicket, { room: code, role: "host", at: now, ranked: matchRanked, names: room.names.slice() });
+        matchResults.set(ticket, { room: code, role: "guest", at: now, ranked: matchRanked, names: room.names.slice() });
+        json(res, 200, { ok: true, matched: true, ticket, room: code, role: "guest", ranked: matchRanked, names: room.names });
         return;
       }
-      matchQueue.set(ticket, { at: now, seen: now });
-      json(res, 200, { ok: true, waiting: true, ticket, waitMs: 0 });
+      matchQueue.set(ticket, { at: now, seen: now, ranked: matchRanked, name: matchName });
+      json(res, 200, { ok: true, waiting: true, ticket, waitMs: 0, ranked: matchRanked });
       return;
     }
     if (p === "/api/match/status") {
@@ -201,7 +210,7 @@ const server = http.createServer(async (req, res) => {
       const ticket = String(u.searchParams.get("ticket") || "");
       const result = matchResults.get(ticket);
       if (result) {
-        json(res, 200, { ok: true, matched: true, ticket, room: result.room, role: result.role, ranked: true });
+        json(res, 200, { ok: true, matched: true, ticket, room: result.room, role: result.role, ranked: !!result.ranked, names: result.names || [] });
         return;
       }
       const waiting = matchQueue.get(ticket);
@@ -245,6 +254,7 @@ const server = http.createServer(async (req, res) => {
         guestRelic: room.guestRelic,
         guestReady: room.guestReady,
         ranked: !!room.ranked,
+        names: room.names || [null, null],
         seq: room.seq
       });
       return;
@@ -281,6 +291,8 @@ const server = http.createServer(async (req, res) => {
       room.guestDecks = payload && payload.decks && typeof payload.decks === "object" ? payload.decks : {};
       room.guestFaction = payload && typeof payload.faction === "string" && /^[a-z_]+$/.test(payload.faction) ? payload.faction : null;
       room.guestRelic = payload && typeof payload.relic === "string" && /^[a-z_]+$/.test(payload.relic) ? payload.relic : null;
+      room.names[1] = payload && typeof payload.name === "string" ? payload.name.slice(0, 24) : room.names[1];
+      if (payload && typeof payload.ranked === "boolean") room.ranked = payload.ranked;
       room.guestReady = true;
       room.messages.length = 0;
       room.seq = 0;
@@ -307,7 +319,7 @@ const server = http.createServer(async (req, res) => {
       touch(room, player);
       const since = Number(u.searchParams.get("since") || 0);
       const out = room.messages.filter((m) => m.seq > since && m.from !== player).map((m) => ({ seq: m.seq, from: m.from, payload: m.payload }));
-      json(res, 200, { ok: true, seq: room.seq, messages: out });
+      json(res, 200, { ok: true, seq: room.seq, messages: out, hostOnline: Date.now() - room.lastSeen[0] < 6000, guestOnline: Date.now() - room.lastSeen[1] < 6000 });
       return;
     }
     if (p === "/api/reset" && req.method === "POST") {

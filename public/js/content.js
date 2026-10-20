@@ -99,7 +99,7 @@
     clear(box);
     const data = load();
     const intro = el("div", "content-intro");
-    intro.appendChild(el("div", "eyebrow", "BEYOND THE CLASSIC"));
+    intro.appendChild(el("div", "eyebrow", "经典之外 / BEYOND THE CLASSIC"));
     intro.appendChild(el("h2", null, "选择一条档案线"));
     intro.appendChild(el("p", null, "经典对战之外，档案室还记录了远征、竞技场、每日挑战、残局、旧日故事与镜像对决。所有模式复用同一套流脉规则。档案印记：" + (data.marks || 0)));
     box.appendChild(intro);
@@ -122,37 +122,37 @@
     const grid = el("div", "mode-grid");
     const modes = [
       {
-        id: "expedition", title: "远征", tag: "PvE ROGUELIKE",
+        id: "expedition", title: "远征", tag: "单人肉鸽",
         desc: "带领当前阵营穿过 8 个节点，处理事件与商店，最后挑战章节首领。",
         status: data.expedition && data.expedition.node < data.expedition.nodes.length ? "远征进行中 · 节点 " + (data.expedition.node + 1) + "/" + data.expedition.nodes.length : "从当前阵营开始",
         action: () => renderExpedition()
       },
       {
-        id: "arena", title: "竞技场", tag: "DRAFT",
+        id: "arena", title: "竞技场", tag: "轮抽",
         desc: "十轮三选一，每张牌入队三份，组成 30 张轮抽牌组，然后连续作战。",
         status: data.arena && data.arena.active ? "轮抽中 · " + data.arena.picks + "/10" : data.arena && data.arena.finished ? "上轮 " + data.arena.wins + " 胜 · 印记 +" + (data.arena.reward || 0) : "开始一次轮抽",
         action: () => renderArena()
       },
       {
-        id: "daily", title: "每日挑战", tag: "DAILY SEED",
+        id: "daily", title: "每日挑战", tag: "每日种子",
         desc: "每天固定种子、固定对手，使用当前阵营挑战噩梦 AI。每天只能结算一次。",
         status: data.daily && data.daily.date === fmtDate() ? (data.daily.result === "win" ? "今日已通关" : "今日已结算") : "今日尚未推演",
         action: () => renderDaily()
       },
       {
-        id: "puzzle", title: "残局", tag: "PUZZLE",
+        id: "puzzle", title: "残局", tag: "残局",
         desc: "从固定局面寻找本回合斩杀。完成记录会保存在档案里。",
         status: "已完成 " + Object.keys(data.puzzles || {}).length + " / " + PUZZLES.length,
         action: () => renderPuzzles()
       },
       {
-        id: "story", title: "旧日故事", tag: "STORY",
+        id: "story", title: "旧日故事", tag: "剧情",
         desc: "五段与阵营有关的短战，先看档案，再进入战斗。",
         status: "已完成 " + Object.keys(data.story && data.story.done || {}).length + " / 5",
         action: () => renderStory()
       },
       {
-        id: "mirror", title: "镜像对决", tag: "MIRROR",
+        id: "mirror", title: "镜像对决", tag: "镜像",
         desc: "双方使用同一阵营、同一套预设牌组。没有克制借口，只看谁更懂这套牌。",
         status: data.mirror ? "战绩 " + (data.mirror.wins || 0) + " 胜 " + (data.mirror.losses || 0) + " 负" : "选择阵营",
         action: () => renderMirror()
@@ -180,7 +180,7 @@
   ];
   function renderMarket(box, data) {
     const panel = el("div", "mode-panel market-panel");
-    panel.appendChild(el("div", "panel-label", "ARCHIVE MARKET / 印记消费"));
+    panel.appendChild(el("div", "panel-label", "档案市场 / 印记消费"));
     panel.appendChild(el("p", null, "档案印记可以从竞技场获得。购买后的强化会永久记录在内容档案中。"));
     const row = el("div", "market-grid");
     for (const item of MARKET) {
@@ -216,9 +216,9 @@
     const data = load();
     const run = data.expedition;
     const head = el("div", "content-subhead");
-    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回模式"));
+    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回街机模式"));
     head.querySelector("button").onclick = renderHub;
-    head.appendChild(el("div", "eyebrow", "EXPEDITION / RUN"));
+    head.appendChild(el("div", "eyebrow", "远征 / RUN"));
     head.appendChild(el("h2", null, "地脉远征"));
     box.appendChild(head);
     if (!run || run.finished) {
@@ -472,9 +472,19 @@
     const data = load();
     const run = data.arena;
     const head = el("div", "content-subhead");
-    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回模式"));
+    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回街机模式"));
     head.querySelector("button").onclick = renderHub;
-    head.appendChild(el("div", "eyebrow", "ARENA / DRAFT"));
+    if (run && run.active) {
+      const cancelRun = el("button", "btn btn-small btn-ghost", "取消本轮轮抽");
+      cancelRun.onclick = () => {
+        const fresh = load();
+        fresh.arena = null;
+        save(fresh);
+        renderHub();
+      };
+      head.appendChild(cancelRun);
+    }
+    head.appendChild(el("div", "eyebrow", "竞技场 / 轮抽"));
     head.appendChild(el("h2", null, "轮抽竞技场"));
     box.appendChild(head);
     if (!run || !run.active) {
@@ -590,9 +600,9 @@
     const date = fmtDate();
     const result = data.daily && data.daily.date === date ? data.daily.result : null;
     const head = el("div", "content-subhead");
-    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回模式"));
+    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回街机模式"));
     head.querySelector("button").onclick = renderHub;
-    head.appendChild(el("div", "eyebrow", "DAILY / SEED"));
+    head.appendChild(el("div", "eyebrow", "每日挑战 / 固定种子"));
     head.appendChild(el("h2", null, "每日挑战 · " + date));
     box.appendChild(head);
     const panel = el("div", "mode-panel");
@@ -668,9 +678,9 @@
     const box = root(); clear(box);
     const data = load();
     const head = el("div", "content-subhead");
-    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回模式"));
+    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回街机模式"));
     head.querySelector("button").onclick = renderHub;
-    head.appendChild(el("div", "eyebrow", "PUZZLE / LETHAL"));
+    head.appendChild(el("div", "eyebrow", "残局 / 斩杀"));
     head.appendChild(el("h2", null, "残局档案"));
     box.appendChild(head);
     const grid = el("div", "puzzle-grid");
@@ -719,9 +729,9 @@
     const data = load();
     const done = (data.story && data.story.done) || {};
     const head = el("div", "content-subhead");
-    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回模式"));
+    head.appendChild(el("button", "btn btn-small btn-ghost", "← 返回街机模式"));
     head.querySelector("button").onclick = renderHub;
-    head.appendChild(el("div", "eyebrow", "STORY / SIDE ARCHIVE"));
+    head.appendChild(el("div", "eyebrow", "剧情 / 支线档案"));
     head.appendChild(el("h2", null, "旧日故事"));
     box.appendChild(head);
     const list = el("div", "story-list");
@@ -796,7 +806,7 @@
   function renderMirror() {
     const box = root(); clear(box);
     const head = el("div", "content-subhead");
-    const back = el("button", "btn btn-small btn-ghost", "← 返回模式");
+    const back = el("button", "btn btn-small btn-ghost", "← 返回街机模式");
     back.onclick = renderHub;
     head.appendChild(back);
     head.appendChild(el("div", "eyebrow", "MIRROR / SAME FACTION"));

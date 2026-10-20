@@ -61,6 +61,7 @@
     </div>
     <div class="actions">
       <button class="primary" id="run">重新测试全部</button>
+      <button id="open-cheat">沙盒对局作弊台</button>
       <button id="export-json">导出 JSON</button>
       <button id="export-csv">导出 CSV</button>
     </div>
@@ -96,9 +97,9 @@
   </div>
 </div>
 
-<script src="js/data.js?v=20261020e19"></script>
-<script src="js/engine.js?v=20261020e19"></script>
-<script src="js/card-lab-core.js?v=20261020lab1"></script>
+<script src="js/data.js?v=20261020e21"></script>
+<script src="js/engine.js?v=20261020e21"></script>
+<script src="js/card-lab-core.js?v=20261020e21"></script>
 <script>
 (function () {
   "use strict";
@@ -198,6 +199,7 @@
   }
   function csvEscape(v) { return '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"'; }
   $("run").onclick = run;
+  $("open-cheat").onclick = function () { window.open("cheat.html", "_blank"); };
   $("search").oninput = render;
   $("faction").onchange = render;
   $("type").onchange = render;
@@ -219,6 +221,8 @@
 </script>
 </body>
 </html>
+
+
 
 
 
