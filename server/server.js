@@ -345,8 +345,14 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log("Gok Vein Gambit LAN server");
+server.on("error", (err) => {
+  console.error("Gok Vein Gambit listen error:", err);
+  process.exit(1);
+});
+// 不指定 host：Linux/Render 上绑定 :: 双栈，同时接受 IPv4/IPv6。
+server.listen(PORT, () => {
+  const addr = server.address();
+  console.log("Gok Vein Gambit server listening on " + addr.address + ":" + addr.port);
   console.log("http://" + lanIp() + ":" + PORT + "/");
 });
 
