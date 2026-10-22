@@ -4372,6 +4372,201 @@
     passive: null
   });
 
+
+  // ===== 稳定版 e24.2：2026-10-22 数值与机制调整 =====
+  // A. 附件工作表里的 90 处基础数值全部应用（含各阵营）。
+Object.assign(CARDS.excavation_titan, {"attack":5,"health":6});
+  Object.assign(CARDS.resonance, {"cost":1});
+  Object.assign(CARDS.doorman, {"health":3});
+  Object.assign(CARDS.nina, {"attack":3,"health":3});
+  Object.assign(CARDS.lecturer, {"attack":3,"health":2});
+  Object.assign(CARDS.spell_echo, {"health":2});
+  Object.assign(CARDS.arcane_conduit, {"health":5});
+  Object.assign(CARDS.echo_adept, {"attack":3,"health":2});
+  Object.assign(CARDS.frost_professor, {"attack":2,"health":5});
+  Object.assign(CARDS.frost_scribe, {"cost":2});
+  Object.assign(CARDS.spell_codex, {"cost":3});
+  Object.assign(CARDS.lanzhou, {"health":2});
+  Object.assign(CARDS.brood_matron, {"attack":3,"health":4});
+  Object.assign(CARDS.lanxi, {"attack":5,"health":5});
+  Object.assign(CARDS.blood_priestess, {"health":3});
+  Object.assign(CARDS.reflux, {"cost":2});
+  Object.assign(CARDS.blood_pool, {"cost":3});
+  Object.assign(CARDS.monster_summon, {"cost":4});
+  Object.assign(CARDS.hans, {"health":1});
+  Object.assign(CARDS.shield_bearer, {"health":3});
+  Object.assign(CARDS.konrad, {"health":3});
+  Object.assign(CARDS.erhardt, {"attack":3});
+  Object.assign(CARDS.phalanx_warden, {"attack":3});
+  Object.assign(CARDS.phalanx_executor, {"attack":2,"health":4});
+  Object.assign(CARDS.aegis_guard, {"attack":4,"health":4});
+  Object.assign(CARDS.iron_phalanx, {"health":4});
+  Object.assign(CARDS.bastion_captain, {"attack":3,"health":3});
+  Object.assign(CARDS.shield_marshal, {"health":7});
+  Object.assign(CARDS.iron_banner, {"cost":4});
+  Object.assign(CARDS.republic_seal, {"cost":4});
+  Object.assign(CARDS.klaus, {"health":1});
+  Object.assign(CARDS.elsa, {"health":3});
+  Object.assign(CARDS.ironclad, {"attack":3});
+  Object.assign(CARDS.rush_lancer, {"attack":3,"health":3});
+  Object.assign(CARDS.iron_mechanic, {"health":3});
+  Object.assign(CARDS.gunther, {"attack":4,"health":4});
+  Object.assign(CARDS.siege_captain, {"attack":3,"health":4});
+  Object.assign(CARDS.walter, {"attack":3});
+  Object.assign(CARDS.wind_cannon, {"health":5});
+  Object.assign(CARDS.powder_marshal, {"health":2});
+  Object.assign(CARDS.siege_train, {"attack":3,"health":4});
+  Object.assign(CARDS.quarantine, {"cost":0});
+  Object.assign(CARDS.fortress, {"cost":2});
+  Object.assign(CARDS.armor_mortar, {"cost":2});
+  Object.assign(CARDS.mobilize, {"cost":3});
+  Object.assign(CARDS.martial_court, {"cost":2});
+  Object.assign(CARDS.formation_cannon, {"cost":5});
+  Object.assign(CARDS.powder_engine, {"cost":3});
+  Object.assign(CARDS.gh_silencer, {"cost":3,"health":1});
+  Object.assign(CARDS.gh_rush_archer, {"health":2});
+  Object.assign(CARDS.gh_bounty_hunter, {"attack":2});
+  Object.assign(CARDS.gh_venom_shield, {"attack":2,"health":2});
+  Object.assign(CARDS.gh_silence_expert, {"cost":4,"attack":4,"health":3});
+  Object.assign(CARDS.gh_shield_mercenary, {"attack":3,"health":3});
+  Object.assign(CARDS.gh_legend_assassin, {"attack":2});
+  Object.assign(CARDS.gh_shield_broker, {"attack":2});
+  Object.assign(CARDS.gh_bounty_collector, {"attack":3,"health":4});
+  Object.assign(CARDS.gh_scorpion, {"attack":3,"health":4});
+  Object.assign(CARDS.gh_silence_master, {"attack":3,"health":4});
+  Object.assign(CARDS.gh_company, {"attack":5,"health":6});
+  Object.assign(CARDS.gh_venom_behemoth, {"attack":2});
+  Object.assign(CARDS.gh_bounty_king, {"attack":8,"health":8});
+  Object.assign(CARDS.gh_bodyguard_contract, {"cost":1});
+  Object.assign(CARDS.gh_quick_strike, {"cost":1});
+  Object.assign(CARDS.gh_ledger, {"cost":2});
+  Object.assign(CARDS.gh_bounty_verdict, {"cost":5});
+  Object.assign(CARDS.gh_formation, {"cost":5});
+  Object.assign(CARDS.blood_retainer, {"health":2});
+  Object.assign(CARDS.mist_hound, {"attack":1,"health":1});
+  Object.assign(CARDS.mist_scout, {"health":1});
+  Object.assign(CARDS.archive_guard, {"health":2});
+  Object.assign(CARDS.wandering_merchant, {"health":1});
+  Object.assign(CARDS.vein_warden, {"attack":3,"health":3});
+  Object.assign(CARDS.field_engineer, {"attack":1});
+  Object.assign(CARDS.neutral_wayfarer, {"health":3});
+  Object.assign(CARDS.wandering_guard, {"attack":2});
+  Object.assign(CARDS.traveling_healer, {"attack":3});
+  Object.assign(CARDS.caravan_guard, {"health":4});
+  Object.assign(CARDS.chrono_scholar, {"attack":3});
+  Object.assign(CARDS.archive_devourer, {"health":5});
+  Object.assign(CARDS.frost_leviathan, {"health":6});
+  Object.assign(CARDS.vein_behemoth, {"health":10});
+  Object.assign(CARDS.obsidian_colossus, {"health":10});
+  Object.assign(CARDS.grave_titan, {"attack":6,"health":9});
+  Object.assign(CARDS.void_titan, {"attack":3,"health":3});
+  Object.assign(CARDS.supply_cache, {"cost":2});
+  Object.assign(CARDS.vein_prospect, {"cost":2});
+  Object.assign(CARDS.old_ledger, {"cost":4});
+  Object.assign(CARDS.vein_tithe, {"cost":4});
+  Object.assign(CARDS.astral_gate, {"cost":6});
+
+  // B. 领袖生命与技能
+  Object.assign(HEROES.marta, { hp: 30 });
+  Object.assign(HEROES.karna, {
+    hp: 34,
+    power: {
+      name: "血祭", cost: 2, target: "none", selfDamage: 2,
+      text: "对自己造成 2 点伤害，抽 1 张牌。"
+    }
+  });
+  Object.assign(HEROES.wolfram, {
+    hp: 28,
+    power: {
+      name: "改铸", cost: 2, target: "none",
+      text: "将所有手牌改写为行动力消耗 +1 的同阵营卡牌（最高 10 费）。"
+    }
+  });
+  Object.assign(HEROES.otto, { hp: 28 });
+
+  // C. 衍生物：1/1 一费，3/3 三费，5/5 五费；0 费功能牌保持 0。
+  for (const id of ["losutai_imp", "republic_recruit"]) if (CARDS[id]) CARDS[id].cost = 1;
+  for (const id of ["losutai_beast", "obsidian_spawn", "astral_guardian"]) if (CARDS[id]) CARDS[id].cost = 3;
+  if (CARDS.grave_guard) CARDS.grave_guard.cost = 5;
+
+  // D. 学院三费抽二战术
+  CARDS.tactical_review = {
+    id: "tactical_review", name: "战术复盘", faction: "academy", type: "spell",
+    cost: 3, rarity: "common", art: null, target: "none",
+    text: "抽 2 张牌。", flavor: "每一次失误，都值得第二次推演。",
+    spell: { type: "draw", amount: 2 }
+  };
+  {
+    const idx = DECKS.academy.indexOf("snow_medic");
+    if (idx >= 0) DECKS.academy[idx] = "tactical_review";
+  }
+
+  // E. 帝国五张注释改动
+  Object.assign(CARDS.war_tax, {
+    text: "抽 2 张牌；你的领袖受到 3 点伤害。",
+    spell: { type: "selfDamageDraw", self: 3, draw: 2 }
+  });
+  Object.assign(CARDS.armor_drive, {
+    text: "获得 3 点护甲；若你已有护甲，再获得 3 点护甲。",
+    spell: { type: "armorIfArmored", amount: 3, bonus: 3 }
+  });
+  Object.assign(CARDS.powder_keg, {
+    text: "对所有随从造成 4 点伤害。",
+    spell: { type: "damageAllMinions", amount: 4 }
+  });
+  Object.assign(CARDS.armor_recycle, {
+    text: "获得 5 点护甲；抽 1 张牌。",
+    spell: { type: "armor", amount: 5, draw: 1 }
+  });
+  Object.assign(CARDS.formation_cannon, {
+    text: "阵型：该阵位友方随从固定获得袭扰。",
+    formation: { attack: 0, health: 0, rush: true }
+  });
+
+  // F. 灰港悬赏体系
+  Object.assign(CARDS.gh_silence_expert, {
+    keywords: ["battlecry"], target: "enemy",
+    text: "登场：沉默一个敌方随从。",
+    battlecry: { type: "silence" }
+  });
+  Object.assign(CARDS.gh_legend_assassin, {
+    keywords: ["rush"], target: "none",
+    text: "袭扰。登场：对方每有一个随从数量小于 2 的阵位，获得 +1/+0。",
+    battlecry: { type: "buffPerUnderfilledZone", attack: 1 }
+  });
+  Object.assign(CARDS.gh_shield_broker, {
+    name: "悬赏掮客", rarity: "epic",
+    keywords: ["battlecry", "passive"], target: "enemy",
+    text: "登场：将一个敌方随从列入悬赏名单。被动：你的回合结束时，将一个敌方随从列入悬赏名单。",
+    battlecry: { type: "markBounty" },
+    passive: { type: "endTurnMarkBounty" }
+  });
+  Object.assign(CARDS.gh_scorpion, {
+    keywords: ["poisonous"],
+    text: "蚀毒。每当该随从消灭一个敌方单位，获得 +0/+1 和隐匿。",
+    passive: { type: "onKillGrowthStealth", health: 1 }
+  });
+  Object.assign(CARDS.gh_ledger, {
+    text: "抽 1 张牌；若你本回合完成过悬赏，再抽 1 张。",
+    spell: { type: "drawIfBountyClaimed", draw: 1, bonus: 1, thisTurn: true }
+  });
+  Object.assign(CARDS.gh_black_market, {
+    target: "none",
+    text: "抽 1 张牌；随机将两个敌方随从列入悬赏名单。",
+    spell: { type: "drawRandomBounties", draw: 1, count: 2 }
+  });
+  Object.assign(CARDS.gh_execution_contract, {
+    text: "消灭悬赏名单上的一个敌方随从。",
+    spell: { type: "destroyBounty", fallbackDraw: 0 }
+  });
+  Object.assign(CARDS.gh_bounty_verdict, {
+    text: "消灭所有悬赏名单上的敌方随从。",
+    spell: { type: "destroyAllBounties" }
+  });
+  Object.assign(CARDS.gh_venom_vial, {
+    text: "遗物：你的蚀毒随从获得 +1 生命。"
+  });
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 

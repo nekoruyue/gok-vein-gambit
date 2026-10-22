@@ -269,8 +269,20 @@
     if (!o.ok) return null;
     if (p.hero.power && p.hero.power.id === "spell_codex") return { type: "heroPower", targetUid: null, score: 3.6 };
     if (p.heroId === "karna") {
-      if (p.hp <= 8) return null;
+      if (p.hp <= 10) return null;
       return { type: "heroPower", targetUid: null, score: 3 };
+    }
+    if (p.heroId === "wolfram") {
+      const canChange = p.hand.some(c => {
+        const d = D.CARDS[c.cardId];
+        if (!d || d.cost == null || d.cost >= 10 || d.type === "relic") return false;
+        const nc = Math.min(10, d.cost + 1);
+        return Object.keys(D.CARDS).some(id => {
+          const n = D.CARDS[id];
+          return n && !n.token && !n.disabled && n.type !== "relic" && n.cost === nc && id !== d.id && (n.faction === p.faction || n.faction === "neutral");
+        });
+      });
+      return canChange ? { type: "heroPower", targetUid: null, score: 2.6 } : null;
     }
     if (!o.targets.length) return null;
     const allies = ownMinions(p);
@@ -338,6 +350,22 @@
     return ownMinions(player).reduce((sum, m) => sum + Math.max(0, m.attack), 0);
   }
 
+  function handThreat(state, me) {
+    const op = enemyOf(state, me);
+    let t = 0;
+    for (const c of op.hand) {
+      const d = D.CARDS[c.cardId];
+      if (!d) continue;
+      const b = d.spell || {};
+      if (b.type === "damage") t += (b.amount || 1) * 1.15;
+      else if (b.type === "damageAllEnemies" || b.type === "damageAllEnemiesDraw") t += 2.4;
+      else if (b.type === "freeze" || b.type === "freezeAll") t += 1.1;
+      else if (b.type === "silence") t += 0.8;
+      else if (d.type === "minion" && (d.keywords || []).some(k => k === "rush" || k === "charge")) t += (d.attack || 1) * 0.7;
+    }
+    return t;
+  }
+
   function evaluateState(state, playerIndex) {
     if (state.status === "gameover") {
       if (state.winner === playerIndex) return 100000;
@@ -361,6 +389,10 @@
     if (me.hp + me.armor <= boardAttack(op)) score -= 30;
     if (op.hp <= 0) score += 5000;
     if (me.hp <= 0) score -= 5000;
+    if (state.aiDifficulty === "nightmare") {
+      const threat = handThreat(state, me);
+      score -= threat * ((me.hp + me.armor) < 16 ? 1.35 : 0.45);
+    }
     return score;
   }
 
@@ -493,6 +525,15 @@
     return best;
   }
 
+  function findLethalAction(state, p) {
+    const actions = enumerateActions(state, p);
+    for (const action of actions.slice(0, 36)) {
+      const next = applyCandidate(state, action, p.index);
+      if (next && next.status === "gameover" && next.winner === p.index) return action;
+    }
+    return null;
+  }
+
   function chooseAction(state, playerIndex) {
     if (state.status !== "playing") return { type: "end", reason: "gameover" };
     if (state.aiDifficulty === "easy" && Math.random() < 0.22) return { type: "end", reason: "easy" };
@@ -503,6 +544,8 @@
     const p = state.players[playerIndex];
     if (!p || state.current !== playerIndex) return { type: "end" };
     if (state.aiDifficulty !== "easy") {
+      const lethalAction = findLethalAction(state, p);
+      if (lethalAction) return lethalAction;
       const depth = state.aiDifficulty === "normal" ? 1 : 2;
       const limit = state.aiDifficulty === "nightmare" ? 24 : state.aiDifficulty === "hard" ? 14 : 0;
       const baseline = evaluateState(state, p.index);

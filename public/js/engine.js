@@ -185,7 +185,8 @@
       m.maxHealth += 1;
     }
     if (ownerPlayer && ownerPlayer.relic === "gh_venom_vial" && m.poisonous && !m.silenced) {
-      m.attack += 1;
+      m.health += 1;
+      m.maxHealth += 1;
     }
     return m;
   }
@@ -1054,8 +1055,8 @@
       if (def.id === "wanderer_charm") { player.maxHp += 5; }
       if (def.id === "formation_standard") { for (const zone of new Set((player.formations || []).map(f => f.zone))) applyFormationToZone(state, player, zone); }
       if (def.id === "gh_venom_vial" && hadRelic !== "gh_venom_vial") {
-        for (const m of aliveMinions(player)) if (m.poisonous && !m.silenced) m.attack += 1;
-        log(state, "淬毒瓶：所有蚀毒随从获得 +1 攻击。", player, "buff");
+        for (const m of aliveMinions(player)) if (m.poisonous && !m.silenced) { m.health += 1; m.maxHealth += 1; }
+        log(state, "淬毒瓶：所有蚀毒随从获得 +1 生命。", player, "buff");
       }
       log(state, player.name + " 装备遗物「" + def.name + "」。", player, "relic");
     } else if (def.type === "formation") {
@@ -1568,6 +1569,11 @@
     } else if (b.type === "grantRushAll") {
       for (const m of aliveMinions(player)) grantRush(state, m);
       log(state, "佣兵头目：所有友方随从获得袭扰。", player, "rush");
+    } else if (b.type === "buffPerUnderfilledZone") {
+      const enemy = opponentOf(state, player);
+      const count = ZONES.filter(z => aliveMinions(enemy).filter(m => m.zone === z).length < 2).length;
+      if (count > 0) buffMinion(state, minion, count * (b.attack || 1), 0, "登场", true);
+      log(state, "对方有 " + count + " 个阵位随从少于 2 个，" + minion.name + " 获得 +" + (count * (b.attack || 1)) + "/+0。", player, "battlecry");
     } else if (b.type === "markRandomBounties") {
       const enemies = aliveMinions(opponentOf(state, player)).filter(m => m.bounty == null);
       const shuffled = shuffle(state, enemies);
@@ -1598,6 +1604,7 @@
       const gain = s.amount || 5;
       player.armor += gain;
       log(state, player.name + " 获得 " + gain + " 点护甲。", player, "armor");
+      if (s.draw) drawCard(state, player, s.draw);
     } else if (s.type === "none") {
       // 由卡牌的 excavate / 其他字段另行结算，例如“采掘 2”类法术。
     } else if (s.type === "healDraw") {
@@ -1950,6 +1957,13 @@
     } else if (s.type === "drawMark") {
       drawCard(state, player, s.draw || 2);
       if (target && !target.dead) markBounty(state, player, target);
+    } else if (s.type === "drawRandomBounties") {
+      drawCard(state, player, s.draw || 1);
+      const enemies = aliveMinions(opponentOf(state, player)).filter(m => m.bounty == null);
+      const shuffled = shuffle(state, enemies);
+      const n = Math.min(s.count || 2, shuffled.length);
+      for (let i = 0; i < n; i++) markBounty(state, player, shuffled[i]);
+      if (!n) log(state, "没有可以列入悬赏名单的敌方随从。", player, "bounty");
     } else if (s.type === "damageOrDestroyBounty") {
       if (target && !target.dead) {
         if (target.bounty && target.bounty.owner === player.index) {
@@ -1967,9 +1981,23 @@
         pick.dead = true;
         log(state, "处刑契约：悬赏目标 " + pick.name + " 被处决。", player, "destroy");
         processDeaths(state);
-      } else {
-        drawCard(state, player, s.fallbackDraw || 1);
+      } else if (s.fallbackDraw) {
+        drawCard(state, player, s.fallbackDraw);
         log(state, "悬赏名单为空，改为抽牌。", player, "draw");
+      } else {
+        log(state, "悬赏名单为空。", player, "bounty");
+      }
+    } else if (s.type === "destroyAllBounties") {
+      const marked = aliveMinions(opponentOf(state, player)).filter(m => m.bounty && m.bounty.owner === player.index);
+      if (!marked.length) {
+        log(state, "悬赏名单为空。", player, "bounty");
+      } else {
+        for (const m of marked) {
+          m.dead = true;
+          log(state, "赏金清算：悬赏目标 " + m.name + " 被处决。", player, "destroy");
+        }
+        processDeaths(state);
+        checkGameOver(state);
       }
     } else if (s.type === "bountyVerdict") {
       const marked = aliveMinions(opponentOf(state, player)).filter(m => m.bounty && m.bounty.owner === player.index);
@@ -1986,7 +2014,8 @@
       }
     } else if (s.type === "drawIfBountyClaimed") {
       drawCard(state, player, s.draw || 2);
-      if ((player.bountiesClaimed || 0) > 0) drawCard(state, player, s.bonus || 1);
+      const claimed = s.thisTurn ? (player.bountiesClaimedThisTurn || 0) > 0 : (player.bountiesClaimed || 0) > 0;
+      if (claimed) drawCard(state, player, s.bonus || 1);
     } else if (s.type === "damagePerMinionCount") {
       const count = state.players.reduce((n, p) => n + aliveMinions(p).length, 0);
       if (target && !target.dead) {
@@ -2252,7 +2281,14 @@
     const def = defender.attack;
     damageMinion(state, defender, atk, attacker, "战斗");
     damageMinion(state, attacker, def, defender, "反击");
+    const defenderDied = defender.dead;
     processDeaths(state);
+    if (!attacker.dead && defenderDied && attacker.passive && attacker.passive.type === "onKillGrowthStealth") {
+      buffMinion(state, attacker, 0, attacker.passive.health || 1, "猎杀", true);
+      attacker.stealth = true;
+      if (!attacker.keywords.includes("stealth")) attacker.keywords.push("stealth");
+      log(state, attacker.name + " 消灭了 " + defender.name + "，获得隐匿。", player, "stealth");
+    }
     checkGameOver(state);
     return { ok: true };
   }
@@ -2275,6 +2311,28 @@
     handCard.cardId = nextId;
     handCard.generated = true;
     log(state, player.name + " 将手牌中的「" + oldDef.name + "」改写为「" + D.CARDS[nextId].name + "」。", player, "handChange");
+    return true;
+  }
+
+  function upgradeCandidateIds(player, handCard) {
+    const oldDef = card(handCard.cardId);
+    if (!oldDef || oldDef.cost == null || oldDef.cost >= 10) return [];
+    const nextCost = Math.min(10, oldDef.cost + 1);
+    return Object.keys(D.CARDS).filter(id => {
+      const d = D.CARDS[id];
+      if (!d || d.token || d.disabled || d.type === "relic" || id === oldDef.id || d.cost !== nextCost) return false;
+      return d.faction === player.faction || d.faction === "neutral";
+    });
+  }
+
+  function upgradeHandCard(state, player, handCard) {
+    const oldDef = card(handCard.cardId);
+    const candidates = upgradeCandidateIds(player, handCard);
+    if (!candidates.length) return false;
+    const nextId = candidates[randomInt(state, candidates.length)];
+    handCard.cardId = nextId;
+    handCard.generated = true;
+    log(state, player.name + " 将手牌中的「" + oldDef.name + "」改铸为「" + D.CARDS[nextId].name + "」。", player, "handChange");
     return true;
   }
 
@@ -2301,18 +2359,34 @@
     if (player.hero.power && (player.hero.power.passive || player.hero.power.target === "passive")) {
       return { ok: false, reason: "这是被动技能，无需主动使用" };
     }
+    if (player.heroId === "wolfram") {
+      const cost = player.hero.power.cost || 2;
+      if (player.mana < cost) return { ok: false, reason: "行动力不足" };
+      const changeable = player.hand.filter(c => upgradeCandidateIds(player, c).length > 0);
+      if (!changeable.length) return { ok: false, reason: "没有可以改铸的手牌" };
+      player.mana -= cost;
+      player.heroPowerUsed = true;
+      state.lastAction = { type: "heroPower", player: playerIndex, heroId: player.heroId, powerName: player.hero.power.name, targetUid: null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
+      log(state, player.name + " 使用领袖技能「改铸」。", player, "heroPower");
+      let changed = 0;
+      for (const handCard of player.hand.slice()) {
+        if (upgradeHandCard(state, player, handCard)) changed++;
+      }
+      log(state, "改铸：改写了 " + changed + " 张手牌。", player, "handChange");
+      return { ok: true, changed };
+    }
     if (player.mana < 2) return { ok: false, reason: "行动力不足" };
     if (player.heroId === "karna") {
       player.mana -= 2;
       player.heroPowerUsed = true;
       state.lastAction = { type: "heroPower", player: playerIndex, heroId: player.heroId, powerName: player.hero.power.name, targetUid: null, seq: ((state.lastAction && state.lastAction.seq) || 0) + 1 };
       log(state, player.name + " 使用领袖技能「血祭」。", player, "heroPower");
-      damageHero(state, player, 1, null, "血祭");
+      damageHero(state, player, player.hero.power.selfDamage || 1, null, "血祭");
       drawCard(state, player, 1);
       checkGameOver(state);
       return { ok: true };
     }
-    const handTarget = player.heroId === "wolfram";
+    const handTarget = false;
     let targets = [];
     let targetIds = [];
     if (handTarget) {
@@ -2465,6 +2539,11 @@
     if (state.status !== "playing") return;
     const player = state.players[playerIndex];
     if (!player) return;
+    for (const ally of aliveMinions(player)) {
+      if (ally.silenced || !ally.passive || ally.passive.type !== "endTurnMarkBounty") continue;
+      const enemies = aliveMinions(opponentOf(state, player)).filter(m => m.bounty == null);
+      if (enemies.length) markBounty(state, player, enemies[randomInt(state, enemies.length)]);
+    }
     if (player.veinDebt) {
       const debt = player.veinDebt;
       player.veinDebt = 0;
@@ -2575,6 +2654,24 @@
         used: false
       };
     }
+    if (player.heroId === "wolfram") {
+      const canChange = player.hand.some(c => {
+        const d = card(c.cardId);
+        if (!d || d.cost == null || d.cost >= 10 || d.type === "relic") return false;
+        const nextCost = Math.min(10, d.cost + 1);
+        return Object.keys(D.CARDS).some(id => {
+          const n = D.CARDS[id];
+          return n && !n.token && !n.disabled && n.type !== "relic" && n.cost === nextCost && id !== d.id && (n.faction === player.faction || n.faction === "neutral");
+        });
+      });
+      return {
+        ok: !player.heroPowerUsed && player.mana >= (player.hero.power.cost || 2) && canChange,
+        targets: [],
+        targetType: "none",
+        cost: player.hero.power.cost || 2,
+        used: player.heroPowerUsed
+      };
+    }
     if (player.heroId === "karna") {
       return {
         ok: !player.heroPowerUsed && player.mana >= 2,
@@ -2584,8 +2681,8 @@
         used: player.heroPowerUsed
       };
     }
-    const handTarget = player.heroId === "wolfram";
-    const targetType = handTarget ? "hand" : (player.heroId === "otto" ? "enemy" : "friendly");
+    const handTarget = false;
+    const targetType = player.heroId === "otto" ? "enemy" : "friendly";
     const targets = targetType === "enemy"
       ? aliveMinions(opponentOf(state, player)).filter(m => !m.stealth)
       : (targetType === "friendly" ? aliveMinions(player) : []);

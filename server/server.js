@@ -9,6 +9,7 @@ const os = require("os");
 const { URL } = require("url");
 
 const PORT = Number(process.env.PORT || 4173);
+const CHANNEL = process.env.GOK_CHANNEL === "preview" ? "preview" : "stable";
 const PUBLIC = path.join(__dirname, "..", "public");
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -139,9 +140,18 @@ function serveStatic(req, res, pathname) {
   fs.stat(file, (err, st) => {
     if (err || !st.isFile()) { res.writeHead(404); res.end("not found"); return; }
     const ext = path.extname(file).toLowerCase();
+    if (ext === ".html") {
+      fs.readFile(file, "utf8", (readErr, html) => {
+        if (readErr) { res.writeHead(500); res.end("read error"); return; }
+        const body = html.replaceAll("__GOK_CHANNEL__", CHANNEL);
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" });
+        res.end(body);
+      });
+      return;
+    }
     res.writeHead(200, {
       "Content-Type": MIME[ext] || "application/octet-stream",
-      "Cache-Control": ext === ".html" || ext === ".js" || ext === ".css" ? "no-cache" : "public, max-age=3600"
+      "Cache-Control": ext === ".js" || ext === ".css" ? "no-cache" : "public, max-age=3600"
     });
     fs.createReadStream(file).pipe(res);
   });
@@ -152,7 +162,7 @@ const server = http.createServer(async (req, res) => {
   const p = u.pathname;
   try {
     if (p === "/api/health") {
-      json(res, 200, { ok: true, service: "gok-vein-gambit", time: Date.now(), rooms: rooms.size });
+      json(res, 200, { ok: true, service: "gok-vein-gambit", channel: CHANNEL, time: Date.now(), rooms: rooms.size });
       return;
     }
     if (p === "/api/room/create" && req.method === "POST") {

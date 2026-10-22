@@ -932,6 +932,7 @@
     else $("game-hint").textContent = "点击或拖动卡牌；点击我方随从攻击。";
     enforceBattleCardPresentation();
     if (app.net && app.net.role === "host" && app.net.active) { scheduleNetBroadcast(); scheduleHostSave(); }
+    if (typeof uxAfterGameRender === "function") uxAfterGameRender();
   }
 
   function autoMulliganAI(state, playerIndex) {
@@ -1437,6 +1438,7 @@
 
     container.onmouseenter = () => showHeroTooltip(container, player);
     container.onmouseleave = hideHeroTooltip;
+    if (typeof uxDecorateHero === "function") uxDecorateHero(container, player, side);
 
     if (side === "top") {
       const targets = targetList();
@@ -3366,6 +3368,10 @@
         }
         showHeroImpact(cx, cy);
         flashScreen("damage");
+        if (heroEl && typeof uxTargetMarker === "function") uxTargetMarker(heroEl, "领袖");
+      } else if (targetMinion) {
+        const targetEl = document.querySelector('.board-card[data-minion="' + targetUid + '"]');
+        if (targetEl && typeof uxTargetMarker === "function") uxTargetMarker(targetEl, targetMinion.name);
       }
       AudioBox.play("battle");
       if (app.screenShake) shakeScreen();
@@ -3434,7 +3440,10 @@
       const r = E.useHeroPower(app.game, app.game.current, uid);
       app.targetInfo = null;
       if (!r.ok) toast(r.reason || "无法使用领袖技能。");
-      else showAbilityFeedback(app.game.players[app.game.current].hero.power.name, abilityPoint);
+      else {
+        showAbilityFeedback(app.game.players[app.game.current].hero.power.name, abilityPoint);
+        if (uid && typeof uxShowTargetByUid === "function") uxShowTargetByUid(uid, "领袖技能目标");
+      }
       renderGame();
       if (showPendingDiscoverIfNeeded()) return;
       if (checkGameOverAfterAction()) return;
@@ -3565,6 +3574,7 @@
     const handCard = player && player.hand.find((c) => c.uid === cardUid);
     if (!handCard) { app.pendingDragZone = null; toast("这张牌已经不在手牌中。"); renderGame(); return; }
     const def = D.CARDS[handCard.cardId];
+    const uxPaid = E.getCardCost(s, player, handCard);
     const opt = E.getPlayOptions(s, s.current, cardUid);
     if (!opt.ok) { app.pendingDragZone = null; toast(opt.reason || "现在不能打出这张牌。"); renderGame(); return; }
     if (def.type === "minion" && (!zone || opt.zones.indexOf(zone) < 0)) {
@@ -3636,6 +3646,9 @@
       app.zoneSelect = null;
       app.attacker = null;
       showPlayFeedback(def, playPoint, sourceRect);
+      if (typeof uxPulseMana === "function") uxPulseMana(uxPaid, def);
+      if (def.type === "relic" && typeof uxShowRelic === "function") uxShowRelic(def);
+      if (targetUid && typeof uxShowTargetByUid === "function") uxShowTargetByUid(targetUid, def.name);
       renderGame();
       return;
     }
@@ -3658,6 +3671,9 @@
       return;
     }
     showPlayFeedback(def, playPoint, sourceRect);
+    if (typeof uxPulseMana === "function") uxPulseMana(uxPaid, def);
+    if (def.type === "relic" && typeof uxShowRelic === "function") uxShowRelic(def);
+    if (targetUid && typeof uxShowTargetByUid === "function") uxShowTargetByUid(targetUid, def.name);
     renderGame();
     if (s.pendingChoice) showDiscover();
     if (checkGameOverAfterAction()) return;
@@ -5747,6 +5763,11 @@
       card.appendChild(el("div", "gok-lib-stat gok-lib-hp", String(hp)));
     }
     addCardFrame(card);
+    if (opts.variant === "codex" && typeof uxFavoriteButton === "function") {
+      const fav = uxFavoriteButton(def.id);
+      fav.classList.add("ux-codex-fav-card");
+      card.appendChild(fav);
+    }
     return card;
   }
 
@@ -5793,6 +5814,7 @@
   }
 
   function renderCodex() {
+    if (typeof uxInitCodex === "function") uxInitCodex();
     const tabs = $("codex-faction-tabs");
     clear(tabs);
     const allCards = Object.values(D.CARDS).filter(d => !d.token && !d.disabled);
@@ -5828,6 +5850,7 @@
       if (app.codexFilter !== "all" && d.type !== app.codexFilter) return false;
       if (!codexCostMatch(d, app.codexCost)) return false;
       if (app.codexKeyword !== "all" && !codexKeywordLabels(d).includes(app.codexKeyword)) return false;
+      if (app.uxFavOnly && !(app.uxCodexFavorites && app.uxCodexFavorites.has(d.id))) return false;
       if (!query) return true;
       const keywordText = codexKeywordLabels(d).join(" ");
       return (d.name + " " + (d.text || "") + " " + keywordText).toLowerCase().includes(query);
@@ -8214,6 +8237,7 @@
     app.openCodex = openCodex;
     app.openAchievements = openAchievements;
     app.openSettings = openSettings;
+    if (typeof uxInit === "function") uxInit();
   }
 
   function reinforceHandCardText() {
@@ -8235,6 +8259,367 @@
   }
   setInterval(reinforceHandCardText, 450);
   setTimeout(reinforceHandCardText, 80);
+
+
+/* ===== 稳定版 UI/交互增强（从抢先版挑选的非卡牌功能） ===== */
+  const UX_FAV_KEY = "gok_codex_favorites";
+  const UX_WELCOME_KEY = "gok_stable_mobile_welcome_v1";
+
+  function uxEl(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function uxToast(msg) {
+    if (typeof toast === "function") toast(msg);
+  }
+
+  function uxTargetMarker(targetEl, label) {
+    if (!targetEl || !targetEl.getBoundingClientRect) return;
+    const old = document.getElementById("ux-target-focus");
+    if (old) old.remove();
+    const chip = uxEl("div", "ux-target-focus", "目标 · " + (label || "目标"));
+    document.body.appendChild(chip);
+    const r = targetEl.getBoundingClientRect();
+    const w = chip.offsetWidth || 112;
+    chip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + "px";
+    chip.style.top = Math.max(46, r.top - 34) + "px";
+    targetEl.classList.add("ux-action-target");
+    setTimeout(() => {
+      targetEl.classList.remove("ux-action-target");
+      if (chip.parentNode) chip.remove();
+    }, 1050);
+  }
+
+  function uxShowTargetByUid(uid, label) {
+    if (!uid) return;
+    let node = null;
+    if (uid === "hero") {
+      node = document.getElementById(app && app.game && app.game.current === app.viewer ? "opponent-hero" : "player-hero");
+    } else {
+      node = document.querySelector('.board-card[data-minion="' + uid + '"]');
+      const m = app && app.game ? E.findMinion(app.game, uid) : null;
+      if (!label && m) label = m.name;
+    }
+    uxTargetMarker(node, label || "领袖");
+  }
+
+  function uxHeroInfo(player) {
+    if (!player || !player.hero) return;
+    if (typeof hideHeroTooltip === "function") hideHeroTooltip();
+    openModal((content) => {
+      content.classList.add("ux-hero-info-modal");
+      content.appendChild(el("div", "eyebrow", "LEADER / " + factionName(player.faction)));
+      content.appendChild(el("h3", null, player.name));
+      content.appendChild(el("p", "muted", player.hero.name + " · 生命 " + player.hp + " · 护甲 " + player.armor + " · 行动力 " + player.mana + "/" + player.maxMana));
+      const power = el("div", "ux-hero-info-block");
+      const passive = !!(player.hero.power.passive || player.hero.power.target === "passive");
+      power.appendChild(el("span", "ux-hero-info-kicker", passive ? "被动技能" : "领袖技能 · " + (player.hero.power.cost || 2) + " 行动力"));
+      power.appendChild(el("strong", null, player.hero.power.name));
+      power.appendChild(el("p", null, player.hero.power.text || ""));
+      content.appendChild(power);
+      const relic = player.relic && D.CARDS[player.relic];
+      const relicBox = el("div", "ux-hero-info-block");
+      relicBox.appendChild(el("span", "ux-hero-info-kicker", "已装备遗物"));
+      if (!relic) relicBox.appendChild(el("p", "muted", "暂无遗物。"));
+      else {
+        const row = el("div", "ux-hero-info-row");
+        row.appendChild(el("strong", null, relic.name));
+        row.appendChild(el("span", null, relic.text || ""));
+        relicBox.appendChild(row);
+      }
+      content.appendChild(relicBox);
+      const forms = (player.formations || []).filter((f) => f.turnsLeft == null || f.turnsLeft > 0);
+      const formBox = el("div", "ux-hero-info-block");
+      formBox.appendChild(el("span", "ux-hero-info-kicker", "阵位效果"));
+      if (!forms.length) formBox.appendChild(el("p", "muted", "暂无阵型。"));
+      for (const f of forms) {
+        const fd = D.CARDS[f.cardId];
+        if (!fd) continue;
+        const row = el("div", "ux-hero-info-row");
+        row.appendChild(el("strong", null, (E.ZONE_NAMES[f.zone] || f.zone) + " · " + fd.name));
+        row.appendChild(el("span", null, fd.text || ""));
+        formBox.appendChild(row);
+      }
+      content.appendChild(formBox);
+      const actions = el("div", "modal-actions");
+      const ok = el("button", "btn btn-primary", "关闭");
+      ok.onclick = () => closeModal(true);
+      actions.appendChild(ok);
+      content.appendChild(actions);
+    });
+  }
+
+  function uxDecorateHero(container, player, side) {
+    if (!container || !player) return;
+    if (!container.querySelector(".ux-hero-info")) {
+      const info = el("button", "ux-hero-info", "i");
+      info.type = "button";
+      info.title = "查看领袖与阵型详情";
+      info.setAttribute("aria-label", "查看领袖详情");
+      info.onclick = (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        uxHeroInfo(player);
+      };
+      container.appendChild(info);
+    }
+    const old = container.querySelector(".ux-formation-badge");
+    if (old) old.remove();
+    const count = (player.formations || []).filter((f) => f.turnsLeft == null || f.turnsLeft > 0).length;
+    if (count > 0) {
+      const badge = el("div", "ux-formation-badge", "阵型 " + count);
+      badge.title = "当前生效阵型数量";
+      container.appendChild(badge);
+    }
+  }
+
+  function uxPulseMana(amount, def) {
+    if (!amount) return;
+    const nodes = [
+      document.getElementById("mana-display"),
+      document.querySelector(".hs-player-crystals"),
+      document.querySelector(".player-hero .hs-player-crystals")
+    ].filter(Boolean);
+    for (const n of nodes) {
+      n.classList.remove("ux-mana-spend");
+      void n.offsetWidth;
+      n.classList.add("ux-mana-spend");
+      setTimeout(() => n.classList.remove("ux-mana-spend"), 700);
+    }
+    if (def) {
+      const chip = uxEl("div", "ux-card-reveal", def.name + (amount ? " · " + amount + " 行动力" : ""));
+      document.body.appendChild(chip);
+      setTimeout(() => { if (chip.parentNode) chip.remove(); }, 850);
+    }
+  }
+
+  function uxShowRelic(def) {
+    if (!def) return;
+    const chip = uxEl("div", "ux-relic-equipped", "遗物已装备 · " + def.name);
+    document.body.appendChild(chip);
+    setTimeout(() => { if (chip.parentNode) chip.remove(); }, 1600);
+  }
+
+  function uxShowMobileWelcome() {
+    if (!isPhoneLayout() || app.mobileWelcomeShown) return;
+    if (localStorage.getItem(UX_WELCOME_KEY) === "1") return;
+    app.mobileWelcomeShown = true;
+    const old = document.getElementById("ux-mobile-welcome");
+    if (old) old.remove();
+    const box = uxEl("div", "ux-mobile-welcome");
+    box.id = "ux-mobile-welcome";
+    box.appendChild(uxEl("strong", null, "触屏出牌提示"));
+    box.appendChild(uxEl("p", null, "点一下选中，再点一下出牌；长按卡牌查看详情。手牌多时左右滑动。"));
+    const close = uxEl("button", "btn btn-small btn-primary", "知道了");
+    close.type = "button";
+    close.onclick = () => {
+      localStorage.setItem(UX_WELCOME_KEY, "1");
+      box.remove();
+    };
+    box.appendChild(close);
+    document.body.appendChild(box);
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+  }
+
+  function uxAfterGameRender() {
+    if (isPhoneLayout()) setTimeout(uxShowMobileWelcome, 500);
+  }
+
+  function uxLoadFavorites() {
+    try {
+      const v = JSON.parse(localStorage.getItem(UX_FAV_KEY) || "[]");
+      app.uxCodexFavorites = new Set(Array.isArray(v) ? v : []);
+    } catch (e) { app.uxCodexFavorites = new Set(); }
+  }
+
+  function uxPersistFavorites() {
+    try { localStorage.setItem(UX_FAV_KEY, JSON.stringify(Array.from(app.uxCodexFavorites || []))); } catch (e) {}
+  }
+
+  function uxIsFavorite(id) {
+    return !!(app.uxCodexFavorites && app.uxCodexFavorites.has(id));
+  }
+
+  function uxToggleFavorite(id) {
+    if (!app.uxCodexFavorites) app.uxCodexFavorites = new Set();
+    if (app.uxCodexFavorites.has(id)) app.uxCodexFavorites.delete(id);
+    else app.uxCodexFavorites.add(id);
+    uxPersistFavorites();
+    if (typeof renderCodex === "function") renderCodex();
+  }
+
+  function uxFavoriteButton(id) {
+    const b = el("button", "ux-codex-fav" + (uxIsFavorite(id) ? " active" : ""), uxIsFavorite(id) ? "★" : "☆");
+    b.type = "button";
+    b.title = uxIsFavorite(id) ? "取消收藏" : "收藏";
+    b.onclick = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      uxToggleFavorite(id);
+    };
+    return b;
+  }
+
+  function uxInitSettings() {
+    const screen = document.getElementById("screen-settings");
+    const grid = screen && screen.querySelector(".settings-grid");
+    if (!grid || grid.dataset.uxReady === "1") return;
+    grid.dataset.uxReady = "1";
+    app.uxSettingsAdvanced = false;
+
+    const bar = el("div", "ux-settings-bar");
+    const presets = el("div", "ux-settings-presets");
+    const presetDefs = [
+      ["immersive", "沉浸", "完整画面、音乐与特效"],
+      ["competitive", "竞技", "信息清晰、动画更快"],
+      ["performance", "性能", "关闭背景动画与战斗特效"]
+    ];
+    for (const [key, label, desc] of presetDefs) {
+      const b = el("button", "btn btn-small btn-ghost", label);
+      b.type = "button";
+      b.title = desc;
+      b.onclick = () => uxApplyPreset(key);
+      presets.appendChild(b);
+    }
+    const common = el("button", "btn btn-small btn-primary", "常用设置");
+    const advanced = el("button", "btn btn-small btn-ghost", "高级设置");
+    common.type = "button";
+    advanced.type = "button";
+    common.onclick = () => uxSetAdvanced(false);
+    advanced.onclick = () => uxSetAdvanced(true);
+    const mode = el("div", "ux-settings-mode");
+    mode.appendChild(common);
+    mode.appendChild(advanced);
+    bar.appendChild(presets);
+    bar.appendChild(mode);
+    grid.parentNode.insertBefore(bar, grid);
+    bar._common = common;
+    bar._advanced = advanced;
+
+    const controls = screen.querySelector(".settings-controls-panel");
+    if (controls && !controls.querySelector(".ux-orientation-row")) {
+      const row = el("div", "settings-row ux-orientation-row ux-advanced-row");
+      const copy = el("div");
+      copy.appendChild(el("strong", null, "横屏锁定"));
+      copy.appendChild(el("span", null, "手机横屏游玩时锁定方向；退出全屏或手动解除。"));
+      row.appendChild(copy);
+      const btn = el("button", "btn btn-small btn-ghost", "方向：自动");
+      btn.type = "button";
+      btn.id = "btn-settings-orientation";
+      btn.onclick = uxToggleOrientation;
+      row.appendChild(btn);
+      controls.appendChild(row);
+    }
+
+    const advancedIds = [
+      "btn-settings-bg", "btn-settings-bgvideo", "btn-settings-motion", "btn-settings-fx",
+      "btn-settings-textsize", "btn-settings-fullscreen", "btn-settings-shake",
+      "btn-settings-clear-achievements", "btn-settings-clear-profile", "btn-settings-credits",
+      "btn-settings-reset-prefs"
+    ];
+    for (const id of advancedIds) {
+      const b = document.getElementById(id);
+      const row = b && b.closest ? b.closest(".settings-row") : null;
+      if (row) row.classList.add("ux-advanced-row");
+    }
+    uxSetAdvanced(false);
+    const ob = document.getElementById("btn-settings-orientation");
+    if (ob) ob.textContent = "方向：" + (localStorage.getItem("gok_orientation_lock") === "1" ? "已锁定" : "自动");
+  }
+
+  function uxSetAdvanced(advanced) {
+    app.uxSettingsAdvanced = !!advanced;
+    document.body.classList.toggle("ux-settings-simple", !advanced);
+    const screen = document.getElementById("screen-settings");
+    if (!screen) return;
+    const bar = screen.querySelector(".ux-settings-bar");
+    if (bar) {
+      if (bar._common) bar._common.className = "btn btn-small " + (advanced ? "btn-ghost" : "btn-primary");
+      if (bar._advanced) bar._advanced.className = "btn btn-small " + (advanced ? "btn-primary" : "btn-ghost");
+    }
+  }
+
+  function uxApplyPreset(kind) {
+    const preset = {
+      immersive: { bgAnimOn: true, bgVideoOn: true, motionOn: true, fxOn: true, damageNumbers: true, screenShake: true, aiSpeed: "normal", animSpeed: 0.9 },
+      competitive: { bgAnimOn: false, bgVideoOn: false, motionOn: true, fxOn: true, damageNumbers: true, screenShake: false, aiSpeed: "fast", animSpeed: 0.7 },
+      performance: { bgAnimOn: false, bgVideoOn: false, motionOn: false, fxOn: false, damageNumbers: false, screenShake: false, aiSpeed: "fast", animSpeed: 1.2 }
+    }[kind];
+    if (!preset) return;
+    Object.assign(app, preset);
+    localStorage.setItem("gok_bg_anim", app.bgAnimOn ? "1" : "0");
+    localStorage.setItem("gok_bg_video", app.bgVideoOn ? "1" : "0");
+    localStorage.setItem("gok_motion", app.motionOn ? "1" : "0");
+    localStorage.setItem("gok_fx", app.fxOn ? "1" : "0");
+    localStorage.setItem("gok_damage_numbers", app.damageNumbers ? "1" : "0");
+    localStorage.setItem("gok_screen_shake", app.screenShake ? "1" : "0");
+    localStorage.setItem("gok_ai_speed", app.aiSpeed);
+    localStorage.setItem("gok_anim_speed", String(app.animSpeed));
+    if (typeof applyVideoPrefs === "function") applyVideoPrefs();
+    if (typeof updateSettingsUI === "function") updateSettingsUI();
+    if (app.screen === "game") renderGame();
+    uxToast("已应用" + (kind === "immersive" ? "沉浸" : kind === "competitive" ? "竞技" : "性能") + "预设。");
+  }
+
+  async function uxToggleOrientation() {
+    const locked = localStorage.getItem("gok_orientation_lock") === "1";
+    const btn = document.getElementById("btn-settings-orientation");
+    try {
+      if (!locked) {
+        if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+        if (screen.orientation && screen.orientation.lock) await screen.orientation.lock("landscape");
+        else throw new Error("当前浏览器不支持方向锁定");
+        localStorage.setItem("gok_orientation_lock", "1");
+        if (btn) btn.textContent = "方向：已锁定";
+        uxToast("横屏方向已锁定。");
+      } else {
+        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+        localStorage.setItem("gok_orientation_lock", "0");
+        if (btn) btn.textContent = "方向：自动";
+        uxToast("已解除方向锁定。");
+      }
+    } catch (e) {
+      uxToast("此浏览器不支持方向锁定，请手动旋转设备。");
+    }
+  }
+
+  function uxInitCodex() {
+    uxLoadFavorites();
+    const row = document.querySelector(".codex-search-row");
+    if (row && !document.getElementById("ux-codex-favorites")) {
+      const b = el("button", "btn btn-small btn-ghost", "收藏");
+      b.type = "button";
+      b.id = "ux-codex-favorites";
+      b.onclick = () => {
+        app.uxFavOnly = !app.uxFavOnly;
+        b.classList.toggle("active", !!app.uxFavOnly);
+        b.textContent = app.uxFavOnly ? "收藏中" : "收藏";
+        if (typeof renderCodex === "function") renderCodex();
+      };
+      row.appendChild(b);
+    }
+  }
+
+  function uxInit() {
+    uxLoadFavorites();
+    uxInitSettings();
+    uxInitCodex();
+    document.addEventListener("pointerdown", (ev) => {
+      if (!isPhoneLayout() || !app.game || app.screen !== "game" || app.modalOpen) return;
+      if (app.mobileClickArmed) return;
+      const t = ev.target;
+      if (!t || !t.closest) return;
+      if (t.closest("#hand,.hand-card,.hand-row,#mobile-simple-preview,.modal,.log-panel,#log-backdrop,#card-preview")) return;
+      if (app.mobileGoldCard || document.querySelector("#mobile-simple-preview:not([hidden])")) {
+        if (typeof hideSimpleCardPreview === "function") hideSimpleCardPreview();
+        if (typeof clearCardDropHints === "function") clearCardDropHints();
+        app.mobileGoldCard = null;
+      }
+    }, true);
+  }
 
 
   global.GokUI = { init: init, app: app, startGame: startGame, showScreen: showScreen, runSimulation: runSimulation };
