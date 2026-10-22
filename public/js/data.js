@@ -4567,6 +4567,64 @@ Object.assign(CARDS.excavation_titan, {"attack":5,"health":6});
     text: "遗物：你的蚀毒随从获得 +1 生命。"
   });
 
+
+  // ===== e24.4：帝国降温、灰港终端与治疗 =====
+  Object.assign(HEROES.otto, { hp: 27 });
+  Object.assign(CARDS.klaus, { attack: 2, health: 2 });
+  Object.assign(CARDS.karl_schwarz, { attack: 3 });
+  Object.assign(CARDS.ironclad, { attack: 2, health: 3, keywords: ["rush"], text: "袭扰。" });
+  Object.assign(CARDS.rush_lancer, { health: 2 });
+  Object.assign(CARDS.iron_mechanic, { attack: 1, health: 4 });
+  Object.assign(CARDS.gunther, { attack: 3, health: 5 });
+  Object.assign(CARDS.powder_marshal, { attack: 4, health: 3 });
+  Object.assign(CARDS.overload_gunner, {
+    keywords: ["rush"],
+    text: "袭扰。反噬 1。造成伤害时，获得等量护甲。"
+  });
+  Object.assign(CARDS.iron_artillery, {
+    keywords: ["battlecry", "rush"],
+    text: "袭扰。登场：对一个敌方随从造成等同于你护甲的伤害。"
+  });
+
+  // 灰港 5 费 3/3 史诗治疗
+  CARDS.gh_field_medic = {
+    id: "gh_field_medic", name: "灰港医师", faction: "greyharbor", type: "minion",
+    cost: 5, attack: 3, health: 3, rarity: "epic", art: null,
+    keywords: ["battlecry"], target: "none",
+    text: "登场：恢复你的领袖 8 点生命。",
+    flavor: "先收钱，再缝合。顺序不能反。",
+    battlecry: { type: "healHero", amount: 8 }
+  };
+  {
+    const idx = DECKS.greyharbor.lastIndexOf("gh_formation");
+    if (idx >= 0) DECKS.greyharbor[idx] = "gh_field_medic";
+  }
+
+  // 赏金王：登场即时爆发；本局每完成一次悬赏，额外重复一次。
+  Object.assign(CARDS.gh_bounty_king, {
+    keywords: ["battlecry"],
+    target: "none",
+    text: "登场：对随机敌人造成 2 点伤害；本局每完成一次悬赏，重复一次。",
+    battlecry: { type: "bountyClaimVolley", amount: 2 },
+    passive: null
+  });
+
+  // ===== e24.6：帝国冲锋退场，先遣/袭扰随从补偿 =====
+  {
+    const rushIds = ["ironclad","rush_lancer","iron_artillery","neutral_wayfarer","wandering_blade","gh_cutthroat","gh_rush_archer","gh_legend_assassin","gh_bounty_collector","gh_venom_behemoth","overload_gunner"];
+    const converted = ["klaus","karl_schwarz","powder_boy","powder_marshal","iron_mechanic"];
+    for (const id of rushIds) if (CARDS[id]) CARDS[id].health += 1;
+    for (const id of converted) {
+      const c = CARDS[id];
+      if (!c) continue;
+      c.keywords = (c.keywords || []).filter(k => k !== "charge");
+      if (!c.keywords.includes("rush")) c.keywords.push("rush");
+      c.text = (c.text || "").replaceAll("突进", "袭扰");
+      c.health += 1;
+    }
+  }
+
+
   return { FACTIONS, FACTION_IDS, nextFaction, HEROES, CARDS, DECKS, NEUTRAL_DECK, KEYWORDS, DECK_STRATEGIES, DECK_SPECIALS, DECK_TRIM, cardPool, validateDeck, autoBuildDeck, maxCopies };
 });
 

@@ -7,6 +7,9 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function (D, E) {
   "use strict";
 
+  // 灰港 AI 策略提示：优先铺悬赏 → 用低费/法术标记 → 攻击悬赏目标拿收益 → 中后期用赏金王/清算收束。
+  const BOUNTY_AI_PROMPT = "灰港：先上悬赏，再用低费解场/攻击悬赏目标完成悬赏；悬赏王和赏金清算留到有已领取悬赏或能斩杀时使用。";
+
   function minionValue(m) {
     if (!m || m.dead) return 0;
     let v = m.attack * 2 + m.health;
@@ -218,7 +221,14 @@
       const zone = chooseZone(state, p, def, opt);
       if ((def.type === "minion" || def.type === "formation") && !zone) continue;
       const payBlood = shouldPayBlood(state, p, def);
-      const score = effectScore(state, p, def, target, zone) - (def.cost || 0) * 0.1 + 2.5;
+      let score = effectScore(state, p, def, target, zone) - (def.cost || 0) * 0.1 + 2.5;
+      if (def.faction === "greyharbor") {
+        const marked = enemyMinions(state, p).some(m => m.bounty && m.bounty.owner === p.index);
+        const markType = (def.battlecry && def.battlecry.type) || (def.spell && def.spell.type) || "";
+        if (!marked && ["markBounty", "drawRandomBounties", "drawMark"].includes(markType)) score += 3.4;
+        if (marked && ["gh_bounty_king", "gh_bounty_verdict", "gh_execution_contract"].includes(def.id)) score += 3.2;
+        if (def.id === "gh_field_medic" && p.hp <= p.maxHp - 6) score += 2.4;
+      }
       if (score <= 1.5) continue;
       if (!best || score > best.score) {
         best = {
@@ -254,6 +264,7 @@
           if (attackerDies) score -= minionValue(a) + 2;
           if (d.taunt) score += 2;
           if (taunts.length) score += 1;
+          if (d.bounty && d.bounty.owner === p.index) score += 2.5;
         }
         if (!best || score > best.score) best = { type: "attack", attackerUid: a.uid, targetUid: t, score: score };
       }
@@ -615,7 +626,8 @@
     autoPlayGame: autoPlayGame,
     runSimulations: runSimulations,
     minionValue: minionValue,
-    lethalAvailable: lethalAvailable
+    lethalAvailable: lethalAvailable,
+    BOUNTY_AI_PROMPT: BOUNTY_AI_PROMPT
   };
 });
 

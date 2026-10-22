@@ -168,3 +168,86 @@
   .ux-card-reveal { top: 22%; max-width: calc(100vw - 30px); text-align: center; }
   .ux-relic-equipped { bottom: 18%; }
 }
+
+/* 出牌左侧揭示（源自预览版） */
+/* ===== card play feedback / enemy reveal / relic badge / mana spend ===== */
+.play-reveal {
+  position: fixed; z-index: 780; left: 18px; top: 27%; width: min(232px, 24vw);
+  pointer-events: none;
+  animation: playRevealInLeft .55s cubic-bezier(.18,.82,.3,1) both;
+  filter: drop-shadow(0 18px 26px rgba(0,0,0,.55));
+}
+.play-reveal.enemy { left: 18px; top: 25%; }
+.play-reveal-label {
+  display: flex; align-items: center; justify-content: flex-start; gap: 7px;
+  margin: 0 0 6px; width: max-content; padding: 4px 10px;
+  border: 1px solid rgba(242,198,109,.55); background: rgba(6,17,18,.94);
+  color: #f0d8a0; font-size: 9px; letter-spacing: .12em; font-weight: 700;
+}
+.play-reveal.enemy .play-reveal-label { color: #ffc0ae; border-color: rgba(232,111,86,.62); background: rgba(35,10,9,.94); }
+.play-reveal-label::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.play-reveal-card {
+  position: relative; min-height: 190px; padding: 10px 11px 9px;
+  border: 1px solid rgba(242,198,109,.62); border-radius: 8px;
+  background: linear-gradient(155deg, rgba(17,42,40,.98), rgba(3,10,12,.98));
+  box-shadow: inset 0 0 0 3px rgba(0,0,0,.45), 0 0 24px rgba(242,198,109,.16);
+  overflow: hidden;
+}
+.play-reveal.enemy .play-reveal-card { border-color: rgba(232,111,86,.62); box-shadow: inset 0 0 0 3px rgba(0,0,0,.45), 0 0 24px rgba(232,111,86,.16); }
+.play-reveal.minion .play-reveal-card { border-color: rgba(127,224,214,.72); }
+.play-reveal-art { height: 82px; margin: -10px -11px 8px; background-color: #10282b; background-image: linear-gradient(180deg, rgba(5,13,15,.08), rgba(5,13,15,.88)); background-position: center; background-size: cover; background-repeat: no-repeat; }
+.play-reveal-name { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; color: #f1e3c0; font: 700 16px/1.25 "Microsoft YaHei", sans-serif; }
+.play-reveal-cost { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 50%; background: #163c47; border: 1px solid rgba(127,224,214,.6); color: #dff9f2; font-size: 10px; }
+.play-reveal-type { margin-top: 2px; color: #8fb3ab; font-size: 8px; letter-spacing: .08em; }
+.play-reveal-stats { display: flex; gap: 8px; margin-top: 6px; color: #d8c491; font-size: 9px; }
+.play-reveal-stats span { padding: 2px 5px; border: 1px solid rgba(217,164,65,.25); background: rgba(0,0,0,.22); }
+.play-reveal-effect { margin-top: 7px; padding-top: 7px; border-top: 1px solid rgba(127,224,214,.14); opacity: 0; transform: translateY(5px); transition: opacity .4s ease, transform .4s ease; }
+.play-reveal-effect.show { opacity: 1; transform: none; }
+.play-reveal-effect-label { display: block; color: #9edbd0; font-size: 8px; letter-spacing: .1em; margin-bottom: 4px; }
+.play-reveal-effect p { margin: 0; color: #b6c8c2; font-size: 9px; line-height: 1.55; max-height: 54px; overflow: hidden; }
+.play-reveal::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: 8px; height: 1px; background: linear-gradient(90deg, transparent, rgba(242,198,109,.6), transparent); }
+.play-reveal.enemy::after { background: linear-gradient(90deg, transparent, rgba(232,111,86,.6), transparent); }
+@keyframes playRevealInLeft {
+  0% { opacity: 0; transform: translateX(-18px) scale(.92); filter: blur(5px) drop-shadow(0 18px 26px rgba(0,0,0,.55)); }
+  58% { opacity: 1; transform: translateX(3px) scale(1.01); filter: blur(0) drop-shadow(0 18px 26px rgba(0,0,0,.55)); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+.play-reveal.out { animation: playRevealOutLeft .5s ease-in both; }
+@keyframes playRevealOutLeft { to { opacity: 0; transform: translateX(-12px) scale(.96); filter: blur(3px); } }
+
+/* relic badge on hero */
+body[data-screen="game"] .hero-panel .hs-relic-chip {
+  position: absolute; z-index: 18; top: 7px; right: 112px;
+  display: flex; align-items: center; gap: 4px;
+  min-width: 0; padding: 3px 5px 3px 3px;
+  border: 1px solid rgba(242,198,109,.7); border-radius: 999px;
+  background: rgba(7,17,18,.94);
+  box-shadow: 0 0 14px rgba(242,198,109,.26);
+  color: #f0d8a0; cursor: help; pointer-events: auto;
+  animation: relicChipIn .38s cubic-bezier(.2,.8,.3,1) both;
+}
+body[data-screen="game"] .hero-panel .hs-relic-chip-art { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,240,200,.5); background: #102b2d; }
+body[data-screen="game"] .hero-panel .hs-relic-chip-label { font-size: 7px; letter-spacing: .05em; white-space: nowrap; }
+body[data-screen="game"] .hero-panel .hs-relic-chip::after { content: "遗物"; position: absolute; left: 50%; top: calc(100% + 3px); transform: translateX(-50%); color: rgba(242,198,109,.75); font-size: 6px; white-space: nowrap; }
+body[data-screen="game"] .hero-panel.relic-just-equipped .hs-relic-chip { animation: relicChipPop .7s cubic-bezier(.18,.82,.3,1) both; }
+@keyframes relicChipIn { from { opacity: 0; transform: translateY(-6px) scale(.8); } to { opacity: 1; transform: none; } }
+@keyframes relicChipPop { 0% { transform: scale(.7); box-shadow: 0 0 0 0 rgba(242,198,109,.8); } 55% { transform: scale(1.18); box-shadow: 0 0 0 8px rgba(242,198,109,0); } 100% { transform: scale(1); } }
+body[data-screen="game"] .hero-panel.relic-just-equipped .hs-hero-portrait { animation: relicEquipPulse .8s ease both; }
+@keyframes relicEquipPulse { 0% { filter: brightness(1); } 35% { filter: brightness(1.35) saturate(1.3); box-shadow: 0 0 0 4px rgba(242,198,109,.5), 0 0 32px rgba(242,198,109,.5); } 100% { filter: brightness(1); } }
+
+/* mana spend feedback */
+.mana-spend { animation: manaSpendPulse .6s ease both; }
+@keyframes manaSpendPulse { 0% { transform: scale(1); filter: brightness(1); } 30% { transform: scale(1.05); filter: brightness(1.35); } 100% { transform: scale(1); filter: brightness(1); } }
+.floating-number.mana-cost { color: #9de5d8 !important; border-color: rgba(127,224,214,.55) !important; background: rgba(3,20,24,.9) !important; font-size: 13px !important; letter-spacing: .04em; }
+@media (max-width: 720px) {
+  .play-reveal { left: 8px; top: 18%; width: min(190px, 46vw); }
+  .play-reveal.enemy { left: 8px; top: 17%; }
+  .play-reveal-card { min-height: 160px; padding: 8px 9px; }
+  .play-reveal-art { height: 64px; margin: -8px -9px 7px; }
+  .play-reveal-name { font-size: 13px; }
+  .play-reveal-effect p { max-height: 42px; font-size: 8px; }
+  body[data-screen="game"] .hero-panel .hs-relic-chip { top: 4px; right: 76px; padding: 2px; }
+  body[data-screen="game"] .hero-panel .hs-relic-chip-label { display: none; }
+  body[data-screen="game"] .hero-panel .hs-relic-chip-art { width: 18px; height: 18px; }
+}
+

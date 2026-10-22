@@ -3140,7 +3140,47 @@
     setTimeout(() => { if (ghost.parentNode) ghost.parentNode.removeChild(ghost); }, animMs(def.type === "spell" ? 1800 : 1000));
   }
 
-  function showPlayFeedback(def, point, sourceRect) {
+  function playRevealType(def) {
+    return def.type === "spell" ? "战术" : (def.type === "relic" || def.type === "equipment") ? "装备" : def.type === "formation" ? "阵型" : "随从";
+  }
+
+  function showCardReveal(def, side) {
+    if (!def) return;
+    const old = document.querySelector(".play-reveal");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    const enemy = side === "enemy";
+    const isMinion = def.type === "minion";
+    const box = el("div", "play-reveal" + (enemy ? " enemy" : "") + (isMinion ? " minion" : ""));
+    box.appendChild(el("div", "play-reveal-label", enemy ? "对手打出" : "你打出了"));
+    const card = el("div", "play-reveal-card");
+    const art = el("div", "play-reveal-art");
+    const url = cardArtUrl(def);
+    if (url) art.style.backgroundImage = "url('" + url + "')";
+    card.appendChild(art);
+    const name = el("div", "play-reveal-name");
+    name.appendChild(el("span", null, def.name));
+    name.appendChild(el("span", "play-reveal-cost", String(def.cost == null ? 0 : def.cost)));
+    card.appendChild(name);
+    card.appendChild(el("div", "play-reveal-type", playRevealType(def) + (enemy ? " · 对手行动" : "")));
+    if (isMinion && (def.attack != null || def.health != null)) {
+      const stats = el("div", "play-reveal-stats");
+      stats.appendChild(el("span", null, "攻击 " + (def.attack == null ? "-" : def.attack)));
+      stats.appendChild(el("span", null, "生命 " + (def.health == null ? "-" : def.health)));
+      card.appendChild(stats);
+    }
+    const effect = el("div", "play-reveal-effect");
+    effect.appendChild(el("span", "play-reveal-effect-label", isMinion ? "随从登场" : def.type === "spell" ? "战术效果" : "遗物 / 阵型"));
+    if (def.text) effect.appendChild(el("p", null, def.text));
+    card.appendChild(effect);
+    box.appendChild(card);
+    document.body.appendChild(box);
+    setTimeout(() => { if (effect.parentNode) effect.classList.add("show"); }, 430);
+    setTimeout(() => { if (box.parentNode) box.classList.add("out"); }, 2600);
+    setTimeout(() => { if (box.parentNode) box.parentNode.removeChild(box); }, 3200);
+  }
+
+  function showPlayFeedback(def, point, sourceRect, side) {
+    side = side || "player";
     showPlayArc(def, sourceRect, point);
     const ring = el("div", "cast-ring" + (def.type === "minion" ? " summon-ring" : "") + (def.type === "spell" ? " spell-ring" : ""));
     ring.style.left = point.x + "px";
@@ -7003,7 +7043,7 @@
       setTimeout(() => animateRemoteAttack(action.attackerUid, action.targetUid, 1), 0);
     }
     if (playedDef) {
-      setTimeout(() => showPlayFeedback(playedDef, { x: innerWidth / 2, y: innerHeight * 0.45 }, null), 0);
+      setTimeout(() => showPlayFeedback(playedDef, { x: innerWidth / 2, y: innerHeight * 0.45 }, null, "enemy"), 0);
     } else if (action.kind === "play" && result.ok) {
       const act = app.game.lastAction;
       if (act && act.type === "play") setTimeout(() => animateRemotePlay(act), 0);
@@ -7040,7 +7080,7 @@
   function animateRemotePlay(action) {
     const def = D.CARDS[action.cardId];
     if (!def) return;
-    showPlayFeedback(def, { x: innerWidth / 2, y: innerHeight * 0.52 }, null);
+    showPlayFeedback(def, { x: innerWidth / 2, y: innerHeight * 0.52 }, null, "enemy");
   }
 
   function animateRemoteAbility(action) {
@@ -8389,10 +8429,10 @@
       n.classList.add("ux-mana-spend");
       setTimeout(() => n.classList.remove("ux-mana-spend"), 700);
     }
-    if (def) {
-      const chip = uxEl("div", "ux-card-reveal", def.name + (amount ? " · " + amount + " 行动力" : ""));
-      document.body.appendChild(chip);
-      setTimeout(() => { if (chip.parentNode) chip.remove(); }, 850);
+    const anchor = document.getElementById("player-hero") || document.getElementById("mana-display");
+    if (anchor && typeof showFloatingNumber === "function") {
+      const r = anchor.getBoundingClientRect();
+      showFloatingNumber("-" + amount + " 行动力", r.left + r.width / 2, r.top + Math.min(40, r.height * 0.4), "mana-cost");
     }
   }
 

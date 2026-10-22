@@ -1580,6 +1580,20 @@
       const n = Math.min(b.count || 2, shuffled.length);
       for (let i = 0; i < n; i++) markBounty(state, player, shuffled[i]);
       if (!n) log(state, "没有可以列入悬赏名单的敌方随从。", player, "bounty");
+    } else if (b.type === "bountyClaimVolley") {
+      const times = 1 + Math.max(0, player.bountiesClaimed || 0);
+      for (let i = 0; i < times; i++) {
+        if (state.status !== "playing") break;
+        const enemy = opponentOf(state, player);
+        const targets = aliveMinions(enemy);
+        const hitHero = !targets.length || randomInt(state, targets.length + 1) >= targets.length;
+        if (hitHero) damageHero(state, enemy, b.amount || 2, null, "赏金王", true);
+        else damageMinion(state, targets[randomInt(state, targets.length)], b.amount || 2, null, "赏金王");
+        if (enemy.hp <= 0) break;
+      }
+      processDeaths(state);
+      checkGameOver(state);
+      log(state, "赏金王登场：按本局悬赏完成数重复 " + times + " 次。", player, "bounty");
     } else if (b.type === "healAllAllies") {
       for (const ally of aliveMinions(player)) healMinion(state, ally, b.amount || 2);
       log(state, "登场：恢复所有友方随从 " + (b.amount || 2) + " 点生命。", player, "heal");
